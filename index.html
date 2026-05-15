@@ -597,6 +597,60 @@ const BRIEFS = [
 ];
 
 // ============== AKADEMİ (DERSLER + QUIZ) ==============
+const LESSON_RESOURCES = {
+  temel: [
+    { title: 'HubSpot Academy: Inbound Marketing Course', source: 'HubSpot', type: 'kurs', lang: 'EN', free: true, url: 'https://academy.hubspot.com/courses/inbound-marketing' },
+    { title: 'This Is Marketing — Seth Godin', source: 'Kitap', type: 'kitap', lang: 'EN/TR', free: false, url: 'https://www.amazon.com/This-Marketing-Cant-Until-Learn/dp/0525540830' },
+    { title: 'Pazarlama 5.0 — Philip Kotler', source: 'Kitap', type: 'kitap', lang: 'TR', free: false, url: 'https://www.kitapyurdu.com/kitap/pazarlama-50/598900.html' },
+    { title: 'Lenny\'s Newsletter — Pazarlama yazıları', source: 'Lenny Rachitsky', type: 'bülten', lang: 'EN', free: true, url: 'https://www.lennysnewsletter.com' },
+    { title: 'Türkiye\'de Dijital 2026 raporu', source: 'We Are Social', type: 'rapor', lang: 'EN', free: true, url: 'https://wearesocial.com/uk/blog/2026/01/digital-2026/' }
+  ],
+  kitle: [
+    { title: 'Customer Persona Builder', source: 'HubSpot', type: 'araç', lang: 'EN', free: true, url: 'https://www.hubspot.com/make-my-persona' },
+    { title: 'Building a StoryBrand — Donald Miller', source: 'Kitap', type: 'kitap', lang: 'EN', free: false, url: 'https://storybrand.com/the-book/' },
+    { title: 'Reforge: Growth Loops & ICP', source: 'Reforge', type: 'makale', lang: 'EN', free: true, url: 'https://www.reforge.com/blog/growth-loops' },
+    { title: 'Meta Audience Insights kılavuzu', source: 'Meta for Business', type: 'kılavuz', lang: 'TR', free: true, url: 'https://www.facebook.com/business/help/audienceinsights' }
+  ],
+  google_ads: [
+    { title: 'Google Skillshop — Search Ads Sertifikası', source: 'Google', type: 'kurs', lang: 'TR', free: true, url: 'https://skillshop.exceedlms.com/student/path/18128' },
+    { title: 'Surfside PPC — YouTube Kanalı', source: 'YouTube', type: 'video', lang: 'EN', free: true, url: 'https://www.youtube.com/@SurfsidePPC' },
+    { title: 'Ultimate Guide to Google AdWords — Perry Marshall', source: 'Kitap', type: 'kitap', lang: 'EN', free: false, url: 'https://www.amazon.com/Ultimate-Guide-Google-AdWords-Perry/dp/1599186195' },
+    { title: 'Search Engine Land — Google Ads kategorisi', source: 'SEL', type: 'makale', lang: 'EN', free: true, url: 'https://searchengineland.com/library/channel/ppc' },
+    { title: 'Türkçe Google Ads rehberi', source: 'Webrazzi', type: 'makale', lang: 'TR', free: true, url: 'https://webrazzi.com/etiket/google-ads/' }
+  ],
+  meta_ads: [
+    { title: 'Meta Blueprint — Resmî eğitim platformu', source: 'Meta', type: 'kurs', lang: 'TR', free: true, url: 'https://www.facebookblueprint.com' },
+    { title: 'Andrew Foxwell — Meta Ads stratejileri', source: 'Foxwell Digital', type: 'bülten', lang: 'EN', free: true, url: 'https://foxwelldigital.com' },
+    { title: 'Common Thread Collective — Ads playbook', source: 'CTC', type: 'makale', lang: 'EN', free: true, url: 'https://commonthreadco.com/blogs/coachs-corner' },
+    { title: 'Instagram Reels reklam stratejisi (TR)', source: 'Webrazzi', type: 'makale', lang: 'TR', free: true, url: 'https://webrazzi.com/etiket/instagram/' }
+  ],
+  email: [
+    { title: 'Klaviyo Akademi — E-posta pazarlama', source: 'Klaviyo', type: 'kurs', lang: 'EN', free: true, url: 'https://academy.klaviyo.com' },
+    { title: 'Litmus blog — Subject line ve test rehberleri', source: 'Litmus', type: 'makale', lang: 'EN', free: true, url: 'https://www.litmus.com/blog' },
+    { title: 'Really Good Emails — Tasarım örnekleri', source: 'RGE', type: 'galeri', lang: 'EN', free: true, url: 'https://reallygoodemails.com' },
+    { title: 'Email Marketing Rules — Chad S. White', source: 'Kitap', type: 'kitap', lang: 'EN', free: false, url: 'https://chadswhite.com/books/email-marketing-rules/' }
+  ],
+  seo: [
+    { title: 'Ahrefs Academy — Ücretsiz SEO kursu', source: 'Ahrefs', type: 'kurs', lang: 'EN', free: true, url: 'https://ahrefs.com/academy' },
+    { title: 'Backlinko — Brian Dean rehberleri', source: 'Backlinko', type: 'makale', lang: 'EN', free: true, url: 'https://backlinko.com/blog' },
+    { title: 'Google Search Central blog', source: 'Google', type: 'makale', lang: 'TR', free: true, url: 'https://developers.google.com/search/blog?hl=tr' },
+    { title: 'SEO Mastery — Aleyda Solis', source: 'YouTube', type: 'video', lang: 'EN', free: true, url: 'https://www.youtube.com/@aleyda' },
+    { title: 'Zeo SEO podcast (Türkçe)', source: 'Spotify', type: 'podcast', lang: 'TR', free: true, url: 'https://open.spotify.com/show/4eVCgYqOaqxJ9LdvJ5XCqU' }
+  ],
+  metrik: [
+    { title: 'Lean Analytics — Alistair Croll', source: 'Kitap', type: 'kitap', lang: 'EN', free: false, url: 'https://leananalyticsbook.com' },
+    { title: 'Andrew Chen — Growth metrikleri yazıları', source: 'andrewchen.com', type: 'makale', lang: 'EN', free: true, url: 'https://andrewchen.com/list-of-essays/' },
+    { title: 'Google Analytics 4 sertifikası', source: 'Google Skillshop', type: 'sertifika', lang: 'TR', free: true, url: 'https://skillshop.exceedlms.com/student/path/507742' },
+    { title: 'CXL Institute — A/B test kursları', source: 'CXL', type: 'kurs', lang: 'EN', free: false, url: 'https://cxl.com/institute/' }
+  ],
+  butce: [
+    { title: 'Triple Whale — E-ticaret bütçe blog\'u', source: 'Triple Whale', type: 'makale', lang: 'EN', free: true, url: 'https://www.triplewhale.com/blog' },
+    { title: 'Profitable Pricing — Patrick Campbell videoları', source: 'YouTube', type: 'video', lang: 'EN', free: true, url: 'https://www.youtube.com/@ProfitWell' },
+    { title: 'Demand Curve — Growth playbook', source: 'Demand Curve', type: 'rehber', lang: 'EN', free: true, url: 'https://www.demandcurve.com/playbooks' },
+    { title: 'Reforge: Paid Marketing kursu', source: 'Reforge', type: 'kurs', lang: 'EN', free: false, url: 'https://www.reforge.com/programs/paid-marketing' }
+  ]
+};
+
 const LESSONS = [
   {
     id: 'temel', icon: '🎯', difficulty: 1,
@@ -1523,10 +1577,11 @@ function renderWelcome() {
 function renderDashboard() {
   const p = state.player;
   const lvl = levelFromXP(p.xp);
-  const eligible = BRIEFS.filter(b => b.level <= lvl && !p.completedBriefs.includes(b.id));
+  const isAdmin = state.authUser?.isAdmin;
+  const eligible = BRIEFS.filter(b => (isAdmin || b.level <= lvl) && !p.completedBriefs.includes(b.id));
   const available = eligible.filter(b => briefUnlocked(b.id));
   const lockedByLesson = eligible.filter(b => !briefUnlocked(b.id));
-  const locked = BRIEFS.filter(b => b.level > lvl);
+  const locked = isAdmin ? [] : BRIEFS.filter(b => b.level > lvl);
   const done = p.completedBriefs.length;
 
   return `
@@ -2164,7 +2219,7 @@ function renderAcademy() {
               <h3 class="font-bold text-lg mb-1">${l.title}</h3>
               <p class="text-sm text-slate-400 mb-3">${l.summary}</p>
               <div class="flex items-center justify-between text-xs">
-                <span class="text-slate-500">📖 ${l.body.length} bölüm · ${l.quiz.length} soru</span>
+                <span class="text-slate-500">📖 ${l.body.length} bölüm · ${l.quiz.length} soru${(LESSON_RESOURCES[l.id]||[]).length ? ` · 📚 ${(LESSON_RESOURCES[l.id]||[]).length} kaynak` : ''}</span>
                 ${quizScore !== undefined ? `<span class="font-bold ${quizScore >= 70 ? 'text-emerald-300' : 'text-amber-300'}">${quizScore}/100</span>` : ''}
               </div>
             </div>
@@ -2205,6 +2260,38 @@ function renderLesson() {
           `).join('')}
         </div>
       </div>
+
+      ${(LESSON_RESOURCES[l.id] || []).length ? `
+        <div class="glass-strong p-6 lg:p-8 mb-6">
+          <div class="flex items-center gap-2 mb-1">
+            <span class="text-2xl">📚</span>
+            <h3 class="text-xl font-bold">Daha Derine İn — Ek Kaynaklar</h3>
+          </div>
+          <p class="text-sm text-slate-400 mb-5">Bu konuyu daha iyi öğrenmek için seçtiğim kitaplar, kurslar, makaleler ve videolar:</p>
+          <div class="grid sm:grid-cols-2 gap-3">
+            ${LESSON_RESOURCES[l.id].map(r => {
+              const typeIcon = { 'kurs': '🎓', 'kitap': '📖', 'makale': '📰', 'video': '🎥', 'podcast': '🎧', 'bülten': '📩', 'rapor': '📊', 'araç': '🛠️', 'kılavuz': '🗺️', 'galeri': '🖼️', 'sertifika': '🏅', 'rehber': '📔' }[r.type] || '🔗';
+              return `
+                <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="glass p-4 block hover:bg-white/10 transition-all">
+                  <div class="flex items-start gap-3">
+                    <div class="text-2xl">${typeIcon}</div>
+                    <div class="flex-1 min-w-0">
+                      <div class="font-semibold text-sm leading-snug mb-1">${r.title}</div>
+                      <div class="text-xs text-slate-400 mb-2">${r.source}</div>
+                      <div class="flex gap-1.5 flex-wrap">
+                        <span class="badge text-[10px] py-0.5 px-2">${r.type.toUpperCase()}</span>
+                        <span class="badge text-[10px] py-0.5 px-2">${r.lang}</span>
+                        ${r.free ? '<span class="badge badge-success text-[10px] py-0.5 px-2">ÜCRETSİZ</span>' : '<span class="badge badge-gold text-[10px] py-0.5 px-2">ÜCRETLİ</span>'}
+                      </div>
+                    </div>
+                    <div class="text-slate-500 text-sm">↗</div>
+                  </div>
+                </a>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
 
       <button class="btn-primary w-full text-lg py-4" data-action="start-quiz" data-id="${l.id}">📝 Quiz'e Başla (${l.quiz.length} soru) →</button>
     </div>
