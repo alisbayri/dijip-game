@@ -968,23 +968,24 @@ function hasStaff(id) { return state.player.staff?.includes(id); }
 function totalSalary() { return (state.player.staff || []).reduce((s, id) => s + (STAFF[id]?.salary || 0), 0); }
 function agencyUnlocked() { return levelFromXP(state.player.xp) >= 2 && state.player.completedBriefs.length >= 2; }
 
-// Hangi brief hangi dersleri gerektirir
+// Hangi brief hangi dersleri gerektirir — sadece "temel" geçince L1 brief'leri açılıyor
 const BRIEF_PREREQUISITES = {
-  kahveci:       ['temel', 'kitle'],
-  taki:          ['temel', 'kitle'],
-  pastane:       ['temel', 'kitle'],
-  fitapp:        ['temel', 'kitle', 'meta_ads'],
-  butikotel:     ['temel', 'kitle', 'google_ads'],
-  yoga:          ['temel', 'kitle', 'meta_ads'],
-  ingilizcekurs: ['temel', 'kitle', 'google_ads'],
-  saascrm:       ['temel', 'kitle', 'google_ads', 'metrik'],
-  sigorta:       ['temel', 'kitle', 'google_ads', 'metrik'],
-  kozmetik:      ['temel', 'kitle', 'meta_ads', 'metrik', 'butce'],
-  wellnesspro:   ['temel', 'kitle', 'email'],
-  tutorialhub:   ['temel', 'kitle', 'seo', 'metrik']
+  kahveci:       ['temel'],
+  taki:          ['temel'],
+  pastane:       ['temel'],
+  fitapp:        ['temel', 'meta_ads'],
+  butikotel:     ['temel', 'google_ads'],
+  yoga:          ['temel', 'meta_ads'],
+  ingilizcekurs: ['temel', 'google_ads'],
+  saascrm:       ['temel', 'google_ads'],
+  sigorta:       ['temel', 'google_ads'],
+  kozmetik:      ['temel', 'meta_ads'],
+  wellnesspro:   ['temel', 'email'],
+  tutorialhub:   ['temel', 'seo']
 };
 
 function briefUnlocked(briefId) {
+  if (state.authUser?.isAdmin) return true;
   const prereqs = BRIEF_PREREQUISITES[briefId] || [];
   const done = state.player.lessons || {};
   return prereqs.every(p => done[p]?.completed);
@@ -1080,6 +1081,20 @@ async function loadGame() {
     const r = await api('GET', '/api/state');
     if (r.state) state.player = { ...state.player, ...r.state };
     state.player.name = state.authUser.name;
+    // Admin için tüm dersleri otomatik tamamla
+    if (state.authUser.isAdmin) {
+      state.player.lessons = state.player.lessons || {};
+      state.player.quizScores = state.player.quizScores || {};
+      let changed = false;
+      if (typeof LESSONS !== 'undefined') LESSONS.forEach(l => {
+        if (!state.player.lessons[l.id]?.completed) {
+          state.player.lessons[l.id] = { completed: true, score: 100 };
+          state.player.quizScores[l.id] = 100;
+          changed = true;
+        }
+      });
+      if (changed) saveGame();
+    }
     state.screen = 'dashboard';
     return true;
   } catch (e) {

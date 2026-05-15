@@ -40,12 +40,16 @@ async function initDb() {
     );
     CREATE INDEX IF NOT EXISTS idx_surveys_user ON surveys(user_id);
   `);
-  // Otomatik admin atama: ilk kullanıcı ya da ADMIN_EMAILS env'inde olanlar
+  // Admin yetkisi SADECE ADMIN_EMAILS listesindekiler — diğer herkes normal kullanıcı
   const adminEmails = (process.env.ADMIN_EMAILS || 'alisbayri@gmail.com').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
   if (adminEmails.length) {
-    await pool.query(`UPDATE users SET is_admin = true WHERE LOWER(email) = ANY($1::text[])`, [adminEmails]);
+    // Listedeki herkesi admin yap, listede olmayan herkesi normal kullanıcı yap
+    await pool.query(`UPDATE users SET is_admin = (LOWER(email) = ANY($1::text[]))`, [adminEmails]);
+  } else {
+    // Liste boşsa hiç kimse admin olmasın
+    await pool.query(`UPDATE users SET is_admin = false`);
   }
-  console.log('DB schema ready');
+  console.log('DB schema ready, admin emails:', adminEmails);
 }
 
 async function isAdmin(userId) {
