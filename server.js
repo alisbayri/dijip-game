@@ -313,7 +313,7 @@ app.post('/api/ai/brief', auth, async (req, res) => {
   const { briefText, budget, goal, industry } = req.body || {};
   if (!briefText || briefText.length < 30) return res.status(400).json({ error: 'Brief en az 30 karakter olmalı' });
   try {
-    const prompt = `Sen deneyimli bir Türk dijital pazarlama mentörüsün. Aşağıdaki müşteri brief'ini analiz et ve ideal stratejiyi öner.
+    const prompt = `Sen deneyimli bir Türk dijital pazarlama mentörüsün. Aşağıdaki müşteri brief'ini analiz et ve 3 FARKLI strateji yaklaşımı öner. Her strateji farklı bir felsefeye sahip olsun (örn. ihtiyatlı/risksiz, dengeli/optimal, agresif/cesur).
 
 MÜŞTERİ BRIEF'İ:
 Sektör: ${industry || 'belirtilmemiş'}
@@ -321,19 +321,42 @@ Bütçe: ₺${budget || 'belirtilmemiş'}
 Hedef: ${goal || 'belirtilmemiş'}
 Açıklama: ${briefText}
 
-Şu seçeneklerden ideal olanı seç ve sadece JSON döndür (başka metin yok):
+SADECE JSON DÖNDÜR (başka metin yok):
 
 {
-  "audience": "lokal_ilgi|profesyonel|genc_mobil|yuksek_niyet|genis",
-  "channels": {"google": SAYI, "meta": SAYI, "email": SAYI, "seo": SAYI},
-  "creative": "fiyat|duygusal|sosyal_kanit|urun_ozelligi",
   "difficulty": 1-5 arası tam sayı,
-  "reasoning": "neden bu stratejinin doğru olduğunu 2-3 cümleyle Türkçe açıkla",
-  "warnings": ["dikkat edilecek 1. nokta", "dikkat edilecek 2. nokta"],
-  "estimatedSuccess": 0-100 (bu brief'in bu bütçeyle başarı olasılığı)
+  "estimatedSuccess": 0-100 arası (bu brief'in bu bütçeyle ideal stratejiyle başarı olasılığı),
+  "briefAnalysis": "brief'in en kritik noktalarını 2-3 cümleyle özetle",
+  "strategies": [
+    {
+      "name": "İhtiyatlı Yaklaşım",
+      "philosophy": "risksiz, kanıtlanmış kanallar",
+      "audience": "lokal_ilgi|profesyonel|genc_mobil|yuksek_niyet|genis",
+      "channels": {"google": SAYI, "meta": SAYI, "email": SAYI, "seo": SAYI},
+      "creative": "fiyat|duygusal|sosyal_kanit|urun_ozelligi",
+      "reasoning": "neden bu yaklaşım — 2 cümle",
+      "platformNotes": {
+        "google": "Google Ads özelinde ne yapılmalı — 1 cümle",
+        "meta": "Meta özelinde ne yapılmalı — 1 cümle",
+        "email": "Email için ne yapılmalı — 1 cümle",
+        "seo": "SEO için ne yapılmalı — 1 cümle"
+      },
+      "risk": "düşük|orta|yüksek",
+      "expectedROAS": "tahmini ROAS aralığı (örn. 2.5-3.5x)"
+    },
+    {
+      "name": "Dengeli Yaklaşım",
+      ...
+    },
+    {
+      "name": "Cesur Yaklaşım",
+      ...
+    }
+  ],
+  "warnings": ["dikkat 1", "dikkat 2"]
 }
 
-channels değerleri toplamı 100 olmalı. Bütçe küçükse genis kitle kötü, niyetli kanal iyi.`;
+channels toplamı her stratejide 100 olmalı. Tüm Türkçe metinler doğal Türkçe olsun. Sıfır bütçeli kanallar varsa not "Bu brief için kullanma" olabilir.`;
     const txt = await callClaude(prompt);
     const json = safeJsonParse(txt);
     if (!json) return res.status(500).json({ error: 'AI yanıtı çözümlenemedi', raw: txt.slice(0, 300) });
