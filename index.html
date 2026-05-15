@@ -1238,7 +1238,8 @@ function render() {
     quiz: renderQuiz,
     checkpoint: renderCheckpoint,
     survey: renderSurvey,
-    lab: renderLab
+    lab: renderLab,
+    admin: renderAdmin
   };
   app.innerHTML = (screens[state.screen] || renderWelcome)();
   if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
@@ -1477,6 +1478,7 @@ function renderDashboard() {
         <div class="flex gap-2 flex-wrap">
           <button class="btn-ghost" data-action="academy">🎓 Akademi (${Object.values(state.player.lessons || {}).filter(l => l?.completed).length}/${LESSONS.length})</button>
           <button class="btn-ghost" data-action="lab">🧪 AI Lab</button>
+          ${state.authUser?.isAdmin ? `<button class="btn-ghost" data-action="admin" style="border-color: rgba(245,158,11,0.4);">🛡️ Admin</button>` : ''}
           ${agencyUnlocked() ? `<button class="btn-ghost" data-action="agency">🏢 Ajansım ${state.player.staff?.length ? `(${state.player.staff.length})` : ''}</button>` : ''}
           ${done >= 3 ? `<button class="btn-ghost" data-action="report">📊 Performans Raporu</button>` : ''}
           <button class="btn-ghost" data-action="leaderboard">🏆 Lider Tablosu</button>
@@ -2297,6 +2299,173 @@ function renderCheckpoint() {
       </div>
 
       ${showFb ? `<button class="btn-primary w-full" data-action="cp-next">${qi === qs.length - 1 ? 'Sınavı Bitir' : 'Sonraki →'}</button>` : `<button class="btn-ghost text-sm w-full" data-action="cp-skip">Atla, bana sorma</button>`}
+    </div>
+  `;
+}
+
+function renderAdmin() {
+  const a = state.admin || {};
+  const tab = a.tab || 'overview';
+  return `
+    <div class="max-w-7xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Yönetim Paneli</div>
+          <h2 class="text-3xl lg:text-4xl font-black gradient-text">🛡️ Admin</h2>
+        </div>
+        <button class="btn-ghost" data-action="back-dashboard">← Oyuna Dön</button>
+      </div>
+
+      <div class="flex gap-1 mb-6 p-1 rounded-xl bg-white/5 max-w-md">
+        ${[['overview','📊 Genel'],['users','👥 Kullanıcılar'],['surveys','📋 Anketler']].map(([k,l]) => `
+          <button class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab===k ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}" data-action="admin-tab" data-tab="${k}">${l}</button>
+        `).join('')}
+      </div>
+
+      ${tab === 'overview' ? renderAdminOverview() : ''}
+      ${tab === 'users' ? renderAdminUsers() : ''}
+      ${tab === 'surveys' ? renderAdminSurveys() : ''}
+    </div>
+  `;
+}
+
+function renderAdminOverview() {
+  const s = state.admin?.stats;
+  if (s === null || s === undefined) return `<div class="glass-strong p-10 text-center"><div class="spinner mx-auto"></div><p class="text-slate-400 mt-4">Yükleniyor...</p></div>`;
+  if (s.error) return `<div class="glass p-5 text-rose-300">${s.error}</div>`;
+  return `
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">TOPLAM KULLANICI</div>
+        <div class="text-3xl font-black gradient-text" data-counter="${s.totalUsers}">0</div>
+      </div>
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">AKTİF OYUNCU</div>
+        <div class="text-3xl font-black text-cyan-300" data-counter="${s.activeStates}">0</div>
+      </div>
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">TOPLAM KAMPANYA</div>
+        <div class="text-3xl font-black text-purple-300" data-counter="${s.totalCampaigns}">0</div>
+      </div>
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">ORT. XP</div>
+        <div class="text-3xl font-black text-amber-300" data-counter="${s.avgXP || 0}">0</div>
+      </div>
+    </div>
+
+    <div class="grid lg:grid-cols-2 gap-4">
+      <div class="glass-strong p-5">
+        <div class="text-xs text-slate-400 uppercase tracking-wider mb-2">NPS Skoru</div>
+        <div class="flex items-baseline gap-3">
+          <div class="text-5xl font-black ${s.npsScore >= 50 ? 'text-emerald-400' : s.npsScore >= 0 ? 'text-amber-400' : 'text-rose-400'}">${s.npsScore ?? '—'}</div>
+          <div class="text-sm text-slate-400">${s.npsCount || 0} yanıt · Ort: ${s.npsAvg ?? '—'}/10</div>
+        </div>
+        <div class="text-xs text-slate-500 mt-2">Promoters (9-10) − Detractors (0-6) / Toplam × 100</div>
+      </div>
+      <div class="glass-strong p-5">
+        <div class="text-xs text-slate-400 uppercase tracking-wider mb-2">Toplam Anket</div>
+        <div class="text-5xl font-black text-cyan-300">${s.totalSurveys}</div>
+        <div class="text-xs text-slate-500 mt-2">Son 30 günde: ${(s.surveysByDay || []).reduce((sum, d) => sum + d.cnt, 0)}</div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAdminUsers() {
+  const users = state.admin?.users;
+  if (users === null || users === undefined) return `<div class="glass-strong p-10 text-center"><div class="spinner mx-auto"></div><p class="text-slate-400 mt-4">Yükleniyor...</p></div>`;
+  if (!users.length) return `<div class="glass p-8 text-center text-slate-400">Henüz kullanıcı yok</div>`;
+
+  return `
+    <div class="glass-strong overflow-hidden">
+      <div class="hidden md:grid grid-cols-12 gap-2 px-5 py-3 border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+        <div class="col-span-3">Kullanıcı</div>
+        <div class="col-span-1 text-center">Seviye</div>
+        <div class="col-span-1 text-center">XP</div>
+        <div class="col-span-1 text-center">Ders</div>
+        <div class="col-span-1 text-center">Brief</div>
+        <div class="col-span-2 text-right">Para</div>
+        <div class="col-span-3 text-right">Son Aktif</div>
+      </div>
+      ${users.map(u => `
+        <div class="grid grid-cols-2 md:grid-cols-12 gap-2 px-5 py-3 border-b border-white/5 last:border-0 items-center">
+          <div class="col-span-2 md:col-span-3">
+            <div class="font-bold text-sm">${u.name} ${u.is_admin ? '<span class="badge badge-gold text-[10px]">ADMIN</span>' : ''}</div>
+            <div class="text-xs text-slate-400">${u.email}</div>
+          </div>
+          <div class="md:col-span-1 text-center"><span class="badge badge-cyan">${u.level}</span></div>
+          <div class="md:col-span-1 text-center text-sm">${u.xp}</div>
+          <div class="md:col-span-1 text-center text-sm">${u.lessons_done}/8</div>
+          <div class="md:col-span-1 text-center text-sm">${u.completed_briefs}/12</div>
+          <div class="md:col-span-2 text-right text-sm text-amber-300">₺${(u.money || 0).toLocaleString('tr-TR')}</div>
+          <div class="md:col-span-3 text-right text-xs text-slate-400">${u.last_active ? new Date(u.last_active).toLocaleString('tr-TR', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' }) : 'Hiç oynamamış'}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+function renderAdminSurveys() {
+  const surveys = state.admin?.surveys;
+  if (surveys === null || surveys === undefined) return `<div class="glass-strong p-10 text-center"><div class="spinner mx-auto"></div><p class="text-slate-400 mt-4">Yükleniyor...</p></div>`;
+  if (!surveys.length) return `<div class="glass p-8 text-center text-slate-400">Henüz anket yanıtı yok</div>`;
+
+  const mostUsefulCounts = {};
+  surveys.forEach(s => {
+    const m = s.answers?.mostUseful;
+    if (m) mostUsefulCounts[m] = (mostUsefulCounts[m] || 0) + 1;
+  });
+  const topUseful = Object.entries(mostUsefulCounts).sort((a, b) => b[1] - a[1]);
+
+  return `
+    <div class="grid lg:grid-cols-2 gap-4 mb-6">
+      <div class="glass-strong p-5">
+        <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">En Faydalı Modül (oy sayısı)</div>
+        ${topUseful.length ? topUseful.map(([k, v]) => {
+          const l = LESSONS.find(x => x.id === k);
+          const pct = Math.round((v / surveys.length) * 100);
+          return `
+            <div class="mb-3">
+              <div class="flex justify-between text-sm mb-1"><span>${l?.icon || ''} ${l?.title || k}</span><span class="font-bold">${v} (${pct}%)</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div>
+            </div>
+          `;
+        }).join('') : '<div class="text-sm text-slate-400">Veri yok</div>'}
+      </div>
+
+      <div class="glass-strong p-5">
+        <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">Öz-değerlendirme Ortalaması (5 üzerinden)</div>
+        ${['audience','channels','creative','metrics'].map(k => {
+          const labels = { audience: 'Hedef Kitle', channels: 'Kanal/Bütçe', creative: 'Kreatif', metrics: 'Metrikler' };
+          const vals = surveys.map(s => s.answers?.selfRate?.[k]).filter(v => typeof v === 'number');
+          const avg = vals.length ? (vals.reduce((a,b)=>a+b,0) / vals.length).toFixed(1) : '—';
+          const pct = avg !== '—' ? (avg / 5) * 100 : 0;
+          return `
+            <div class="mb-3">
+              <div class="flex justify-between text-sm mb-1"><span>${labels[k]}</span><span class="font-bold">${avg}/5</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    </div>
+
+    <div class="glass-strong p-5">
+      <div class="text-sm font-bold mb-4">Son Yanıtlar (${surveys.length})</div>
+      ${surveys.map(s => `
+        <div class="border-b border-white/5 last:border-0 py-3">
+          <div class="flex items-start justify-between mb-2 flex-wrap gap-2">
+            <div>
+              <div class="font-semibold text-sm">${s.name}</div>
+              <div class="text-xs text-slate-400">${s.email} · ${new Date(s.submitted_at).toLocaleString('tr-TR')}</div>
+            </div>
+            <div class="flex gap-2 flex-wrap">
+              <span class="badge ${s.answers.nps >= 9 ? 'badge-success' : s.answers.nps >= 7 ? 'badge-cyan' : 'badge-danger'}">NPS: ${s.answers.nps ?? '—'}</span>
+            </div>
+          </div>
+          ${s.answers.feedback ? `<div class="text-sm text-slate-300 mt-2 p-3 rounded-lg bg-white/5 italic">"${s.answers.feedback}"</div>` : ''}
+        </div>
+      `).join('')}
     </div>
   `;
 }
@@ -3207,6 +3376,35 @@ async function handleAction(action, id, el) {
     case 'lab-continue':
       toast('🚧 Wizard entegrasyonu yakında — şimdilik strateji önerisini kopyala, brief kutusundaki benzer brief\'leri çöz');
       break;
+    case 'admin':
+      state.admin = { tab: 'overview', stats: null, users: null, surveys: null };
+      state.screen = 'admin';
+      render();
+      try {
+        const r = await api('GET', '/api/admin/stats');
+        state.admin.stats = r;
+      } catch (e) { state.admin.stats = { error: e.message }; }
+      render();
+      break;
+    case 'admin-tab': {
+      const t = el.dataset.tab;
+      state.admin.tab = t;
+      render();
+      try {
+        if (t === 'overview' && !state.admin.stats) {
+          const r = await api('GET', '/api/admin/stats');
+          state.admin.stats = r;
+        } else if (t === 'users' && !state.admin.users) {
+          const r = await api('GET', '/api/admin/users');
+          state.admin.users = r.users;
+        } else if (t === 'surveys' && !state.admin.surveys) {
+          const r = await api('GET', '/api/admin/surveys');
+          state.admin.surveys = r.surveys;
+        }
+        render();
+      } catch (e) { toast('Hata: ' + e.message); }
+      break;
+    }
   }
 }
 

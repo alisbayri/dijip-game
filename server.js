@@ -22,8 +22,10 @@ async function initDb() {
       email TEXT UNIQUE NOT NULL,
       name TEXT NOT NULL,
       password_hash TEXT NOT NULL,
+      is_admin BOOLEAN DEFAULT false,
       created_at TIMESTAMPTZ DEFAULT NOW()
     );
+    ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT false;
     CREATE TABLE IF NOT EXISTS game_states (
       user_id INTEGER PRIMARY KEY REFERENCES users(id) ON DELETE CASCADE,
       state JSONB NOT NULL,
@@ -38,7 +40,25 @@ async function initDb() {
     );
     CREATE INDEX IF NOT EXISTS idx_surveys_user ON surveys(user_id);
   `);
+  // Otomatik admin atama: ilk kullanıcı ya da ADMIN_EMAILS env'inde olanlar
+  const adminEmails = (process.env.ADMIN_EMAILS || 'alisbayri@gmail.com').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+  if (adminEmails.length) {
+    await pool.query(`UPDATE users SET is_admin = true WHERE LOWER(email) = ANY($1::text[])`, [adminEmails]);
+  }
   console.log('DB schema ready');
+}
+
+async function isAdmin(userId) {
+  if (!pool) return false;
+  const r = await pool.query('SELECT is_admin FROM users WHERE id = $1', [userId]);
+  return !!r.rows[0]?.is_admin;
+}
+
+function requireAdmin(req, res, next) {
+  isAdmin(req.user.id).then(ok => {
+    if (!ok) return res.status(403).json({ error: 'Sadece admin erişebilir' });
+    next();
+  }).catch(() => res.status(500).json({ error: 'Yetki kontrolü hata' }));
 }
 
 function signToken(user) {
@@ -105,8 +125,10 @@ app.post('/api/login', requireDb, async (req, res) => {
   }
 });
 
-app.get('/api/me', auth, (req, res) => {
-  res.json({ user: { id: req.user.id, email: req.user.email, name: req.user.name } });
+app.get('/api/me', auth, async (req, res) => {
+  let admin = false;
+  try { admin = await isAdmin(req.user.id); } catch {}
+  res.json({ user: { id: req.user.id, email: req.user.email, name: req.user.name, isAdmin: admin } });
 });
 
 app.get('/api/state', auth, requireDb, async (req, res) => {
@@ -172,9 +194,7 @@ app.post('/api/survey', auth, requireDb, async (req, res) => {
   }
 });
 
-app.get('/api/admin/surveys', auth, requireDb, async (req, res) => {
-  // Sadece ilk kullanıcı (admin) görebilsin — basit kontrol
-  if (req.user.id !== 1) return res.status(403).json({ error: 'Yetkisiz' });
+app.get('/api/admin/surveys', auth, requireDb, requireAdmin, async (_req, res) => {
   try {
     const r = await pool.query(`
       SELECT s.id, s.answers, s.submitted_at, u.email, u.name
@@ -186,6 +206,70 @@ app.get('/api/admin/surveys', auth, requireDb, async (req, res) => {
     res.json({ surveys: r.rows });
   } catch (e) {
     res.status(500).json({ error: 'Yüklenemedi' });
+  }
+});
+
+app.get('/api/admin/users', auth, requireDb, requireAdmin, async (_req, res) => {
+  try {
+    const r = await pool.query(`
+      SELECT u.id, u.email, u.name, u.is_admin, u.created_at,
+        gs.updated_at as last_active,
+        COALESCE(jsonb_array_length(gs.state->'history'), 0) as completed_briefs,
+        COALESCE((gs.state->>'level')::int, 1) as level,
+        COALESCE((gs.state->>'xp')::int, 0) as xp,
+        COALESCE((gs.state->>'money')::int, 0) as money,
+        (
+          SELECT COUNT(*) FROM jsonb_object_keys(gs.state->'lessons') l
+          WHERE (gs.state->'lessons'->l->>'completed')::boolean = true
+        ) as lessons_done,
+        gs.state->'quizScores' as quiz_scores,
+        gs.state as full_state
+      FROM users u
+      LEFT JOIN game_states gs ON gs.user_id = u.id
+      ORDER BY gs.updated_at DESC NULLS LAST, u.created_at DESC
+      LIMIT 500
+    `);
+    res.json({ users: r.rows });
+  } catch (e) {
+    console.error('admin/users error:', e);
+    res.status(500).json({ error: 'Yüklenemedi' });
+  }
+});
+
+app.get('/api/admin/stats', auth, requireDb, requireAdmin, async (_req, res) => {
+  try {
+    const totalUsers = (await pool.query('SELECT COUNT(*)::int FROM users')).rows[0].count;
+    const totalSurveys = (await pool.query('SELECT COUNT(*)::int FROM surveys')).rows[0].count;
+    const activeStates = (await pool.query('SELECT COUNT(*)::int FROM game_states')).rows[0].count;
+    const totals = await pool.query(`
+      SELECT
+        COALESCE(SUM(jsonb_array_length(state->'history')), 0)::int as total_campaigns,
+        AVG((state->>'xp')::int)::int as avg_xp
+      FROM game_states
+    `);
+    const surveysByDay = await pool.query(`
+      SELECT date_trunc('day', submitted_at) as day, COUNT(*)::int as cnt
+      FROM surveys
+      WHERE submitted_at > NOW() - INTERVAL '30 days'
+      GROUP BY day ORDER BY day
+    `);
+    // NPS dağılımı
+    const npsRows = await pool.query(`SELECT (answers->>'nps')::int as nps FROM surveys WHERE answers ? 'nps'`);
+    const npsValues = npsRows.rows.map(r => r.nps).filter(n => n !== null);
+    const npsAvg = npsValues.length ? +(npsValues.reduce((a,b)=>a+b,0) / npsValues.length).toFixed(1) : null;
+    const promoters = npsValues.filter(n => n >= 9).length;
+    const detractors = npsValues.filter(n => n <= 6).length;
+    const npsScore = npsValues.length ? Math.round(((promoters - detractors) / npsValues.length) * 100) : null;
+    res.json({
+      totalUsers, totalSurveys, activeStates,
+      totalCampaigns: totals.rows[0].total_campaigns,
+      avgXP: totals.rows[0].avg_xp,
+      surveysByDay: surveysByDay.rows,
+      npsAvg, npsScore, npsCount: npsValues.length
+    });
+  } catch (e) {
+    console.error('admin/stats error:', e);
+    res.status(500).json({ error: 'İstatistik hatası' });
   }
 });
 
