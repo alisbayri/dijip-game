@@ -30,6 +30,13 @@ async function initDb() {
       updated_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_game_states_updated ON game_states(updated_at DESC);
+    CREATE TABLE IF NOT EXISTS surveys (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      answers JSONB NOT NULL,
+      submitted_at TIMESTAMPTZ DEFAULT NOW()
+    );
+    CREATE INDEX IF NOT EXISTS idx_surveys_user ON surveys(user_id);
   `);
   console.log('DB schema ready');
 }
@@ -151,6 +158,34 @@ app.get('/api/leaderboard', requireDb, async (_req, res) => {
   } catch (e) {
     console.error('leaderboard error:', e);
     res.status(500).json({ error: 'Lider tablosu yüklenemedi' });
+  }
+});
+
+app.post('/api/survey', auth, requireDb, async (req, res) => {
+  const answers = req.body || {};
+  try {
+    await pool.query('INSERT INTO surveys (user_id, answers) VALUES ($1, $2)', [req.user.id, answers]);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('survey error:', e);
+    res.status(500).json({ error: 'Anket kaydedilemedi' });
+  }
+});
+
+app.get('/api/admin/surveys', auth, requireDb, async (req, res) => {
+  // Sadece ilk kullanıcı (admin) görebilsin — basit kontrol
+  if (req.user.id !== 1) return res.status(403).json({ error: 'Yetkisiz' });
+  try {
+    const r = await pool.query(`
+      SELECT s.id, s.answers, s.submitted_at, u.email, u.name
+      FROM surveys s
+      JOIN users u ON s.user_id = u.id
+      ORDER BY s.submitted_at DESC
+      LIMIT 200
+    `);
+    res.json({ surveys: r.rows });
+  } catch (e) {
+    res.status(500).json({ error: 'Yüklenemedi' });
   }
 });
 

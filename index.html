@@ -549,6 +549,154 @@ const BRIEFS = [
   }
 ];
 
+// ============== AKADEMİ (DERSLER + QUIZ) ==============
+const LESSONS = [
+  {
+    id: 'temel', icon: '🎯', difficulty: 1,
+    title: 'Dijital Pazarlama Temeli',
+    summary: 'Pazarlama hunisi, müşteri yolculuğu ve temel kavramlar',
+    body: [
+      { h: 'Pazarlama Nedir?', p: 'Pazarlama, doğru kişiye doğru zamanda doğru mesajı ulaştırma sanatıdır. Dijital pazarlama bunu ölçülebilir, takip edilebilir ve hızla optimize edilebilir hale getirir.' },
+      { h: 'Müşteri Yolculuğu (Funnel)', p: 'Her potansiyel müşteri bir hunide ilerler: <b>Farkındalık</b> (markayı duyar) → <b>İlgi</b> (ürünle ilgilenir) → <b>Değerlendirme</b> (alternatifleri karşılaştırır) → <b>Satın Alma</b> → <b>Sadakat</b>. Her aşama için farklı içerik ve kanal kullanırsın.' },
+      { h: 'Niyet vs Keşif', p: '<b>Niyet kanalları</b> (Google Ads, SEO): Kullanıcı zaten arıyor, sen sadece görünür ol. <b>Keşif kanalları</b> (Meta, TikTok, YouTube): Kullanıcı aramıyor, sen dikkatini çek. Farklı stratejiler ister.' },
+      { h: 'Temel KPI\'lar', p: '<b>CTR</b> (Tıklama Oranı): Reklamı gören kaç kişi tıkladı? <b>CVR</b> (Dönüşüm Oranı): Tıklayan kaç kişi alıcı oldu? <b>CAC</b> (Müşteri Edinme Maliyeti): Bir müşteri kazanmak ne kadara mal oldu? <b>ROAS</b> (Reklam Yatırım Getirisi): Harcadığın 1 TL geri kaç TL getirdi?' }
+    ],
+    quiz: [
+      { q: 'Aşağıdakilerden hangisi bir "niyet" kanalıdır?', opts: ['Instagram Reels reklamı', 'Google Ads arama reklamı', 'YouTube video önerisi', 'TikTok organik içerik'], a: 1, ex: 'Google Ads aramada zaten bir niyetle gelen kullanıcıyı yakalar. Sosyal kanallar keşif odaklıdır.' },
+      { q: 'CTR neyi ölçer?', opts: ['Tıklayanların kaçı satın aldı', 'Reklamı görenlerin kaçı tıkladı', 'Satışların kaçı kârlı', 'Sitenin saniyede kaç ziyaretçi aldığı'], a: 1, ex: 'CTR = Tıklama / Gösterim. Reklamın ilgi çekiciliğini ölçer.' },
+      { q: 'Müşteri yolculuğunda "farkındalık" aşamasında en uygun mesaj hangisidir?', opts: ['"Sepeti tamamla, %20 indirim"', '"Yeni bir markayız, hikayemiz şu..."', '"Şimdi satın al, son 2 ürün"', '"Sadakat üyemiz olarak..."'], a: 1, ex: 'Farkındalık aşamasında kişi seni daha yeni tanıyor — satış değil, tanışma mesajı çalışır.' },
+      { q: 'ROAS 4.0 ne anlama gelir?', opts: ['%4 kâr ettin', '4 satış yaptın', 'Harcadığın 1 TL\'ye 4 TL geri döndü', '4 yıldız aldın'], a: 2, ex: 'ROAS = Gelir / Reklam Harcaması. 4.0 = harcadığının 4 katı gelir.' },
+      { q: 'Hangisi DOĞRU?', opts: ['CAC her zaman LTV\'den yüksek olmalı', 'CTR yüksekse CVR de yüksek olur', 'Niyet kanalları genelde daha hızlı dönüşür', 'Sosyal medya her sektörde ana kanal olmalı'], a: 2, ex: 'Niyet kanalında kullanıcı zaten arıyor; satın alma kararına yakın olduğundan dönüşüm hızlıdır.' }
+    ]
+  },
+  {
+    id: 'kitle', icon: '👥', difficulty: 1,
+    title: 'Hedef Kitle ve Persona',
+    summary: 'Kim için pazarlama yapıyorsun?',
+    body: [
+      { h: 'Persona Nedir?', p: 'Persona, ideal müşterinin gerçek bir kişiymiş gibi tarif edilmiş halidir. Yaş, meslek, ihtiyaçlar, korkular, alıveriş alışkanlıkları... "Herkes" pazarlamanın düşmanıdır.' },
+      { h: 'Geniş mi Dar mı?', p: 'Yeni başlayan markalar bütçeyi geniş kitleye saçar — sonuçta kimseye değmez. Daralt: <b>coğrafya, ilgi alanı, davranış, demografi</b>. Daralt > daralt > kazan.' },
+      { h: 'Lookalike ve Retargeting', p: '<b>Lookalike:</b> Mevcut müşterilerine benzer kişileri bul. <b>Retargeting:</b> Siteni ziyaret eden ama almayanı tekrar hedefle. İkisi de "yüksek niyet" kitlelerdir.' },
+      { h: 'B2B vs B2C Kitleleri', p: 'B2B\'de iş ünvanı, şirket büyüklüğü, sektör en güçlü filtrelerdir. B2C\'de yaş, ilgi alanı, yaşam tarzı. B2B karar süreci uzun (haftalar-aylar), B2C kısa (saniyeler-günler).' }
+    ],
+    quiz: [
+      { q: 'B2B SaaS bir CRM ürünü için en doğru hedefleme hangisidir?', opts: ['25-45 yaş, geniş Türkiye', 'LinkedIn iş ünvanı: Satış Müdürü, KOBİ\'ler', 'Sadece Instagram\'da kadın kullanıcılar', 'Spor ile ilgilenenler'], a: 1, ex: 'B2B\'de ICP (Ideal Customer Profile) = iş ünvanı + sektör + şirket büyüklüğü. Demografik geniş kitle dönüşmez.' },
+      { q: 'Retargeting kimi hedefler?', opts: ['Hiç duymamış kişileri', 'Siteni ziyaret etmiş ama dönüşmemiş kişileri', 'Rakibin müşterilerini', 'Rastgele kişileri'], a: 1, ex: 'Retargeting (yeniden hedefleme) zaten markanı tanımış, ilgilenmiş ama henüz almamış kişileri yakalar.' },
+      { q: 'Yerel bir kafe için en verimli hedefleme yarıçapı genelde nedir?', opts: ['Tüm Türkiye', '50 km', '5 km', '500 km'], a: 2, ex: 'Yerel iş yerine yürüme/kısa araba mesafesi (3-8 km) müşteri kazandırır. Daha uzaktaki insan zahmet etmez.' },
+      { q: 'Lookalike kitle nasıl oluşur?', opts: ['Rakibin müşterilerinden', 'Senin müşterilerine benzer profilden', 'Rastgele kişilerden', 'Sadece çalışanlardan'], a: 1, ex: 'Lookalike = mevcut müşteri verisini al, platforma yükle, platform benzer davranışlı yeni insanlar bulur.' },
+      { q: '"Herkesi hedefleyelim" yaklaşımı neden kötüdür?', opts: ['Yasaktır', 'Bütçeyi alakasız kişilere harcar, dönüşüm düşer', 'Çok pahalıdır sadece', 'Reklam onaylanmaz'], a: 1, ex: 'Geniş ve niyetsiz kitle bütçeyi yer, mesajını alakasız kişilere gösterir, dönüşüm düşük olur.' }
+    ]
+  },
+  {
+    id: 'google_ads', icon: '🔍', difficulty: 2,
+    title: 'Google Ads — Arama Niyeti',
+    summary: 'Arayan kişiyi yakala',
+    body: [
+      { h: 'Niyet Türleri', p: '<b>Bilgi niyeti:</b> "pazarlama nedir" (bilgi arıyor). <b>Karşılaştırma niyeti:</b> "Salesforce vs Hubspot" (seçim yapacak). <b>Satın alma niyeti:</b> "en uygun crm fiyat" (alıcı). Satın alma niyetli kelimeler en değerlidir.' },
+      { h: 'Eşleme Türleri', p: '<b>Geniş eşleme:</b> "spor ayakkabı" → "koşu ayakkabısı satın al" da tetikler. Geniş ama kontrolsüz. <b>Tam eşleme:</b> [spor ayakkabı] → sadece bu tam ifade. Az ama hedefli.' },
+      { h: 'Negatif Kelimeler', p: 'Bütçeni yiyenleri engelle. "Ücretsiz", "iş ilanı", "nedir", "indir" gibi kelimeler ekleme listesine girmezsen alakasız tıklamalar gelir.' },
+      { h: 'Kalite Puanı', p: 'Google reklamını sıralarken sadece teklifine değil, reklam ile arama uyumuna da bakar. Yüksek kalite puanı = aynı pozisyon için daha az ödeme.' }
+    ],
+    quiz: [
+      { q: 'Hangisi en yüksek satın alma niyetli kelimedir?', opts: ['pazarlama nedir', 'en iyi pazarlama yazılımları 2026', 'pazarlama yazılımı sipariş', 'pazarlama kariyeri'], a: 2, ex: '"Sipariş", "fiyat", "satın al" gibi ekler niyeti uçurur.' },
+      { q: 'Negatif anahtar kelime ne işe yarar?', opts: ['Sıralamayı düşürür', 'Alakasız aramalara reklam gösterilmesini engeller', 'Rakibin sıralamasını düşürür', 'Tıklama maliyetini düşürür sihirli şekilde'], a: 1, ex: 'Negatif kelime listesi reklamının yanlış aramalarda gösterilmesini engelleyerek bütçeyi korur.' },
+      { q: 'Tam eşleme ile geniş eşleme arasındaki farkı en iyi hangisi tarifler?', opts: ['Tam = ucuz, Geniş = pahalı', 'Tam = sadece o ifade, Geniş = ilgili tüm varyasyonlar', 'Tam = sadece masaüstü, Geniş = sadece mobil', 'Tam = video, Geniş = metin'], a: 1, ex: 'Tam eşleme dar ve hedefli, geniş eşleme kapsayıcı ve risklidir.' },
+      { q: 'Kalite puanı yüksekse ne kazanırsın?', opts: ['Tıklama başı daha az öder, daha iyi pozisyon', 'Daha fazla görsel', 'Otomatik dil çevirisi', 'Reklam onayı atlama'], a: 0, ex: 'Yüksek kalite puanı = aynı slot için daha az ödeme. Google iyi yapılmış reklamı ödüllendirir.' },
+      { q: 'Sigorta karşılaştırma sitesi için en doğru anahtar kelime hangisidir?', opts: ['araba', 'sigorta nedir', 'en ucuz kasko karşılaştır', 'haberler'], a: 2, ex: 'Niyet net + spesifik + satın almaya yakın. Diğerleri ya genel ya alakasız.' }
+    ]
+  },
+  {
+    id: 'meta_ads', icon: '📸', difficulty: 2,
+    title: 'Meta Ads — Sosyal Keşif',
+    summary: 'Instagram & Facebook reklamcılığı',
+    body: [
+      { h: 'Görsel İlk', p: 'Meta\'da kullanıcılar metin değil görsel tarar. İlk 3 saniyede yakalanmazsan kaybettin. Statik görsel + reels + carousel — formatları test et.' },
+      { h: 'Audience Layering (Kitle Katmanlama)', p: 'Birden fazla kriteri birleştir: <b>ilgi + davranış + demografik</b>. Örnek: "Yoga" ile ilgilenen + "Wellness alışverişi yapan" + 25-40 yaş + İstanbul. Daraltır, hedef niyetini artırır.' },
+      { h: 'Kreatif Yorgunluğu', p: 'Aynı görseli 7-10 günden fazla göstermek CTR\'yi düşürür. <b>Kreatif rotasyonu:</b> hafta hafta yeni varyantlar üret. AB testle hangisinin kazandığını gör.' },
+      { h: 'Funnel Yapısı', p: 'Üst funnel: video view kampanyası (ucuz tanıtım). Orta funnel: link click (siteye getir). Alt funnel: conversion (satış/lead). Bir reklam tüm seviyeleri yapamaz.' }
+    ],
+    quiz: [
+      { q: 'Instagram\'da kullanıcının ilk dikkati kaç saniye sürer?', opts: ['30 saniye', '15 saniye', '3 saniye', '1 dakika'], a: 2, ex: 'İlk 3 saniyede yakalamazsan kaydırılır. Hook ilk frame\'de olmalı.' },
+      { q: 'Kreatif yorgunluğu nedir?', opts: ['Kreatif ekibinin tükenmesi', 'Aynı görselin tekrar gösterilmesinden CTR\'nin düşmesi', 'Görselin yıpranması', 'Algoritma cezalandırması'], a: 1, ex: 'Frequency artınca CTR düşer. Yeni varyantlar rotasyonda olmalı.' },
+      { q: 'Audience layering ne demek?', opts: ['Birden fazla reklam aynı anda', 'Birden fazla kriteri birleştirip kitleyi daraltma', 'Reklamı katmanlı göstermek', 'Maaliyeti katlamak'], a: 1, ex: 'İlgi + davranış + demografik birleşince hedef niyetini çok artırırsın.' },
+      { q: 'Üst funnel için en uygun kampanya hedefi hangisidir?', opts: ['Conversion (satış)', 'Video view (tanıtım)', 'Catalog sale', 'Lead form'], a: 1, ex: 'Üst funnel = farkındalık. Ucuz CPM ile çok kişiye dokunan video view ideal.' },
+      { q: 'Hangisi Meta için DOĞRUDUR?', opts: ['Tek format kullan, optimize et', 'Sadece statik görsel kullan', 'Görsel ilk, metin destekleyici', 'Daima maksimum bütçe ile başla'], a: 2, ex: 'Sosyal feed\'de görsel her şey. Metin desteklerdir, başlangıç değil.' }
+    ]
+  },
+  {
+    id: 'email', icon: '✉️', difficulty: 2,
+    title: 'E-posta Pazarlama',
+    summary: 'En kârlı kanal — eğer doğru yaparsan',
+    body: [
+      { h: 'Niye E-posta?', p: 'Sosyal medyada algoritma engelliyor. E-posta direkt kullanıcının kişisel kanalına gider. ROI en yüksek kanaldır (genelde 40:1+).' },
+      { h: 'Liste Segmentasyonu', p: 'Aynı mesajı 25.000 kişiye yollamak = düşük açılma + spam riski. Segmentle: <b>aktif müşteri, pasif, sepeti terk eden, yeni kayıt</b>. Her gruba farklı mesaj.' },
+      { h: 'Konu Satırı Sanatı', p: 'Konu satırı her şey. <b>Kişisel + somut + merak</b>. "İndirim!" yerine "[İsim], 6 ay oldu — özel bir hatırlatma". Caps lock, çoklu ünlem = spam.' },
+      { h: 'Gönderim Sıklığı', p: 'Az = unutulursun. Çok = unsubscribe. Sektöre göre haftada 1-2 ideal. Açılış oranı %20\'nin altına düşmeye başladıysa fazla gönderiyorsun.' }
+    ],
+    quiz: [
+      { q: 'E-posta pazarlamada en kritik unsur hangisidir?', opts: ['Görselin kalitesi', 'Konu satırı (subject)', 'Gönderim saati', 'HTML şablonu'], a: 1, ex: 'Konu satırı açılır oranı belirler. Mesaj ne kadar iyi olursa olsun mail açılmazsa boşa.' },
+      { q: 'Aşağıdakilerden hangisi spam riskini artırır?', opts: ['Kişiselleştirme', '"BÜYÜK İNDİRİM!!!" gibi caps lock + çoklu ünlem', 'Açık yanıt adresi', 'Unsubscribe butonu'], a: 1, ex: 'Caps lock, fazla noktalama, "ücretsiz para" gibi ifadeler spam filtrelerini tetikler.' },
+      { q: 'Liste segmentasyonu neden önemlidir?', opts: ['Daha az çalışma için', 'Her gruba alakalı mesaj gider, açılma+dönüşüm artar', 'Daha çok yazılım satar', 'Yasal zorunluluk'], a: 1, ex: 'Yeni müşteriye "tekrar al" yazamazsın. Segmentasyon mesajı alakalı yapar.' },
+      { q: 'Açılış oranı %5 ise sorun nedir genelde?', opts: ['Tasarım', 'Konu satırı zayıf veya liste yanlış kişilerden', 'Gönderim sayısı az', 'Görüntü boyutu'], a: 1, ex: 'Düşük açılma = konu satırı çekmiyor ya da liste kalitesi düşük (alakasız kişiler).' },
+      { q: 'B2C e-ticaret için haftalık ideal gönderim sayısı yaklaşık ne kadardır?', opts: ['Hiç', '1-2', '10+', 'Saatlik'], a: 1, ex: 'Daha azı unutturur, daha çoğu yorar ve unsubscribe getirir. 1-2 tipik.' }
+    ]
+  },
+  {
+    id: 'seo', icon: '📈', difficulty: 2,
+    title: 'SEO ve İçerik Pazarlaması',
+    summary: 'Uzun vadeli organik trafik',
+    body: [
+      { h: 'SEO Nedir?', p: 'Search Engine Optimization — Google\'da üst sıralara çıkma sanatı. Ücretli reklamın aksine yatırım sonradan bileşik faiz gibi çalışır.' },
+      { h: 'Topic Cluster Stratejisi', p: 'Bir ana konu (pillar) + 8-12 alt konu (cluster) yazarsan, Google seni o konuda otorite kabul eder. Tek tek random yazı yazma, plan yap.' },
+      { h: 'Anahtar Kelime Niyeti', p: 'Bilgi niyetli ("X nedir") trafiği yüksek ama dönüşümü düşük. Karşılaştırma niyetli ("X vs Y") orta trafik yüksek dönüşüm. Satın alma niyetli ("X fiyat") en kârlı.' },
+      { h: 'Backlinkler', p: 'Başka güvenilir sitelerin sana link vermesi = oy gibi. 1 BBC link, 100 zayıf siteden değerlidir. Linkler organik olmalı, satın alınamaz (cezalı sayılır).' }
+    ],
+    quiz: [
+      { q: 'SEO\'nun büyük avantajı nedir?', opts: ['Hemen sonuç verir', 'Uzun vadede bileşik faiz gibi çalışır, kalıcı', 'Hiç maliyeti yoktur', 'Sadece büyük şirketler için'], a: 1, ex: '6 ayda yazdığın içerik 2 yıl sonra hala trafik getirebilir — bu yüzden değerli.' },
+      { q: 'Topic cluster stratejisi nedir?', opts: ['Bir konuyu cluster halinde A/B test', 'Bir ana konu + birçok ilgili alt konu yazıp otorite olma', 'Konuları gruplara ayırıp her gün farklı yazma', 'Backlink kümeleri'], a: 1, ex: 'Google "şu site bu konuda her şeyi yazıyor" diyince seni o konuda öne çıkarır.' },
+      { q: 'Hangi anahtar kelime en yüksek dönüşüm getirir?', opts: ['"yapay zeka nedir"', '"chatgpt vs claude"', '"chatgpt fiyat satın al"', '"yapay zeka haberleri"'], a: 2, ex: 'Satın alma niyetli kelime trafik daha düşük olsa da dönüşümü çok yüksek.' },
+      { q: 'Backlink hakkında doğru olan hangisi?', opts: ['Çok sayıda zayıf link ideal', 'Az sayıda kaliteli link ideal', 'Linkin önemi yok', 'Linkler satın alınmalı'], a: 1, ex: 'Google link kalitesini hassas ölçer. Birkaç güvenilir backlink yüzlerce çöp linkten değerlidir.' },
+      { q: 'Yeni sitenin SEO\'da ne kadar sürede etkili sonuç vermesi normal sayılır?', opts: ['1 gün', '1 hafta', '3-9 ay', 'Hiç sonuç vermez'], a: 2, ex: 'SEO sabır gerektirir. İçerik + linkler + Google\'ın güveni 3-9 ay sürer.' }
+    ]
+  },
+  {
+    id: 'metrik', icon: '📊', difficulty: 3,
+    title: 'Metrikleri Doğru Okuma',
+    summary: 'Sayılar yalan söylemez ama yanıltır',
+    body: [
+      { h: 'Vanity Metric Tuzakları', p: '<b>Vanity metric:</b> Gösterim, takipçi, beğeni — güzel görünür ama satışa çevrilmediyse anlamsız. <b>Anlamlı metric:</b> CAC, LTV, ROAS, gerçek müşteri sayısı.' },
+      { h: 'Funnel Metrik Hiyerarşisi', p: 'Gösterim → Tıklama → Site ziyareti → Etkileşim → Dönüşüm → Tekrar satın alma. Her aşamada bir oran var; hangi adım darboğaz onu bul.' },
+      { h: 'A/B Test Disiplini', p: '"Bu daha iyi" sezgiyle değil veriyle kanıtlanır. Sadece bir değişken değiştir, istatistiksel anlamlı boyutu (minimum 1000+ gösterim) bekle, sonra karar ver.' },
+      { h: 'Atribüsyon (Attribution)', p: 'Bir satın alma 5 reklam görmüş kişiden gelmiş olabilir. Hangisine kredi vereceksin? İlk tıklama, son tıklama, lineer, data-driven... Hepsi farklı sonuç verir.' }
+    ],
+    quiz: [
+      { q: 'Hangisi vanity metric örneğidir?', opts: ['CAC', 'Toplam takipçi sayısı', 'ROAS', 'LTV'], a: 1, ex: 'Takipçi sayısı satışa dönmediyse "gösteriş" metriğidir.' },
+      { q: 'A/B test için doğru yaklaşım hangisidir?', opts: ['5 değişkeni aynı anda test et', 'Sadece bir değişken değiştir, anlamlı veri bekle', '3 saat içinde karar ver', 'En çok beğeni alan kazansın'], a: 1, ex: 'Birden fazla değişken aynı anda değişirse hangi değişikliğin etkisi olduğunu bilemezsin.' },
+      { q: '"Son tıklama atribüsyon" sorunu nedir?', opts: ['Çok pahalı', 'Hunidekin önceki etkilerini görmezden gelir', 'Yasal sorun yaratır', 'Çok karmaşıktır'], a: 1, ex: 'Müşteri 3 Meta reklamı + 1 e-posta + 1 Google ile geldiyse "son tıklama" sadece Google\'a kredi verir — yanlış sinyal.' },
+      { q: 'CTR yüksek ama CVR düşükse sorun büyük ihtimalle nerededir?', opts: ['Reklam zayıf', 'Reklam çekici ama site/landing/teklif zayıf', 'Bütçe yetersiz', 'Yanlış saatte gösteriliyor'], a: 1, ex: 'İnsanlar tıklıyor (reklam iyi) ama dönüşmüyorlar (site, teklif, fiyat ya da güven sorunu).' },
+      { q: 'LTV neyi gösterir?', opts: ['Bir müşterinin hayatı boyunca toplam değeri', 'Reklam görünme oranı', 'Linkin tıklama oranı', 'Stok devir hızı'], a: 0, ex: 'LTV (Lifetime Value) = bir müşterinin ortalama olarak ömrü boyunca getirdiği toplam gelir. CAC ile karşılaştırılır.' }
+    ]
+  },
+  {
+    id: 'butce', icon: '💰', difficulty: 3,
+    title: 'Bütçe ve Test Stratejisi',
+    summary: 'Akıllı para harcama',
+    body: [
+      { h: '70-20-10 Kuralı', p: '%70 — kanıtlanmış çalışan kanallara (güvenilir ROAS). %20 — büyütmek istediğin gelişen kanallara. %10 — yeni denemelere/risklere. Tüm bütçeyi tek sepete koyma.' },
+      { h: 'Test Bütçesi', p: 'Yeni bir kampanya açtığında 7-14 günlük "öğrenme dönemi" var. En az 50 dönüşüm verisi toplamadan optimize etmeye kalkma — Meta/Google algoritmaları yanıltır.' },
+      { h: 'Kademeli Ölçeklendirme', p: 'Çalışan bir kampanyayı %20\'den fazla bir günde artırma. Algoritma şokunu yer, performans düşer. Haftada %20-30 artış stabil ölçeklendirme.' },
+      { h: 'Kayıp Eşiği (Cut-off)', p: 'Her test için baştan kaybedebileceğin maksimumu belirle. "₺5,000 harcadıysam dönüşüm yoksa kapatıyorum." Disiplin = uzun ömür.' }
+    ],
+    quiz: [
+      { q: '70-20-10 bütçe kuralı ne öneriyor?', opts: ['%70 sosyal medya, %20 arama, %10 video', '%70 kanıtlı, %20 büyütülen, %10 deneme', '%70 kâr, %20 yatırım, %10 vergi', '%70 reklam, %20 organik, %10 PR'], a: 1, ex: 'Risk dağıtımı için kanal/kampanya bütçesini bu oranlarda paylaştırırsın.' },
+      { q: 'Yeni kampanya öğrenme dönemi yaklaşık ne kadardır?', opts: ['1 saat', '1 gün', '7-14 gün', '3 ay'], a: 2, ex: 'Algoritma yeterli veri toplayana kadar sonuçlar yanıltıcı olabilir. Sabırlı ol.' },
+      { q: 'Çalışan kampanyayı bir günde %200 ölçeklendirirsen ne olur?', opts: ['Daha çok satar', 'Algoritma şoka girer, performans düşer', 'Daha ucuza erişir', 'Hiçbir şey değişmez'], a: 1, ex: 'Ani büyük değişiklik öğrenme aşamasını sıfırlar. Stabil büyüme için %20-30 haftalık.' },
+      { q: 'Cut-off (kayıp eşiği) belirlemek neden önemlidir?', opts: ['Yasaldır', 'Duygusal devam etmeye karşı disiplin sağlar', 'Vergi indirimi alırsın', 'Algoritma sever'], a: 1, ex: 'Önceden eşik koymazsan kötü kampanyada "bu sefer dönecek" diye batırırsın.' },
+      { q: 'En az kaç dönüşüm verisi toplamadan optimize etmeye kalkmamak gerekir?', opts: ['5', '50', '5000', 'Hemen 1\'den'], a: 1, ex: 'İstatistiksel anlamlılık için minimum eşik. 50 altı veri yanıltıcı kararlara götürür.' }
+    ]
+  }
+];
+
 // ============== MINI-GAMES ==============
 // Tier values: high=3, med=2, low=1
 const MINIGAMES = {
@@ -773,6 +921,33 @@ function hasStaff(id) { return state.player.staff?.includes(id); }
 function totalSalary() { return (state.player.staff || []).reduce((s, id) => s + (STAFF[id]?.salary || 0), 0); }
 function agencyUnlocked() { return levelFromXP(state.player.xp) >= 2 && state.player.completedBriefs.length >= 2; }
 
+// Hangi brief hangi dersleri gerektirir
+const BRIEF_PREREQUISITES = {
+  kahveci:       ['temel', 'kitle'],
+  taki:          ['temel', 'kitle'],
+  pastane:       ['temel', 'kitle'],
+  fitapp:        ['temel', 'kitle', 'meta_ads'],
+  butikotel:     ['temel', 'kitle', 'google_ads'],
+  yoga:          ['temel', 'kitle', 'meta_ads'],
+  ingilizcekurs: ['temel', 'kitle', 'google_ads'],
+  saascrm:       ['temel', 'kitle', 'google_ads', 'metrik'],
+  sigorta:       ['temel', 'kitle', 'google_ads', 'metrik'],
+  kozmetik:      ['temel', 'kitle', 'meta_ads', 'metrik', 'butce'],
+  wellnesspro:   ['temel', 'kitle', 'email'],
+  tutorialhub:   ['temel', 'kitle', 'seo', 'metrik']
+};
+
+function briefUnlocked(briefId) {
+  const prereqs = BRIEF_PREREQUISITES[briefId] || [];
+  const done = state.player.lessons || {};
+  return prereqs.every(p => done[p]?.completed);
+}
+function missingLessonsFor(briefId) {
+  const prereqs = BRIEF_PREREQUISITES[briefId] || [];
+  const done = state.player.lessons || {};
+  return prereqs.filter(p => !done[p]?.completed).map(id => LESSONS.find(l => l.id === id));
+}
+
 function tierValue(t) { return t === 'high' ? 3 : t === 'med' ? 2 : 1; }
 function miniGameScore(picked, config) {
   if (!picked.length) return 0;
@@ -800,8 +975,12 @@ const state = {
     history: [],
     staff: [],
     agencyName: '',
-    achievements: []
+    achievements: [],
+    lessons: {},
+    quizScores: {}
   },
+  currentLesson: null,
+  quizState: { step: 0, answers: [], showFeedback: false },
   currentBrief: null,
   decisions: {
     audience: null,
@@ -1053,7 +1232,12 @@ function render() {
     report: renderReport,
     agency: renderAgency,
     victory: renderVictory,
-    leaderboard: renderLeaderboard
+    leaderboard: renderLeaderboard,
+    academy: renderAcademy,
+    lesson: renderLesson,
+    quiz: renderQuiz,
+    checkpoint: renderCheckpoint,
+    survey: renderSurvey
   };
   app.innerHTML = (screens[state.screen] || renderWelcome)();
   if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
@@ -1274,7 +1458,9 @@ function renderWelcome() {
 function renderDashboard() {
   const p = state.player;
   const lvl = levelFromXP(p.xp);
-  const available = BRIEFS.filter(b => b.level <= lvl && !p.completedBriefs.includes(b.id));
+  const eligible = BRIEFS.filter(b => b.level <= lvl && !p.completedBriefs.includes(b.id));
+  const available = eligible.filter(b => briefUnlocked(b.id));
+  const lockedByLesson = eligible.filter(b => !briefUnlocked(b.id));
   const locked = BRIEFS.filter(b => b.level > lvl);
   const done = p.completedBriefs.length;
 
@@ -1288,6 +1474,7 @@ function renderDashboard() {
           <p class="text-slate-400 text-sm mt-1">${available.length} aktif fırsat · ${done} kampanya tamamlandı</p>
         </div>
         <div class="flex gap-2 flex-wrap">
+          <button class="btn-ghost" data-action="academy">🎓 Akademi (${Object.values(state.player.lessons || {}).filter(l => l?.completed).length}/${LESSONS.length})</button>
           ${agencyUnlocked() ? `<button class="btn-ghost" data-action="agency">🏢 Ajansım ${state.player.staff?.length ? `(${state.player.staff.length})` : ''}</button>` : ''}
           ${done >= 3 ? `<button class="btn-ghost" data-action="report">📊 Performans Raporu</button>` : ''}
           <button class="btn-ghost" data-action="leaderboard">🏆 Lider Tablosu</button>
@@ -1310,11 +1497,20 @@ function renderDashboard() {
         </div>
       ` : ''}
 
-      ${available.length === 0 ? `
+      ${available.length === 0 && lockedByLesson.length === 0 ? `
         <div class="glass-strong p-10 text-center">
           <div class="text-5xl mb-4">🎉</div>
           <h3 class="text-2xl font-bold mb-2">Bu seviyenin tüm brief'leri tamam!</h3>
           <p class="text-slate-400 mb-4">Daha fazla XP kazan ve yeni brief'lerin kilidini aç.</p>
+        </div>
+      ` : ''}
+
+      ${available.length === 0 && lockedByLesson.length > 0 ? `
+        <div class="glass-strong p-8 mb-6 text-center" style="background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08)); border-color: rgba(245,158,11,0.3);">
+          <div class="text-5xl mb-3">🎓</div>
+          <h3 class="text-2xl font-bold mb-2">Önce Akademi'yi tamamla</h3>
+          <p class="text-slate-300 mb-4">Brief'lerin kilidini açmak için ilgili modülleri öğrenip quizlerden %70+ alman gerekiyor.</p>
+          <button class="btn-primary" data-action="academy">🎓 Akademi'ye Git</button>
         </div>
       ` : ''}
 
@@ -1341,10 +1537,37 @@ function renderDashboard() {
         `; }).join('')}
       </div>
 
+      ${lockedByLesson.length > 0 && available.length > 0 ? `
+        <details class="glass p-5 mb-4" open>
+          <summary class="font-semibold text-slate-300 flex items-center gap-2">
+            🎓 Akademiyi tamamlayarak açılacak brief'ler (${lockedByLesson.length})
+          </summary>
+          <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${lockedByLesson.map(b => {
+              const missing = missingLessonsFor(b.id);
+              return `
+                <div class="opacity-70 glass p-4 cursor-pointer hover:opacity-90 transition" data-action="academy">
+                  <div class="flex items-start gap-3 mb-2">
+                    <div class="text-3xl">${b.icon}</div>
+                    <div class="flex-1">
+                      <div class="font-semibold text-sm">${b.client}</div>
+                      <div class="text-xs text-slate-400">${b.industry}</div>
+                    </div>
+                  </div>
+                  <div class="text-xs text-amber-300 mt-2">
+                    📚 Gerekli: ${missing.map(m => m.title).join(', ')}
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </details>
+      ` : ''}
+
       ${locked.length > 0 ? `
         <details class="glass p-5 mb-6">
           <summary class="font-semibold text-slate-300 flex items-center gap-2">
-            🔒 Kilitli Brief'ler (${locked.length}) <span class="text-xs text-slate-500">→ Seviye atla, kilidini aç</span>
+            🔒 Seviye Kilitli Brief'ler (${locked.length}) <span class="text-xs text-slate-500">→ XP kazan, kilidini aç</span>
           </summary>
           <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
             ${locked.map(b => `
@@ -1814,6 +2037,376 @@ function renderResults() {
   `;
 }
 
+function renderAcademy() {
+  const p = state.player;
+  const lessons = p.lessons || {};
+  const totalDone = Object.values(lessons).filter(l => l?.completed).length;
+  return `
+    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      ${topBar()}
+      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+        <div>
+          <h2 class="text-3xl lg:text-4xl font-black text-white">🎓 Akademi</h2>
+          <p class="text-slate-400 text-sm mt-1">Önce öğren, sonra uygula · ${totalDone}/${LESSONS.length} ders tamamlandı</p>
+        </div>
+        <button class="btn-ghost" data-action="back-dashboard">← Brief Kutusu</button>
+      </div>
+
+      <div class="glass p-5 mb-6">
+        <div class="flex justify-between text-xs text-slate-400 mb-1.5">
+          <span>Genel ilerleme</span>
+          <span>${Math.round((totalDone / LESSONS.length) * 100)}%</span>
+        </div>
+        <div class="progress-track"><div class="progress-fill" style="width: ${(totalDone / LESSONS.length) * 100}%"></div></div>
+      </div>
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+        ${LESSONS.map(l => {
+          const status = lessons[l.id] || {};
+          const done = status.completed;
+          const quizScore = p.quizScores?.[l.id];
+          const difficultyDots = '🔥'.repeat(l.difficulty) + '·'.repeat(3 - l.difficulty);
+          return `
+            <div class="glass-strong p-5 cursor-pointer transition-all hover:scale-[1.01] ${done ? 'border-emerald-500/40' : ''}" data-action="open-lesson" data-id="${l.id}">
+              <div class="flex items-start justify-between mb-3">
+                <div class="text-4xl">${l.icon}</div>
+                <div class="flex flex-col items-end gap-1">
+                  ${done ? '<span class="badge badge-success">✓ Tamam</span>' : '<span class="badge">Yeni</span>'}
+                  <span class="badge badge-purple text-xs" title="Zorluk">${difficultyDots}</span>
+                </div>
+              </div>
+              <h3 class="font-bold text-lg mb-1">${l.title}</h3>
+              <p class="text-sm text-slate-400 mb-3">${l.summary}</p>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-slate-500">📖 ${l.body.length} bölüm · ${l.quiz.length} soru</span>
+                ${quizScore !== undefined ? `<span class="font-bold ${quizScore >= 70 ? 'text-emerald-300' : 'text-amber-300'}">${quizScore}/100</span>` : ''}
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="glass p-4 mt-6 text-sm text-slate-400 text-center">
+        💡 Her dersi bitirip quizden <b>%70+ alarak</b> uygulama brief'lerini açabilirsin.
+      </div>
+    </div>
+  `;
+}
+
+function renderLesson() {
+  const l = LESSONS.find(x => x.id === state.currentLesson);
+  if (!l) { state.screen = 'academy'; return renderAcademy(); }
+  return `
+    <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <button class="btn-ghost mb-6" data-action="back-academy">← Akademiye Dön</button>
+
+      <div class="glass-strong p-6 lg:p-10 mb-6">
+        <div class="flex items-center gap-4 mb-2">
+          <div class="text-5xl">${l.icon}</div>
+          <div>
+            <div class="text-xs text-slate-400 uppercase tracking-wider">${'🔥'.repeat(l.difficulty)} Seviye ${l.difficulty}</div>
+            <h2 class="text-3xl lg:text-4xl font-black">${l.title}</h2>
+          </div>
+        </div>
+        <p class="text-slate-300 mb-8">${l.summary}</p>
+
+        <div class="space-y-6">
+          ${l.body.map((sec, i) => `
+            <div class="border-l-2 border-purple-500/40 pl-5">
+              <h3 class="text-xl font-bold mb-2 text-cyan-300">${i + 1}. ${sec.h}</h3>
+              <p class="text-slate-200 leading-relaxed">${sec.p}</p>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <button class="btn-primary w-full text-lg py-4" data-action="start-quiz" data-id="${l.id}">📝 Quiz'e Başla (${l.quiz.length} soru) →</button>
+    </div>
+  `;
+}
+
+function renderQuiz() {
+  const l = LESSONS.find(x => x.id === state.currentLesson);
+  if (!l) { state.screen = 'academy'; return renderAcademy(); }
+  const qs = l.quiz;
+  const qi = state.quizState.step;
+  const q = qs[qi];
+  const ans = state.quizState.answers;
+  const showFb = state.quizState.showFeedback;
+  const selected = showFb ? ans[qi] : null;
+
+  if (qi >= qs.length) {
+    const correct = ans.filter((a, i) => a === qs[i].a).length;
+    const score = Math.round((correct / qs.length) * 100);
+    const passed = score >= 70;
+    return `
+      <div class="max-w-2xl mx-auto px-5 py-12 fade-in text-center">
+        <div class="text-8xl mb-4">${passed ? '🎉' : '📚'}</div>
+        <h2 class="text-4xl font-black mb-2 ${passed ? 'gradient-text' : 'text-amber-400'}">${passed ? 'Geçtin!' : 'Tekrar dene'}</h2>
+        <p class="text-slate-400 mb-6">${l.title}</p>
+        <div class="text-7xl font-black mb-2 ${passed ? 'text-emerald-400' : 'text-amber-400'}">${score}/100</div>
+        <p class="text-slate-300 mb-8">${correct}/${qs.length} doğru cevap</p>
+        ${passed ? `
+          <div class="glass-strong p-5 mb-6">
+            <div class="text-sm text-emerald-300 font-semibold mb-1">✓ Bu modül tamamlandı</div>
+            <div class="text-xs text-slate-400">İlgili brief'ler artık aktif</div>
+          </div>
+        ` : `
+          <div class="glass p-5 mb-6 border-l-4 border-amber-500">
+            <div class="text-sm text-amber-300 font-semibold mb-1">⚠️ Geçme barajı %70</div>
+            <div class="text-xs text-slate-400">Dersi tekrar oku ve quizi yeniden dene</div>
+          </div>
+        `}
+        <div class="flex gap-3 justify-center">
+          <button class="btn-ghost" data-action="back-academy">Akademi</button>
+          ${!passed ? `<button class="btn-primary" data-action="retry-quiz">🔄 Tekrar Dene</button>` : `<button class="btn-primary" data-action="back-dashboard">Brief'lere Geç →</button>`}
+        </div>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="max-w-3xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <div class="flex items-center justify-between mb-4">
+        <div>
+          <div class="text-xs text-slate-400">${l.icon} ${l.title}</div>
+          <h2 class="text-2xl font-bold">Quiz · Soru ${qi + 1} / ${qs.length}</h2>
+        </div>
+        <button class="btn-ghost text-sm" data-action="back-lesson">← Dersi Tekrar Oku</button>
+      </div>
+
+      <div class="progress-track mb-6"><div class="progress-fill" style="width: ${((qi) / qs.length) * 100}%"></div></div>
+
+      <div class="glass-strong p-6 lg:p-8 mb-6">
+        <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">Soru ${qi + 1}</div>
+        <h3 class="text-xl lg:text-2xl font-bold mb-6">${q.q}</h3>
+        <div class="space-y-2">
+          ${q.opts.map((opt, i) => {
+            let cls = 'option-card';
+            if (showFb) {
+              if (i === q.a) cls += ' selected';
+              else if (i === selected && selected !== q.a) cls += ' border-rose-500/60';
+              else cls += ' opacity-50';
+            }
+            return `
+              <div class="${cls}" data-action="quiz-answer" data-idx="${i}" ${showFb ? 'style="cursor: default;"' : ''}>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style="background: rgba(255,255,255,0.08);">${String.fromCharCode(65 + i)}</div>
+                  <div class="flex-1">${opt}</div>
+                  ${showFb && i === q.a ? '<div class="text-emerald-400 text-xl">✓</div>' : ''}
+                  ${showFb && i === selected && selected !== q.a ? '<div class="text-rose-400 text-xl">✗</div>' : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        ${showFb ? `
+          <div class="mt-5 p-4 rounded-xl ${selected === q.a ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'}">
+            <div class="font-semibold mb-1 ${selected === q.a ? 'text-emerald-300' : 'text-amber-300'}">${selected === q.a ? '✓ Doğru!' : '✗ Yanlış cevap'}</div>
+            <div class="text-sm text-slate-300">${q.ex}</div>
+          </div>
+        ` : ''}
+      </div>
+
+      ${showFb ? `<button class="btn-primary w-full" data-action="quiz-next">${qi === qs.length - 1 ? 'Quizi Bitir' : 'Sonraki Soru →'}</button>` : ''}
+    </div>
+  `;
+}
+
+function buildCheckpointQuestions() {
+  const completedLessonIds = Object.entries(state.player.lessons || {}).filter(([k, v]) => v?.completed).map(([k]) => k);
+  const pool = [];
+  (completedLessonIds.length ? completedLessonIds : LESSONS.map(l => l.id)).forEach(lid => {
+    const l = LESSONS.find(x => x.id === lid);
+    if (l) l.quiz.forEach(q => pool.push({ ...q, lessonTitle: l.title }));
+  });
+  const shuffled = pool.sort(() => Math.random() - 0.5).slice(0, 3);
+  return shuffled;
+}
+
+function renderCheckpoint() {
+  if (!state.checkpoint) {
+    state.checkpoint = { questions: buildCheckpointQuestions(), step: 0, answers: [], showFb: false };
+  }
+  const cp = state.checkpoint;
+  const qi = cp.step;
+  const qs = cp.questions;
+
+  if (qi >= qs.length) {
+    const correct = cp.answers.filter((a, i) => a === qs[i].a).length;
+    const bonus = correct === 3 ? 50 : correct === 2 ? 25 : 0;
+    if (bonus > 0 && !cp.rewardGiven) {
+      state.player.xp += bonus;
+      cp.rewardGiven = true;
+      saveGame();
+    }
+    return `
+      <div class="max-w-2xl mx-auto px-5 py-12 text-center fade-in">
+        <div class="text-7xl mb-4">${correct === 3 ? '🌟' : correct >= 2 ? '✅' : '📚'}</div>
+        <h2 class="text-3xl font-black mb-2 ${correct >= 2 ? 'gradient-text' : 'text-amber-400'}">${correct === 3 ? 'Süper hafıza!' : correct >= 2 ? 'İyi gidiyorsun' : 'Tekrarlama zamanı'}</h2>
+        <p class="text-slate-400 mb-6">Ara sınav: ${correct}/3 doğru</p>
+        ${bonus > 0 ? `<div class="badge badge-cyan text-base px-4 py-2 mb-6">💎 +${bonus} XP bonusu</div>` : ''}
+        ${correct < 2 ? `<p class="text-slate-300 mb-6 text-sm">Bu konuları tekrar gözden geçirmen faydalı olur. Akademide ilgili dersleri açıp özetleri yeniden okuyabilirsin.</p>` : ''}
+        <button class="btn-primary" data-action="checkpoint-done">Devam Et →</button>
+      </div>
+    `;
+  }
+
+  const q = qs[qi];
+  const showFb = cp.showFb;
+  const selected = showFb ? cp.answers[qi] : null;
+
+  return `
+    <div class="max-w-3xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <div class="text-center mb-4">
+        <span class="badge badge-purple">📝 ARA SINAV · ${qi + 1}/${qs.length}</span>
+      </div>
+      <div class="progress-track mb-6"><div class="progress-fill" style="width: ${(qi / qs.length) * 100}%"></div></div>
+
+      <div class="glass-strong p-6 lg:p-8 mb-6">
+        <div class="text-xs text-slate-400 mb-2">📖 ${q.lessonTitle}</div>
+        <h3 class="text-xl lg:text-2xl font-bold mb-6">${q.q}</h3>
+        <div class="space-y-2">
+          ${q.opts.map((opt, i) => {
+            let cls = 'option-card';
+            if (showFb) {
+              if (i === q.a) cls += ' selected';
+              else if (i === selected && selected !== q.a) cls += ' border-rose-500/60';
+              else cls += ' opacity-50';
+            }
+            return `
+              <div class="${cls}" data-action="cp-answer" data-idx="${i}" ${showFb ? 'style="cursor: default;"' : ''}>
+                <div class="flex items-center gap-3">
+                  <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm" style="background: rgba(255,255,255,0.08);">${String.fromCharCode(65 + i)}</div>
+                  <div class="flex-1">${opt}</div>
+                  ${showFb && i === q.a ? '<div class="text-emerald-400 text-xl">✓</div>' : ''}
+                  ${showFb && i === selected && selected !== q.a ? '<div class="text-rose-400 text-xl">✗</div>' : ''}
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        ${showFb ? `
+          <div class="mt-5 p-4 rounded-xl ${selected === q.a ? 'bg-emerald-500/10 border border-emerald-500/30' : 'bg-amber-500/10 border border-amber-500/30'}">
+            <div class="font-semibold mb-1 ${selected === q.a ? 'text-emerald-300' : 'text-amber-300'}">${selected === q.a ? '✓ Doğru!' : '✗ Yanlış'}</div>
+            <div class="text-sm text-slate-300">${q.ex}</div>
+          </div>
+        ` : ''}
+      </div>
+
+      ${showFb ? `<button class="btn-primary w-full" data-action="cp-next">${qi === qs.length - 1 ? 'Sınavı Bitir' : 'Sonraki →'}</button>` : `<button class="btn-ghost text-sm w-full" data-action="cp-skip">Atla, bana sorma</button>`}
+    </div>
+  `;
+}
+
+function renderSurvey() {
+  if (!state.survey) state.survey = { step: 0, answers: {} };
+  const s = state.survey;
+  const SURVEY_STEPS = [
+    {
+      type: 'nps',
+      title: 'Bu oyunu bir arkadaşına tavsiye eder miydin?',
+      desc: '0 = kesinlikle hayır, 10 = kesinlikle evet',
+      field: 'nps'
+    },
+    {
+      type: 'choice',
+      title: 'En faydalı bulduğun modül hangisi?',
+      field: 'mostUseful',
+      options: LESSONS.map(l => ({ id: l.id, label: `${l.icon} ${l.title}` }))
+    },
+    {
+      type: 'sliders',
+      title: 'Kendine puan ver (oyun öncesi vs. sonrası gelişim)',
+      desc: '1 = zayıf, 5 = uzmanım',
+      field: 'selfRate',
+      areas: [
+        { id: 'audience', label: 'Hedef kitle analizi' },
+        { id: 'channels', label: 'Kanal seçimi ve bütçe dağılımı' },
+        { id: 'creative', label: 'Kreatif strateji' },
+        { id: 'metrics', label: 'Metrikleri okuma' }
+      ]
+    },
+    {
+      type: 'text',
+      title: 'Açık geri bildirim',
+      desc: 'Eksik bulduğun ya da eklenmesini istediğin neler var?',
+      field: 'feedback',
+      placeholder: 'İstersen boş bırakabilirsin'
+    }
+  ];
+
+  if (s.step >= SURVEY_STEPS.length) {
+    return `
+      <div class="max-w-2xl mx-auto px-5 py-12 text-center fade-in">
+        <div class="text-8xl mb-4">🙏</div>
+        <h2 class="text-4xl font-black gradient-text mb-3">Teşekkürler!</h2>
+        <p class="text-slate-300 mb-6">Geri bildirimin oyun gelişmesi için çok değerli.</p>
+        ${s.submitting ? `<div class="spinner mx-auto mb-6"></div>` : ''}
+        ${s.submitted ? `<div class="glass-strong p-5 mb-6 text-emerald-300">✓ Yanıtların kaydedildi</div>` : ''}
+        ${s.error ? `<div class="glass p-5 mb-6 text-rose-300">${s.error}</div>` : ''}
+        <button class="btn-primary" data-action="back-dashboard">Brief Kutusuna Dön</button>
+      </div>
+    `;
+  }
+
+  const step = SURVEY_STEPS[s.step];
+  return `
+    <div class="max-w-3xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <div class="text-center mb-6">
+        <span class="badge badge-purple">📋 FİNAL ANKET · ${s.step + 1}/${SURVEY_STEPS.length}</span>
+      </div>
+      <div class="progress-track mb-6"><div class="progress-fill" style="width: ${(s.step / SURVEY_STEPS.length) * 100}%"></div></div>
+
+      <div class="glass-strong p-6 lg:p-8">
+        <h3 class="text-2xl font-bold mb-2">${step.title}</h3>
+        ${step.desc ? `<p class="text-slate-400 text-sm mb-6">${step.desc}</p>` : '<div class="mb-4"></div>'}
+
+        ${step.type === 'nps' ? `
+          <div class="grid grid-cols-11 gap-1.5 mb-6">
+            ${[0,1,2,3,4,5,6,7,8,9,10].map(n => `
+              <button class="option-card text-center font-bold ${s.answers.nps === n ? 'selected' : ''}" data-action="survey-nps" data-val="${n}" style="padding: 12px 4px;">${n}</button>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${step.type === 'choice' ? `
+          <div class="grid sm:grid-cols-2 gap-2 mb-6">
+            ${step.options.map(o => `
+              <div class="option-card ${s.answers.mostUseful === o.id ? 'selected' : ''}" data-action="survey-choice" data-val="${o.id}">${o.label}</div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${step.type === 'sliders' ? `
+          <div class="space-y-4 mb-6">
+            ${step.areas.map(a => `
+              <div class="glass p-4">
+                <div class="flex justify-between mb-2">
+                  <span class="text-sm font-semibold">${a.label}</span>
+                  <span class="font-bold text-cyan-300">${s.answers.selfRate?.[a.id] || 3}/5</span>
+                </div>
+                <input type="range" min="1" max="5" step="1" value="${s.answers.selfRate?.[a.id] || 3}" data-survey-slider="${a.id}" class="w-full" />
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        ${step.type === 'text' ? `
+          <textarea id="survey-text" rows="5" placeholder="${step.placeholder}" class="w-full p-3 rounded-xl mb-6" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit; font-size: 15px; resize: vertical;">${s.answers.feedback || ''}</textarea>
+        ` : ''}
+
+        <div class="flex gap-3">
+          ${s.step > 0 ? `<button class="btn-ghost" data-action="survey-prev">← Geri</button>` : ''}
+          <div class="flex-1"></div>
+          <button class="btn-ghost" data-action="survey-skip">Atla</button>
+          <button class="btn-primary" data-action="survey-next">${s.step === SURVEY_STEPS.length - 1 ? 'Gönder →' : 'Sonraki →'}</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
 function renderVictory() {
   const p = state.player;
   const totalRev = p.history.reduce((s, h) => s + (h.metrics.revenue || 0), 0);
@@ -1855,7 +2448,16 @@ function renderVictory() {
         </div>
       </div>
 
-      <div class="flex gap-3 justify-center">
+      ${!p.surveySubmitted ? `
+        <div class="glass-strong p-6 mb-6" style="background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(139,92,246,0.1)); border-color: rgba(245,158,11,0.3);">
+          <div class="text-2xl mb-2">📋</div>
+          <div class="font-bold text-lg mb-1">Son bir adım: kısa anket</div>
+          <p class="text-sm text-slate-300 mb-4">Deneyimin nasıldı? 4 hızlı soru — geri bildirim çok değerli.</p>
+          <button class="btn-primary" data-action="start-survey">Anketi Başlat (1 dakika)</button>
+        </div>
+      ` : ''}
+
+      <div class="flex gap-3 justify-center flex-wrap">
         <button class="btn-ghost" data-action="back-dashboard">📥 Brief Kutusu</button>
         <button class="btn-primary" data-action="report">📊 Tam Rapor</button>
       </div>
@@ -2094,6 +2696,14 @@ function attachListeners() {
       render();
     });
   });
+  document.querySelectorAll('input[type="range"][data-survey-slider]').forEach(el => {
+    el.addEventListener('input', e => {
+      const k = el.dataset.surveySlider;
+      state.survey.answers.selfRate = state.survey.answers.selfRate || {};
+      state.survey.answers.selfRate[k] = parseInt(el.value);
+      render();
+    });
+  });
 }
 
 async function handleAction(action, id, el) {
@@ -2118,6 +2728,19 @@ async function handleAction(action, id, el) {
         render();
         setTimeout(fireConfetti, 300);
         setTimeout(fireConfetti, 1800);
+        return;
+      }
+      // Checkpoint quiz tetiği — her 3 kampanyada bir
+      if (state.screen === 'results' && state.player.completedBriefs.length > 0 &&
+          state.player.completedBriefs.length % 3 === 0 &&
+          state.player.lastCheckpointAt !== state.player.completedBriefs.length) {
+        state.player.lastCheckpointAt = state.player.completedBriefs.length;
+        saveGame();
+        state.currentBrief = null;
+        state.lastResult = null;
+        state.checkpoint = null;
+        state.screen = 'checkpoint';
+        render();
         return;
       }
       state.screen = 'dashboard';
@@ -2324,6 +2947,127 @@ async function handleAction(action, id, el) {
       break;
     case 'back-auth':
       state.screen = 'auth';
+      render();
+      break;
+    case 'academy':
+      state.screen = 'academy';
+      render();
+      break;
+    case 'open-lesson':
+      state.currentLesson = id;
+      state.screen = 'lesson';
+      render();
+      break;
+    case 'back-academy':
+      state.screen = 'academy';
+      render();
+      break;
+    case 'back-lesson':
+      state.screen = 'lesson';
+      render();
+      break;
+    case 'start-quiz':
+      state.currentLesson = id;
+      state.quizState = { step: 0, answers: [], showFeedback: false };
+      state.screen = 'quiz';
+      render();
+      break;
+    case 'quiz-answer': {
+      if (state.quizState.showFeedback) return;
+      const idx = parseInt(el.dataset.idx);
+      state.quizState.answers[state.quizState.step] = idx;
+      state.quizState.showFeedback = true;
+      render();
+      break;
+    }
+    case 'quiz-next': {
+      const l = LESSONS.find(x => x.id === state.currentLesson);
+      state.quizState.step++;
+      state.quizState.showFeedback = false;
+      if (state.quizState.step >= l.quiz.length) {
+        const correct = state.quizState.answers.filter((a, i) => a === l.quiz[i].a).length;
+        const score = Math.round((correct / l.quiz.length) * 100);
+        state.player.quizScores = state.player.quizScores || {};
+        state.player.quizScores[l.id] = Math.max(score, state.player.quizScores[l.id] || 0);
+        if (score >= 70) {
+          state.player.lessons = state.player.lessons || {};
+          state.player.lessons[l.id] = { completed: true, score };
+          checkNewAchievements();
+        }
+        saveGame();
+      }
+      render();
+      break;
+    }
+    case 'retry-quiz':
+      state.quizState = { step: 0, answers: [], showFeedback: false };
+      render();
+      break;
+    case 'cp-answer': {
+      if (state.checkpoint.showFb) return;
+      const idx = parseInt(el.dataset.idx);
+      state.checkpoint.answers[state.checkpoint.step] = idx;
+      state.checkpoint.showFb = true;
+      render();
+      break;
+    }
+    case 'cp-next':
+      state.checkpoint.step++;
+      state.checkpoint.showFb = false;
+      render();
+      break;
+    case 'cp-skip':
+      state.checkpoint = null;
+      state.screen = 'dashboard';
+      render();
+      break;
+    case 'checkpoint-done':
+      state.checkpoint = null;
+      state.screen = 'dashboard';
+      render();
+      break;
+    case 'survey-nps':
+      state.survey.answers.nps = parseInt(el.dataset.val);
+      render();
+      break;
+    case 'survey-choice':
+      state.survey.answers.mostUseful = el.dataset.val;
+      render();
+      break;
+    case 'survey-prev':
+      if (state.survey.step > 0) { state.survey.step--; render(); }
+      break;
+    case 'survey-skip':
+      state.survey.step++;
+      render();
+      break;
+    case 'survey-next': {
+      const SURVEY_LEN = 4;
+      if (state.survey.step === 3) {
+        const textEl = document.getElementById('survey-text');
+        if (textEl) state.survey.answers.feedback = textEl.value;
+      }
+      state.survey.step++;
+      if (state.survey.step >= SURVEY_LEN) {
+        state.survey.submitting = true;
+        render();
+        try {
+          await api('POST', '/api/survey', state.survey.answers);
+          state.survey.submitting = false;
+          state.survey.submitted = true;
+          state.player.surveySubmitted = true;
+          saveGame();
+        } catch (e) {
+          state.survey.submitting = false;
+          state.survey.error = e.message;
+        }
+      }
+      render();
+      break;
+    }
+    case 'start-survey':
+      state.survey = { step: 0, answers: { selfRate: {} } };
+      state.screen = 'survey';
       render();
       break;
   }
