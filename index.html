@@ -1237,7 +1237,8 @@ function render() {
     lesson: renderLesson,
     quiz: renderQuiz,
     checkpoint: renderCheckpoint,
-    survey: renderSurvey
+    survey: renderSurvey,
+    lab: renderLab
   };
   app.innerHTML = (screens[state.screen] || renderWelcome)();
   if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
@@ -1475,6 +1476,7 @@ function renderDashboard() {
         </div>
         <div class="flex gap-2 flex-wrap">
           <button class="btn-ghost" data-action="academy">🎓 Akademi (${Object.values(state.player.lessons || {}).filter(l => l?.completed).length}/${LESSONS.length})</button>
+          <button class="btn-ghost" data-action="lab">🧪 AI Lab</button>
           ${agencyUnlocked() ? `<button class="btn-ghost" data-action="agency">🏢 Ajansım ${state.player.staff?.length ? `(${state.player.staff.length})` : ''}</button>` : ''}
           ${done >= 3 ? `<button class="btn-ghost" data-action="report">📊 Performans Raporu</button>` : ''}
           <button class="btn-ghost" data-action="leaderboard">🏆 Lider Tablosu</button>
@@ -2299,6 +2301,100 @@ function renderCheckpoint() {
   `;
 }
 
+function renderLab() {
+  const lab = state.lab || {};
+  return `
+    <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
+
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-3">🧪</div>
+        <h2 class="text-4xl lg:text-5xl font-black gradient-text">AI Lab — Serbest Brief</h2>
+        <p class="text-slate-400 mt-2">Kendi brief'ini yaz, AI ideal stratejiyi öner ve sen kur</p>
+      </div>
+
+      ${lab.aiEnabled === false ? `
+        <div class="glass-strong p-6 mb-6 border-l-4 border-amber-500">
+          <div class="font-bold text-amber-300 mb-1">🤖 AI henüz aktif değil</div>
+          <p class="text-sm text-slate-300">Bu modu kullanmak için sistemin AI anahtarı henüz tanımlanmamış. Aktif olunca burada serbest brief yazıp Claude AI'dan strateji önerisi alabileceksin.</p>
+        </div>
+      ` : ''}
+
+      ${!lab.result ? `
+        <div class="glass-strong p-6 lg:p-8 mb-6">
+          <h3 class="text-xl font-bold mb-4">Brief Bilgileri</h3>
+          <div class="grid sm:grid-cols-2 gap-4 mb-4">
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Sektör / Müşteri Tipi</label>
+              <input type="text" id="lab-industry" placeholder="Örn. yerel kafe, e-ticaret butik..." class="w-full" />
+            </div>
+            <div>
+              <label class="block text-xs text-slate-400 mb-1">Bütçe (₺)</label>
+              <input type="number" id="lab-budget" placeholder="10000" class="w-full" min="1000" />
+            </div>
+          </div>
+          <div class="mb-4">
+            <label class="block text-xs text-slate-400 mb-1">Hedef</label>
+            <input type="text" id="lab-goal" placeholder="Örn. online satış, lead, mağaza ziyareti..." class="w-full" />
+          </div>
+          <div class="mb-5">
+            <label class="block text-xs text-slate-400 mb-1">Brief Açıklaması (en az 30 karakter)</label>
+            <textarea id="lab-brief" rows="5" placeholder="Müşteriyi anlat: ne satıyor, kim için, problemleri ne, ne kadar süre var..." class="w-full p-3 rounded-xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit; font-size: 15px;"></textarea>
+          </div>
+          ${lab.error ? `<div class="p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm mb-4">${lab.error}</div>` : ''}
+          <button class="btn-primary w-full ${lab.loading ? 'opacity-60' : ''}" data-action="lab-analyze" ${lab.loading ? 'disabled' : ''}>
+            ${lab.loading ? '🤖 AI brief\'ini analiz ediyor...' : '🤖 AI ile Analiz Et'}
+          </button>
+        </div>
+      ` : `
+        <div class="glass-strong p-6 lg:p-8 mb-6 fade-in">
+          <div class="flex items-center gap-2 mb-4">
+            <span class="badge badge-purple">🤖 AI ANALİZİ</span>
+            <span class="badge badge-gold">Zorluk ${'🔥'.repeat(lab.result.difficulty || 3)}</span>
+            <span class="badge ${lab.result.estimatedSuccess > 60 ? 'badge-success' : 'badge-danger'}">Tahmini başarı %${lab.result.estimatedSuccess || 50}</span>
+          </div>
+
+          <h3 class="text-xl font-bold mb-2">Önerilen Strateji</h3>
+          <p class="text-slate-300 mb-5 leading-relaxed">${lab.result.reasoning}</p>
+
+          <div class="grid sm:grid-cols-3 gap-3 mb-5">
+            <div class="glass p-4">
+              <div class="text-xs text-slate-400 mb-1">HEDEF KİTLE</div>
+              <div class="font-bold">${AUDIENCES[lab.result.audience]?.icon || '👥'} ${AUDIENCES[lab.result.audience]?.name || lab.result.audience}</div>
+            </div>
+            <div class="glass p-4">
+              <div class="text-xs text-slate-400 mb-1">KREATİF TONU</div>
+              <div class="font-bold">${CREATIVES[lab.result.creative]?.icon || '🎨'} ${CREATIVES[lab.result.creative]?.name || lab.result.creative}</div>
+            </div>
+            <div class="glass p-4">
+              <div class="text-xs text-slate-400 mb-1">KANAL DAĞILIMI</div>
+              <div class="text-xs">
+                ${Object.entries(lab.result.channels || {}).filter(([k,v])=>v>0).map(([k,v])=>`${CHANNELS[k]?.icon || ''} %${v}`).join(' · ')}
+              </div>
+            </div>
+          </div>
+
+          ${lab.result.warnings?.length ? `
+            <div class="glass p-4 mb-4 border-l-4 border-amber-500">
+              <div class="font-semibold mb-2 text-amber-300">⚠️ Dikkat Edilecekler</div>
+              ${lab.result.warnings.map(w => `<div class="text-sm mb-1 text-slate-300">• ${w}</div>`).join('')}
+            </div>
+          ` : ''}
+
+          <div class="flex gap-3">
+            <button class="btn-ghost flex-1" data-action="lab-reset">↻ Yeni Brief</button>
+            <button class="btn-primary flex-1" data-action="lab-continue">İpucusuz Sen Kur →</button>
+          </div>
+        </div>
+      `}
+
+      <div class="glass p-4 text-xs text-slate-400 leading-relaxed">
+        <b>💡 Lab nasıl çalışır?</b> Brief'ini gönder → Claude AI analiz eder ve ideal stratejiyi açıklar → Sen wizard'da kendi seçimlerini yap → AI sonucu değerlendirir. Bu yöntem teorik bilgini gerçek-dünya brief'leriyle test eder.
+      </div>
+    </div>
+  `;
+}
+
 function renderSurvey() {
   if (!state.survey) state.survey = { step: 0, answers: {} };
   const s = state.survey;
@@ -3069,6 +3165,47 @@ async function handleAction(action, id, el) {
       state.survey = { step: 0, answers: { selfRate: {} } };
       state.screen = 'survey';
       render();
+      break;
+    case 'lab':
+      state.lab = state.lab || {};
+      state.screen = 'lab';
+      render();
+      try {
+        const st = await api('GET', '/api/ai/status', null, null);
+        state.lab.aiEnabled = st.enabled;
+        render();
+      } catch {
+        state.lab.aiEnabled = false;
+        render();
+      }
+      break;
+    case 'lab-analyze': {
+      const industry = document.getElementById('lab-industry')?.value?.trim();
+      const budget = parseInt(document.getElementById('lab-budget')?.value || '0');
+      const goal = document.getElementById('lab-goal')?.value?.trim();
+      const briefText = document.getElementById('lab-brief')?.value?.trim();
+      if (!briefText || briefText.length < 30) { state.lab.error = 'Brief en az 30 karakter olmalı'; render(); return; }
+      if (!budget || budget < 1000) { state.lab.error = 'Geçerli bir bütçe gir (min ₺1.000)'; render(); return; }
+      state.lab.loading = true; state.lab.error = null; render();
+      try {
+        const r = await api('POST', '/api/ai/brief', { briefText, budget, goal, industry });
+        state.lab.result = r;
+        state.lab.briefInfo = { industry, budget, goal, briefText };
+        state.lab.loading = false;
+        render();
+      } catch (e) {
+        state.lab.loading = false;
+        state.lab.error = e.message;
+        render();
+      }
+      break;
+    }
+    case 'lab-reset':
+      state.lab = { aiEnabled: state.lab?.aiEnabled };
+      render();
+      break;
+    case 'lab-continue':
+      toast('🚧 Wizard entegrasyonu yakında — şimdilik strateji önerisini kopyala, brief kutusundaki benzer brief\'leri çöz');
       break;
   }
 }

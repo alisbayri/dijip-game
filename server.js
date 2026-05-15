@@ -189,6 +189,101 @@ app.get('/api/admin/surveys', auth, requireDb, async (req, res) => {
   }
 });
 
+// ============== AI BRIEF MODU ==============
+const AI_KEY = process.env.ANTHROPIC_API_KEY;
+const AI_MODEL = 'claude-sonnet-4-5';
+
+app.get('/api/ai/status', (_req, res) => res.json({ enabled: !!AI_KEY }));
+
+async function callClaude(prompt) {
+  if (!AI_KEY) throw new Error('AI henüz aktif değil');
+  const r = await fetch('https://api.anthropic.com/v1/messages', {
+    method: 'POST',
+    headers: {
+      'x-api-key': AI_KEY,
+      'anthropic-version': '2023-06-01',
+      'content-type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: AI_MODEL,
+      max_tokens: 1500,
+      messages: [{ role: 'user', content: prompt }]
+    })
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error('AI hatası: ' + t.slice(0, 200));
+  }
+  const data = await r.json();
+  return data.content?.[0]?.text || '';
+}
+
+function safeJsonParse(text) {
+  const m = text.match(/\{[\s\S]*\}/);
+  if (!m) return null;
+  try { return JSON.parse(m[0]); } catch { return null; }
+}
+
+app.post('/api/ai/brief', auth, async (req, res) => {
+  if (!AI_KEY) return res.status(503).json({ error: 'AI modu henüz aktif değil. Yöneticiye danış.' });
+  const { briefText, budget, goal, industry } = req.body || {};
+  if (!briefText || briefText.length < 30) return res.status(400).json({ error: 'Brief en az 30 karakter olmalı' });
+  try {
+    const prompt = `Sen deneyimli bir Türk dijital pazarlama mentörüsün. Aşağıdaki müşteri brief'ini analiz et ve ideal stratejiyi öner.
+
+MÜŞTERİ BRIEF'İ:
+Sektör: ${industry || 'belirtilmemiş'}
+Bütçe: ₺${budget || 'belirtilmemiş'}
+Hedef: ${goal || 'belirtilmemiş'}
+Açıklama: ${briefText}
+
+Şu seçeneklerden ideal olanı seç ve sadece JSON döndür (başka metin yok):
+
+{
+  "audience": "lokal_ilgi|profesyonel|genc_mobil|yuksek_niyet|genis",
+  "channels": {"google": SAYI, "meta": SAYI, "email": SAYI, "seo": SAYI},
+  "creative": "fiyat|duygusal|sosyal_kanit|urun_ozelligi",
+  "difficulty": 1-5 arası tam sayı,
+  "reasoning": "neden bu stratejinin doğru olduğunu 2-3 cümleyle Türkçe açıkla",
+  "warnings": ["dikkat edilecek 1. nokta", "dikkat edilecek 2. nokta"],
+  "estimatedSuccess": 0-100 (bu brief'in bu bütçeyle başarı olasılığı)
+}
+
+channels değerleri toplamı 100 olmalı. Bütçe küçükse genis kitle kötü, niyetli kanal iyi.`;
+    const txt = await callClaude(prompt);
+    const json = safeJsonParse(txt);
+    if (!json) return res.status(500).json({ error: 'AI yanıtı çözümlenemedi', raw: txt.slice(0, 300) });
+    res.json(json);
+  } catch (e) {
+    console.error('ai/brief error:', e);
+    res.status(500).json({ error: e.message });
+  }
+});
+
+app.post('/api/ai/feedback', auth, async (req, res) => {
+  if (!AI_KEY) return res.status(503).json({ error: 'AI modu aktif değil' });
+  const { brief, decisions, idealStrategy, metrics } = req.body || {};
+  try {
+    const prompt = `Sen Türkçe konuşan deneyimli bir dijital pazarlama mentörüsün. Oyuncu bir brief için strateji kurdu, sonuçları aldı. Detaylı, yapıcı bir geri bildirim yaz.
+
+BRIEF: ${JSON.stringify(brief)}
+İDEAL STRATEJİ: ${JSON.stringify(idealStrategy)}
+OYUNCUNUN KARARI: ${JSON.stringify(decisions)}
+SONUÇ METRİKLERİ: ${JSON.stringify(metrics)}
+
+3 paragraf yaz:
+1. Genel değerlendirme (1-2 cümle, dürüst tonla)
+2. En önemli iyi karar (varsa)
+3. En kritik iyileştirme önerisi (somut, uygulanabilir)
+
+Sadece Türkçe metin döndür, başlık yok, JSON yok.`;
+    const txt = await callClaude(prompt);
+    res.json({ feedback: txt.trim() });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
 app.get('/api/health', async (_req, res) => {
   let dbOk = false;
   try { if (pool) { await pool.query('SELECT 1'); dbOk = true; } } catch {}
