@@ -784,7 +784,12 @@ function miniGameScore(picked, config) {
 // ============== STATE ==============
 
 const state = {
-  screen: 'welcome',
+  screen: 'auth',
+  authUser: null,
+  authTab: 'login',
+  authError: '',
+  authLoading: false,
+  leaderboard: null,
   player: {
     name: '',
     level: 1,
@@ -818,32 +823,61 @@ const TUTORIAL_STEPS = [
   { icon: '🏢', title: 'Ajansını Kur', desc: 'Seviye yükseldikçe uzman işe alabilirsin. Her uzman bir kanalda bonus verir ama maaşı kampanyadan kesilir. Stratejik kadro = kârlı ajans.' }
 ];
 
-const SAVE_KEY = 'dijip_save_v1';
-function saveGame() {
-  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ player: state.player })); } catch {}
+// ============== AUTH + SYNC ==============
+const TOKEN_KEY = 'dijip_token';
+function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } }
+function setToken(t) { try { t ? localStorage.setItem(TOKEN_KEY, t) : localStorage.removeItem(TOKEN_KEY); } catch {} }
+
+async function api(method, path, body, token = getToken()) {
+  const headers = { 'Content-Type': 'application/json' };
+  if (token) headers['Authorization'] = `Bearer ${token}`;
+  const res = await fetch(path, { method, headers, body: body ? JSON.stringify(body) : undefined });
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || 'Bir hata oluştu');
+  return data;
 }
-function loadGame() {
+
+let saveTimer = null;
+function saveGame() {
+  if (saveTimer) clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    if (!state.authUser) return;
+    try { await api('POST', '/api/state', state.player); }
+    catch (e) { console.warn('save failed', e); }
+  }, 800);
+}
+async function loadGame() {
+  if (!getToken()) return false;
   try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    if (!raw) return false;
-    const data = JSON.parse(raw);
-    if (data?.player?.name) {
-      state.player = { ...state.player, ...data.player };
-      state.screen = 'dashboard';
-      return true;
-    }
-  } catch {}
-  return false;
+    const me = await api('GET', '/api/me');
+    state.authUser = me.user;
+    const r = await api('GET', '/api/state');
+    if (r.state) state.player = { ...state.player, ...r.state };
+    state.player.name = state.authUser.name;
+    state.screen = 'dashboard';
+    return true;
+  } catch (e) {
+    setToken(null);
+    state.authUser = null;
+    return false;
+  }
 }
 function resetGame() {
   if (!confirm('Tüm ilerlemen silinecek. Emin misin?')) return;
-  localStorage.removeItem(SAVE_KEY);
-  state.player = { name: '', level: 1, xp: 0, money: 0, reputation: 0, completedBriefs: [], history: [] };
+  state.player = { name: state.authUser?.name || '', level: 1, xp: 0, money: 0, reputation: 0, completedBriefs: [], history: [], staff: [], agencyName: '', achievements: [] };
   state.currentBrief = null;
   state.decisions = { audience: null, channels: { google: 25, meta: 25, email: 25, seo: 25 }, creative: null };
   state.wizardStep = 0;
   state.lastResult = null;
-  state.screen = 'welcome';
+  saveGame();
+  render();
+  toast('İlerlemen sıfırlandı');
+}
+function logout() {
+  setToken(null);
+  state.authUser = null;
+  state.player = { name: '', level: 1, xp: 0, money: 0, reputation: 0, completedBriefs: [], history: [], staff: [], agencyName: '', achievements: [] };
+  state.screen = 'auth';
   render();
 }
 
@@ -1008,6 +1042,7 @@ function animateCounters() {
 
 function render() {
   const screens = {
+    auth: renderAuth,
     welcome: renderWelcome,
     dashboard: renderDashboard,
     brief: renderBriefDetail,
@@ -1017,7 +1052,8 @@ function render() {
     results: renderResults,
     report: renderReport,
     agency: renderAgency,
-    victory: renderVictory
+    victory: renderVictory,
+    leaderboard: renderLeaderboard
   };
   app.innerHTML = (screens[state.screen] || renderWelcome)();
   if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
@@ -1062,7 +1098,7 @@ function topBar() {
       <div class="flex items-center gap-3 lg:gap-4">
         <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center font-bold text-white text-lg lg:text-xl flex-shrink-0" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); box-shadow: 0 4px 20px rgba(139,92,246,0.4);">${p.name[0]?.toUpperCase() || '?'}</div>
         <div>
-          <div class="text-xs lg:text-sm text-slate-400">Dijital Pazarlama Uzmanı</div>
+          <div class="text-xs lg:text-sm text-slate-400">${state.authUser?.email || 'Dijital Pazarlama Uzmanı'}</div>
           <div class="font-bold text-white text-lg lg:text-xl">${p.name || 'Oyuncu'}</div>
         </div>
       </div>
@@ -1079,6 +1115,126 @@ function topBar() {
         <span>${xp.current}/${xp.needed} XP</span>
       </div>
       <div class="progress-track"><div class="progress-fill" style="width: ${xp.pct}%"></div></div>
+    </div>
+  `;
+}
+
+function renderAuth() {
+  const tab = state.authTab;
+  return `
+    <div class="min-h-screen flex items-center justify-center p-6 lg:p-10">
+      <div class="max-w-5xl w-full fade-in">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div class="text-center lg:text-left">
+            <div class="text-7xl lg:text-8xl mb-6">📱✨📊</div>
+            <h1 class="text-6xl md:text-7xl lg:text-8xl font-black mb-4 gradient-text leading-none">DijiP</h1>
+            <p class="text-xl lg:text-2xl text-slate-300 mb-3">Dijital Pazarlama Simülasyon Oyunu</p>
+            <p class="text-slate-400 mb-8 lg:max-w-md leading-relaxed">Hesabını oluştur, brieflerle çalış, sonuçlarını takip et. İlerlemen tüm cihazlarda senkron — bilgisayardan başlayıp telefondan devam edebilirsin.</p>
+            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
+              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🎯</div><div class="text-xs text-slate-400">12 Brief</div></div>
+              <div class="glass p-4 text-center"><div class="text-3xl mb-1">📈</div><div class="text-xs text-slate-400">CTR · ROI</div></div>
+              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🏆</div><div class="text-xs text-slate-400">Lider Tablosu</div></div>
+            </div>
+          </div>
+
+          <div class="glass-strong p-8 lg:p-10 w-full max-w-md mx-auto lg:max-w-none">
+            <div class="flex gap-1 mb-6 p-1 rounded-xl bg-white/5">
+              <button data-action="auth-tab" data-tab="login" class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab==='login' ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}">Giriş Yap</button>
+              <button data-action="auth-tab" data-tab="register" class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab==='register' ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}">Hesap Oluştur</button>
+            </div>
+
+            ${tab === 'register' ? `
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">İsim Soyisim</label>
+                  <input type="text" id="auth-name" placeholder="Ali Bayrı" class="w-full" maxlength="40" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">E-posta</label>
+                  <input type="email" id="auth-email" placeholder="ornek@mail.com" class="w-full" autocomplete="email" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Şifre (en az 6 karakter)</label>
+                  <input type="password" id="auth-password" placeholder="••••••" class="w-full" autocomplete="new-password" />
+                </div>
+              </div>
+              ${state.authError ? `<div class="mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm">${state.authError}</div>` : ''}
+              <button class="btn-primary w-full text-lg mt-5 ${state.authLoading ? 'opacity-60' : ''}" data-action="register" ${state.authLoading ? 'disabled' : ''}>
+                ${state.authLoading ? 'Hesap oluşturuluyor...' : 'Hesap Oluştur →'}
+              </button>
+              <div class="text-xs text-slate-500 text-center mt-4">Hesap oluşturarak ilerleme verilerinin saklanmasını kabul etmiş olursun.</div>
+            ` : `
+              <div class="space-y-3">
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">E-posta</label>
+                  <input type="email" id="auth-email" placeholder="ornek@mail.com" class="w-full" autocomplete="email" />
+                </div>
+                <div>
+                  <label class="block text-xs text-slate-400 mb-1">Şifre</label>
+                  <input type="password" id="auth-password" placeholder="••••••" class="w-full" autocomplete="current-password" />
+                </div>
+              </div>
+              ${state.authError ? `<div class="mt-3 p-3 rounded-lg bg-rose-500/10 border border-rose-500/30 text-rose-300 text-sm">${state.authError}</div>` : ''}
+              <button class="btn-primary w-full text-lg mt-5 ${state.authLoading ? 'opacity-60' : ''}" data-action="login" ${state.authLoading ? 'disabled' : ''}>
+                ${state.authLoading ? 'Giriş yapılıyor...' : 'Giriş Yap →'}
+              </button>
+              <div class="text-center mt-5">
+                <button class="btn-ghost text-xs" data-action="leaderboard-public">🏆 Lider Tablosunu Gör</button>
+              </div>
+            `}
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderLeaderboard() {
+  const lb = state.leaderboard;
+  return `
+    <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <button class="btn-ghost mb-6" data-action="${state.authUser ? 'back-dashboard' : 'back-auth'}">← Geri</button>
+      <div class="text-center mb-8">
+        <div class="text-6xl mb-3">🏆</div>
+        <h2 class="text-4xl lg:text-5xl font-black gradient-text">Lider Tablosu</h2>
+        <p class="text-slate-400 mt-2">Tüm oyuncular arasında en başarılılar</p>
+      </div>
+
+      ${lb === null ? `
+        <div class="glass-strong p-10 text-center">
+          <div class="spinner mx-auto"></div>
+          <p class="text-slate-400 mt-4">Yükleniyor...</p>
+        </div>
+      ` : lb.length === 0 ? `
+        <div class="glass-strong p-10 text-center">
+          <div class="text-4xl mb-3">🌱</div>
+          <p class="text-slate-300">Henüz tablo boş. İlk kampanyayı tamamlayan sen ol!</p>
+        </div>
+      ` : `
+        <div class="glass-strong overflow-hidden">
+          <div class="grid grid-cols-12 gap-2 px-5 py-3 border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
+            <div class="col-span-1">#</div>
+            <div class="col-span-4">Oyuncu</div>
+            <div class="col-span-2 text-center">Kampanya</div>
+            <div class="col-span-2 text-center">Ort. Skor</div>
+            <div class="col-span-3 text-right">Toplam Gelir</div>
+          </div>
+          ${lb.map((p, i) => `
+            <div class="grid grid-cols-12 gap-2 px-5 py-4 border-b border-white/5 last:border-0 items-center ${state.authUser?.name === p.name ? 'bg-purple-500/10' : ''}">
+              <div class="col-span-1 font-black ${i === 0 ? 'text-amber-300 text-xl' : i === 1 ? 'text-slate-300 text-lg' : i === 2 ? 'text-orange-400 text-lg' : 'text-slate-500'}">
+                ${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+              </div>
+              <div class="col-span-4">
+                <div class="font-bold">${p.name}${state.authUser?.name === p.name ? ' <span class="text-xs text-purple-300">(sen)</span>' : ''}</div>
+                <div class="text-xs text-slate-400">Seviye ${p.level} · ${p.threeStar}× 3 yıldız</div>
+              </div>
+              <div class="col-span-2 text-center font-bold">${p.completed}</div>
+              <div class="col-span-2 text-center font-bold text-cyan-300">${p.avgScore}</div>
+              <div class="col-span-3 text-right font-black text-emerald-400">₺${p.totalRev.toLocaleString('tr-TR')}</div>
+            </div>
+          `).join('')}
+        </div>
+      `}
     </div>
   `;
 }
@@ -1134,7 +1290,9 @@ function renderDashboard() {
         <div class="flex gap-2 flex-wrap">
           ${agencyUnlocked() ? `<button class="btn-ghost" data-action="agency">🏢 Ajansım ${state.player.staff?.length ? `(${state.player.staff.length})` : ''}</button>` : ''}
           ${done >= 3 ? `<button class="btn-ghost" data-action="report">📊 Performans Raporu</button>` : ''}
+          <button class="btn-ghost" data-action="leaderboard">🏆 Lider Tablosu</button>
           <button class="btn-ghost text-sm" data-action="reset" title="İlerlemeyi sıfırla">🔄</button>
+          <button class="btn-ghost text-sm" data-action="logout" title="Çıkış yap">🚪</button>
         </div>
       </div>
 
@@ -1938,7 +2096,7 @@ function attachListeners() {
   });
 }
 
-function handleAction(action, id, el) {
+async function handleAction(action, id, el) {
   switch (action) {
     case 'open-brief':
       state.currentBrief = BRIEFS.find(b => b.id === id);
@@ -2098,6 +2256,76 @@ function handleAction(action, id, el) {
       saveGame();
       render();
       break;
+    case 'auth-tab':
+      state.authTab = el.dataset.tab;
+      state.authError = '';
+      render();
+      break;
+    case 'login': {
+      const email = document.getElementById('auth-email')?.value?.trim();
+      const password = document.getElementById('auth-password')?.value;
+      if (!email || !password) { state.authError = 'E-posta ve şifre gerekli'; render(); return; }
+      state.authLoading = true; state.authError = ''; render();
+      try {
+        const r = await api('POST', '/api/login', { email, password });
+        setToken(r.token);
+        state.authUser = r.user;
+        const st = await api('GET', '/api/state');
+        if (st.state) state.player = { ...state.player, ...st.state };
+        state.player.name = r.user.name;
+        state.screen = 'dashboard';
+        state.authLoading = false;
+        render();
+      } catch (e) {
+        state.authLoading = false;
+        state.authError = e.message;
+        render();
+      }
+      break;
+    }
+    case 'register': {
+      const name = document.getElementById('auth-name')?.value?.trim();
+      const email = document.getElementById('auth-email')?.value?.trim();
+      const password = document.getElementById('auth-password')?.value;
+      if (!name || !email || !password) { state.authError = 'Tüm alanları doldur'; render(); return; }
+      state.authLoading = true; state.authError = ''; render();
+      try {
+        const r = await api('POST', '/api/register', { name, email, password });
+        setToken(r.token);
+        state.authUser = r.user;
+        state.player.name = r.user.name;
+        state.screen = 'dashboard';
+        state.authLoading = false;
+        saveGame();
+        render();
+      } catch (e) {
+        state.authLoading = false;
+        state.authError = e.message;
+        render();
+      }
+      break;
+    }
+    case 'logout':
+      if (confirm('Çıkış yapmak istediğinden emin misin?')) logout();
+      break;
+    case 'leaderboard':
+    case 'leaderboard-public':
+      state.screen = 'leaderboard';
+      state.leaderboard = null;
+      render();
+      try {
+        const r = await api('GET', '/api/leaderboard', null, null);
+        state.leaderboard = r.leaderboard;
+        render();
+      } catch {
+        state.leaderboard = [];
+        render();
+      }
+      break;
+    case 'back-auth':
+      state.screen = 'auth';
+      render();
+      break;
   }
 }
 
@@ -2174,8 +2402,11 @@ function toast(msg) {
 }
 
 // ============== INIT ==============
-loadGame();
-render();
+(async () => {
+  const loaded = await loadGame();
+  if (!loaded) state.screen = 'auth';
+  render();
+})();
 </script>
 </body>
 </html>
