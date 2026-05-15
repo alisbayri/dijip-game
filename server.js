@@ -39,6 +39,17 @@ async function initDb() {
       submitted_at TIMESTAMPTZ DEFAULT NOW()
     );
     CREATE INDEX IF NOT EXISTS idx_surveys_user ON surveys(user_id);
+    CREATE TABLE IF NOT EXISTS lesson_feedback (
+      id SERIAL PRIMARY KEY,
+      user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+      lesson_id TEXT NOT NULL,
+      usefulness INTEGER,
+      confidence INTEGER,
+      takeaway TEXT,
+      submitted_at TIMESTAMPTZ DEFAULT NOW(),
+      UNIQUE(user_id, lesson_id)
+    );
+    CREATE INDEX IF NOT EXISTS idx_lf_lesson ON lesson_feedback(lesson_id);
   `);
   // Admin yetkisi SADECE ADMIN_EMAILS listesindekiler — diğer herkes normal kullanıcı
   const adminEmails = (process.env.ADMIN_EMAILS || 'alisbayri@gmail.com').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
@@ -184,6 +195,53 @@ app.get('/api/leaderboard', requireDb, async (_req, res) => {
   } catch (e) {
     console.error('leaderboard error:', e);
     res.status(500).json({ error: 'Lider tablosu yüklenemedi' });
+  }
+});
+
+app.post('/api/lesson-feedback', auth, requireDb, async (req, res) => {
+  const { lessonId, usefulness, confidence, takeaway } = req.body || {};
+  if (!lessonId) return res.status(400).json({ error: 'lessonId zorunlu' });
+  try {
+    await pool.query(`
+      INSERT INTO lesson_feedback (user_id, lesson_id, usefulness, confidence, takeaway)
+      VALUES ($1, $2, $3, $4, $5)
+      ON CONFLICT (user_id, lesson_id) DO UPDATE SET
+        usefulness = EXCLUDED.usefulness,
+        confidence = EXCLUDED.confidence,
+        takeaway = EXCLUDED.takeaway,
+        submitted_at = NOW()
+    `, [req.user.id, lessonId, usefulness || null, confidence || null, takeaway || null]);
+    res.json({ ok: true });
+  } catch (e) {
+    console.error('lesson-feedback error:', e);
+    res.status(500).json({ error: 'Kaydedilemedi' });
+  }
+});
+
+app.get('/api/admin/lesson-feedback', auth, requireDb, requireAdmin, async (_req, res) => {
+  try {
+    const agg = await pool.query(`
+      SELECT
+        lesson_id,
+        COUNT(*)::int as responses,
+        ROUND(AVG(usefulness)::numeric, 2) as avg_usefulness,
+        ROUND(AVG(confidence)::numeric, 2) as avg_confidence,
+        COUNT(takeaway) FILTER (WHERE takeaway IS NOT NULL AND length(takeaway) > 0)::int as with_text
+      FROM lesson_feedback
+      GROUP BY lesson_id
+    `);
+    const samples = await pool.query(`
+      SELECT lf.lesson_id, lf.takeaway, lf.usefulness, u.name, lf.submitted_at
+      FROM lesson_feedback lf
+      JOIN users u ON lf.user_id = u.id
+      WHERE lf.takeaway IS NOT NULL AND length(trim(lf.takeaway)) > 0
+      ORDER BY lf.submitted_at DESC
+      LIMIT 100
+    `);
+    res.json({ aggregate: agg.rows, samples: samples.rows });
+  } catch (e) {
+    console.error('admin/lesson-feedback error:', e);
+    res.status(500).json({ error: 'Yüklenemedi' });
   }
 });
 

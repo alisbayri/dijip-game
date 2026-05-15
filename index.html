@@ -1356,7 +1356,8 @@ function render() {
     survey: renderSurvey,
     lab: renderLab,
     admin: renderAdmin,
-    certificate: renderCertificate
+    certificate: renderCertificate,
+    'lesson-feedback': renderLessonFeedback
   };
   app.innerHTML = (screens[state.screen] || renderWelcome)();
   if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
@@ -2472,6 +2473,65 @@ function renderCheckpoint() {
   `;
 }
 
+function renderLessonFeedback() {
+  const l = LESSONS.find(x => x.id === state.currentLesson);
+  if (!l) { state.screen = 'academy'; return renderAcademy(); }
+  const fb = state.lessonFb || {};
+  return `
+    <div class="max-w-2xl mx-auto px-5 lg:px-8 py-8 lg:py-12 fade-in">
+      <div class="text-center mb-6">
+        <div class="text-5xl mb-2">${l.icon}</div>
+        <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Dersi Tamamladın</div>
+        <h2 class="text-3xl lg:text-4xl font-black gradient-text">${l.title}</h2>
+      </div>
+
+      <div class="glass-strong p-6 lg:p-8 mb-4">
+        <div class="text-sm text-slate-400 mb-4">📝 Hızlı geri bildirim — gelişimini ölçmemize yardım eder</div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-semibold mb-2">Bu dersi ne kadar faydalı buldun?</label>
+          <div class="flex gap-2">
+            ${[1,2,3,4,5].map(n => `
+              <button class="option-card text-center font-bold flex-1 ${fb.usefulness === n ? 'selected' : ''}" data-action="lf-useful" data-val="${n}" style="padding: 16px 4px; font-size: 22px;">
+                ${'⭐'.repeat(n)}
+              </button>
+            `).join('')}
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 mt-1.5"><span>Faydasız</span><span>Çok faydalı</span></div>
+        </div>
+
+        <div class="mb-6">
+          <label class="block text-sm font-semibold mb-2">Bu konuda kendine ne kadar hakim hissediyorsun?</label>
+          <div class="flex gap-2">
+            ${[1,2,3,4,5].map(n => `
+              <button class="option-card text-center font-bold flex-1 ${fb.confidence === n ? 'selected' : ''}" data-action="lf-confidence" data-val="${n}" style="padding: 12px 4px;">
+                ${n}
+              </button>
+            `).join('')}
+          </div>
+          <div class="flex justify-between text-xs text-slate-500 mt-1.5"><span>Hâlâ acemi</span><span>Uzmanım</span></div>
+        </div>
+
+        <div class="mb-2">
+          <label class="block text-sm font-semibold mb-2">Bir cümleyle: bu dersten en değerli öğrendiğin nedir?</label>
+          <textarea id="lf-takeaway" rows="3" placeholder="Örn. Niyet kanallarının keşif kanallarından farkını anladım..." class="w-full p-3 rounded-xl" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: white; font-family: inherit; font-size: 15px;">${fb.takeaway || ''}</textarea>
+          <div class="text-xs text-slate-500 mt-1">İsteğe bağlı — boş bırakabilirsin</div>
+        </div>
+
+        ${fb.submitted ? `<div class="mt-4 text-emerald-300 text-sm">✓ Yanıtın kaydedildi, teşekkürler!</div>` : ''}
+        ${fb.error ? `<div class="mt-4 text-rose-300 text-sm">${fb.error}</div>` : ''}
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-ghost flex-1" data-action="lf-skip">Atla</button>
+        <button class="btn-primary flex-1 ${fb.submitting ? 'opacity-60' : ''}" data-action="lf-submit" ${fb.submitting ? 'disabled' : ''}>
+          ${fb.submitting ? 'Gönderiliyor...' : 'Gönder ve Devam Et →'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
 function renderCertificate() {
   const p = state.player;
   const history = p.history || [];
@@ -2585,15 +2645,94 @@ function renderAdmin() {
         <button class="btn-ghost" data-action="back-dashboard">← Oyuna Dön</button>
       </div>
 
-      <div class="flex gap-1 mb-6 p-1 rounded-xl bg-white/5 max-w-md">
-        ${[['overview','📊 Genel'],['users','👥 Kullanıcılar'],['surveys','📋 Anketler']].map(([k,l]) => `
+      <div class="flex gap-1 mb-6 p-1 rounded-xl bg-white/5 max-w-2xl flex-wrap">
+        ${[['overview','📊 Genel'],['users','👥 Kullanıcılar'],['lessons','🎓 Eğitim Etkisi'],['surveys','📋 Final Anket']].map(([k,l]) => `
           <button class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab===k ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}" data-action="admin-tab" data-tab="${k}">${l}</button>
         `).join('')}
       </div>
 
       ${tab === 'overview' ? renderAdminOverview() : ''}
       ${tab === 'users' ? renderAdminUsers() : ''}
+      ${tab === 'lessons' ? renderAdminLessons() : ''}
       ${tab === 'surveys' ? renderAdminSurveys() : ''}
+    </div>
+  `;
+}
+
+function renderAdminLessons() {
+  const data = state.admin?.lessonFb;
+  if (data === null || data === undefined) return `<div class="glass-strong p-10 text-center"><div class="spinner mx-auto"></div><p class="text-slate-400 mt-4">Yükleniyor...</p></div>`;
+  const agg = data.aggregate || [];
+  const samples = data.samples || [];
+  if (!agg.length) return `<div class="glass p-8 text-center text-slate-400">Henüz ders geri bildirimi yok. Kullanıcılar ders bitirip mikro-anketi doldurduğunda burada görünür.</div>`;
+
+  const byId = {};
+  agg.forEach(a => byId[a.lesson_id] = a);
+
+  // Most/least useful sıralama
+  const sorted = [...agg].filter(a => a.avg_usefulness !== null).sort((a, b) => parseFloat(b.avg_usefulness) - parseFloat(a.avg_usefulness));
+  const totalResp = agg.reduce((s, a) => s + a.responses, 0);
+
+  return `
+    <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">TOPLAM YANIT</div>
+        <div class="text-3xl font-black gradient-text">${totalResp}</div>
+      </div>
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">DERS DEĞERLENDİRME ORT.</div>
+        <div class="text-3xl font-black text-amber-300">${agg.length ? (agg.reduce((s,a) => s + (parseFloat(a.avg_usefulness)||0)*a.responses, 0) / Math.max(1, totalResp)).toFixed(2) : '—'}/5</div>
+      </div>
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">ÖZGÜVEN ORT.</div>
+        <div class="text-3xl font-black text-cyan-300">${agg.length ? (agg.reduce((s,a) => s + (parseFloat(a.avg_confidence)||0)*a.responses, 0) / Math.max(1, totalResp)).toFixed(2) : '—'}/5</div>
+      </div>
+      <div class="metric-card text-center">
+        <div class="text-xs text-slate-400 mb-1">YAZILI YORUM</div>
+        <div class="text-3xl font-black text-emerald-300">${agg.reduce((s,a) => s + (a.with_text||0), 0)}</div>
+      </div>
+    </div>
+
+    <div class="glass-strong p-5 mb-6">
+      <div class="text-sm font-bold mb-4">📈 Ders Bazında Faydalılık (5 üzerinden)</div>
+      ${sorted.map(a => {
+        const l = LESSONS.find(x => x.id === a.lesson_id);
+        const useful = parseFloat(a.avg_usefulness) || 0;
+        const conf = parseFloat(a.avg_confidence) || 0;
+        const pct = (useful / 5) * 100;
+        return `
+          <div class="mb-4">
+            <div class="flex justify-between text-sm mb-1.5 flex-wrap gap-2">
+              <span class="font-semibold">${l?.icon || ''} ${l?.title || a.lesson_id}</span>
+              <span class="text-xs text-slate-400">
+                <b class="text-amber-300">${useful.toFixed(2)}/5</b> faydalı ·
+                <b class="text-cyan-300">${conf.toFixed(2)}/5</b> özgüven ·
+                ${a.responses} yanıt
+              </span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width: ${pct}%"></div></div>
+          </div>
+        `;
+      }).join('')}
+    </div>
+
+    <div class="glass-strong p-5">
+      <div class="text-sm font-bold mb-3">💬 Kullanıcı Geri Bildirimleri (${samples.length})</div>
+      ${samples.length === 0 ? '<div class="text-sm text-slate-400">Henüz yazılı yanıt yok</div>' : samples.map(s => {
+        const l = LESSONS.find(x => x.id === s.lesson_id);
+        return `
+          <div class="border-b border-white/5 last:border-0 py-3">
+            <div class="flex items-start justify-between mb-2 flex-wrap gap-2">
+              <div>
+                <div class="font-semibold text-sm">${l?.icon || ''} ${l?.title || s.lesson_id}</div>
+                <div class="text-xs text-slate-400">${s.name} · ${new Date(s.submitted_at).toLocaleString('tr-TR')}</div>
+              </div>
+              ${s.usefulness ? `<span class="badge ${s.usefulness >= 4 ? 'badge-success' : s.usefulness >= 3 ? 'badge-cyan' : 'badge-danger'}">${'⭐'.repeat(s.usefulness)}</span>` : ''}
+            </div>
+            <div class="text-sm text-slate-300 p-3 rounded-lg bg-white/5 italic">"${s.takeaway}"</div>
+          </div>
+        `;
+      }).join('')}
     </div>
   `;
 }
@@ -3572,14 +3711,63 @@ async function handleAction(action, id, el) {
         state.player.quizScores[l.id] = Math.max(score, state.player.quizScores[l.id] || 0);
         if (score >= 70) {
           state.player.lessons = state.player.lessons || {};
+          const justCompleted = !state.player.lessons[l.id]?.completed;
           state.player.lessons[l.id] = { completed: true, score };
           checkNewAchievements();
+          // İlk başarılı geçişte mikro-anket göster (admin hariç)
+          if (justCompleted && !state.player.lessons[l.id]?.feedbackGiven && !state.authUser?.isAdmin) {
+            saveGame();
+            state.lessonFb = { lessonId: l.id };
+            state.screen = 'lesson-feedback';
+            render();
+            return;
+          }
         }
         saveGame();
       }
       render();
       break;
     }
+    case 'lf-useful':
+      state.lessonFb = state.lessonFb || {};
+      state.lessonFb.usefulness = parseInt(el.dataset.val);
+      render();
+      break;
+    case 'lf-confidence':
+      state.lessonFb = state.lessonFb || {};
+      state.lessonFb.confidence = parseInt(el.dataset.val);
+      render();
+      break;
+    case 'lf-submit': {
+      const lid = state.lessonFb?.lessonId || state.currentLesson;
+      const ta = document.getElementById('lf-takeaway')?.value?.trim() || null;
+      state.lessonFb.submitting = true; state.lessonFb.error = null; render();
+      try {
+        await api('POST', '/api/lesson-feedback', {
+          lessonId: lid,
+          usefulness: state.lessonFb.usefulness || null,
+          confidence: state.lessonFb.confidence || null,
+          takeaway: ta
+        });
+        state.lessonFb.submitting = false;
+        state.lessonFb.submitted = true;
+        state.lessonFb.takeaway = ta;
+        if (state.player.lessons?.[lid]) state.player.lessons[lid].feedbackGiven = true;
+        saveGame();
+        render();
+        setTimeout(() => { state.screen = 'academy'; state.lessonFb = null; render(); }, 900);
+      } catch (e) {
+        state.lessonFb.submitting = false;
+        state.lessonFb.error = e.message;
+        render();
+      }
+      break;
+    }
+    case 'lf-skip':
+      state.lessonFb = null;
+      state.screen = 'academy';
+      render();
+      break;
     case 'retry-quiz':
       state.quizState = { step: 0, answers: [], showFeedback: false };
       render();
@@ -3767,6 +3955,9 @@ async function handleAction(action, id, el) {
         } else if (t === 'surveys' && !state.admin.surveys) {
           const r = await api('GET', '/api/admin/surveys');
           state.admin.surveys = r.surveys;
+        } else if (t === 'lessons' && !state.admin.lessonFb) {
+          const r = await api('GET', '/api/admin/lesson-feedback');
+          state.admin.lessonFb = r;
         }
         render();
       } catch (e) { toast('Hata: ' + e.message); }
