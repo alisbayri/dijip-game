@@ -1,0 +1,2181 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>DijiP — Dijital Pazarlama Simülasyonu</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg-1: #0a0a1f;
+    --bg-2: #1a1033;
+    --bg-3: #0f1e3d;
+    --accent: #06b6d4;
+    --accent-2: #8b5cf6;
+    --gold: #f59e0b;
+    --success: #10b981;
+    --warn: #f59e0b;
+    --danger: #f43f5e;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: radial-gradient(ellipse at top, var(--bg-2) 0%, var(--bg-1) 50%, #050510 100%);
+    color: #e8e8f5;
+    margin: 0;
+    min-height: 100vh;
+  }
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(circle at 15% 30%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+      radial-gradient(circle at 85% 70%, rgba(6, 182, 212, 0.12) 0%, transparent 40%),
+      radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
+    pointer-events: none; z-index: 0;
+  }
+  .glass {
+    background: rgba(255, 255, 255, 0.04);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 20px;
+  }
+  .glass-strong {
+    background: rgba(255, 255, 255, 0.06);
+    backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 24px;
+  }
+  .gradient-text {
+    background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    color: white;
+    font-weight: 700;
+    padding: 14px 28px;
+    border-radius: 14px;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 8px 24px rgba(139, 92, 246, 0.3);
+  }
+  .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(139, 92, 246, 0.5); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; transform: none; box-shadow: none; }
+  .btn-ghost {
+    background: rgba(255, 255, 255, 0.06);
+    color: #cbd5e1;
+    font-weight: 600;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-ghost:hover { background: rgba(255, 255, 255, 0.1); }
+  .option-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1.5px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .option-card:hover {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(139, 92, 246, 0.4);
+    transform: translateY(-2px);
+  }
+  .option-card.selected {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.15), rgba(139, 92, 246, 0.15));
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 1px #8b5cf6, 0 8px 24px rgba(139, 92, 246, 0.2);
+  }
+  input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 3px;
+    outline: none;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(139, 92, 246, 0.4);
+  }
+  input[type="text"], input[type="number"] {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 12px 16px;
+    color: white;
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.2s;
+  }
+  input:focus { border-color: #8b5cf6; background: rgba(255, 255, 255, 0.08); }
+  .badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px;
+    border-radius: 999px;
+    font-size: 12px; font-weight: 600;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+  .badge-gold { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border-color: rgba(245, 158, 11, 0.3); }
+  .badge-cyan { background: rgba(6, 182, 212, 0.15); color: #67e8f9; border-color: rgba(6, 182, 212, 0.3); }
+  .badge-purple { background: rgba(139, 92, 246, 0.15); color: #c4b5fd; border-color: rgba(139, 92, 246, 0.3); }
+  .badge-success { background: rgba(16, 185, 129, 0.15); color: #6ee7b7; border-color: rgba(16, 185, 129, 0.3); }
+  .badge-danger { background: rgba(244, 63, 94, 0.15); color: #fda4af; border-color: rgba(244, 63, 94, 0.3); }
+  .progress-track {
+    height: 8px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+    border-radius: 999px;
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .metric-card {
+    background: linear-gradient(135deg, rgba(255,255,255,0.05), rgba(255,255,255,0.02));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 18px;
+    padding: 20px;
+  }
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: rgba(15, 15, 30, 0.95);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 14px;
+    padding: 14px 20px;
+    z-index: 100;
+    animation: slideUp 0.3s ease;
+  }
+  @keyframes slideUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .fade-in { animation: fadeIn 0.4s ease both; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+  }
+  .pulse { animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes confetti-fall {
+    0% { transform: translateY(-20vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+  }
+  .confetti {
+    position: fixed;
+    top: 0;
+    width: 10px; height: 14px;
+    pointer-events: none;
+    z-index: 9999;
+    animation: confetti-fall 3.5s ease-in forwards;
+  }
+  @keyframes verdict-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    60% { transform: scale(1.15); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .verdict-pop { animation: verdict-pop 0.8s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+  @keyframes star-glow {
+    0%, 100% { text-shadow: 0 0 10px rgba(251, 191, 36, 0.6); }
+    50% { text-shadow: 0 0 25px rgba(251, 191, 36, 1), 0 0 40px rgba(251, 191, 36, 0.5); }
+  }
+  .star-glow { animation: star-glow 2s ease-in-out infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .spinner {
+    width: 60px; height: 60px;
+    border: 4px solid rgba(139, 92, 246, 0.2);
+    border-top-color: #8b5cf6;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+  }
+  .stat-pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    font-size: 13px; font-weight: 600;
+  }
+  .channel-row {
+    display: grid;
+    grid-template-columns: 140px 1fr 60px;
+    gap: 16px;
+    align-items: center;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 12px;
+    margin-bottom: 8px;
+  }
+  @media (max-width: 640px) {
+    .channel-row { grid-template-columns: 1fr; gap: 8px; }
+  }
+  .star { color: #fbbf24; }
+  .star.empty { color: rgba(255, 255, 255, 0.15); }
+  details summary { cursor: pointer; user-select: none; }
+  details summary::-webkit-details-marker { display: none; }
+  .scroll-hide::-webkit-scrollbar { display: none; }
+  .tutorial-backdrop {
+    position: fixed; inset: 0;
+    background: rgba(5, 5, 16, 0.85);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex; align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.3s ease;
+  }
+  .tutorial-card {
+    max-width: 480px;
+    width: 100%;
+    background: rgba(15, 15, 30, 0.98);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 24px;
+    padding: 32px 28px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(139, 92, 246, 0.2);
+  }
+</style>
+</head>
+<body>
+  <div id="app" class="relative" style="z-index: 1;"></div>
+<script>
+// ============== GAME DATA ==============
+
+const AUDIENCES = {
+  geniş: {
+    id: 'geniş', icon: '🌐',
+    name: 'Geniş Kitle',
+    desc: 'Yaş 18-65, tüm Türkiye, ilgi alanı tanımsız',
+    tag: 'Erişim odaklı'
+  },
+  lokal_ilgi: {
+    id: 'lokal_ilgi', icon: '📍',
+    name: 'Yerel + İlgi Alanı',
+    desc: '5 km yarıçap, ilgi bazlı (kahve, kafe, brunch)',
+    tag: 'Mahalle/yerel'
+  },
+  profesyonel: {
+    id: 'profesyonel', icon: '💼',
+    name: 'B2B Profesyonel',
+    desc: 'LinkedIn iş ünvanı, şirket büyüklüğü, sektör',
+    tag: 'Karar verici'
+  },
+  genç_mobil: {
+    id: 'genç_mobil', icon: '📱',
+    name: 'Genç + Mobil Öncelikli',
+    desc: '18-30, mobil cihaz, sosyal medya ağır kullanıcısı',
+    tag: 'Gen-Z / Y'
+  },
+  yüksek_niyet: {
+    id: 'yüksek_niyet', icon: '🎯',
+    name: 'Yüksek Satın Alma Niyeti',
+    desc: 'Arama geçmişi, sepet terkçi, mevcut müşteri benzeri',
+    tag: 'Yeniden hedefleme'
+  }
+};
+
+const CREATIVES = {
+  fiyat: { id: 'fiyat', icon: '💰', name: 'Fiyat / İndirim Odaklı', desc: '"%30 indirim", "En uygun fiyat" tarzı mesajlar' },
+  duygusal: { id: 'duygusal', icon: '❤️', name: 'Duygusal Hikaye', desc: 'Kişisel hikaye, sıcak bağ, yaşam tarzı' },
+  sosyal_kanıt: { id: 'sosyal_kanıt', icon: '⭐', name: 'Sosyal Kanıt', desc: 'Yorumlar, müşteri sayısı, ödüller' },
+  ürün_özelliği: { id: 'ürün_özelliği', icon: '⚙️', name: 'Ürün Özelliği', desc: 'Teknik üstünlük, demo, özellik listesi' }
+};
+
+const CHANNELS = {
+  google: { id: 'google', icon: '🔍', name: 'Google Ads', desc: 'Arama niyeti yüksek' },
+  meta:   { id: 'meta',   icon: '📸', name: 'Meta Ads (IG/FB)', desc: 'Keşif, görsel' },
+  email:  { id: 'email',  icon: '✉️', name: 'E-posta Pazarlama', desc: 'Mevcut müşteri, sadakat' },
+  seo:    { id: 'seo',    icon: '📈', name: 'SEO / İçerik', desc: 'Uzun vadeli organik trafik' }
+};
+
+const BRIEFS = [
+  {
+    id: 'kahveci', level: 1, icon: '☕',
+    client: 'Köşedeki Kahveci',
+    industry: 'Yerel Kafe',
+    budget: 5000,
+    duration: '2 hafta',
+    goal: 'Mağaza ziyareti artırma',
+    description: 'Mahallede yeni açılan butik kafe. Hedef yakın çevreden müdavim kazanmak. Müşterinin tek vurgusu: "Mahalleli bizi keşfetsin."',
+    ideal: {
+      audience: 'lokal_ilgi',
+      channels: { google: 25, meta: 55, email: 0, seo: 20 },
+      creative: 'duygusal'
+    },
+    rewards: { baseMoney: 5000, xp: 100 },
+    feedbackHints: {
+      audience: 'Yerel iş için 5 km yarıçaplı, ilgi alanı bazlı hedefleme en verimlisi. Geniş kitle bütçeyi boşa harcar.',
+      channels: 'Meta (Instagram/Facebook) yerel keşif için ideal. Google Ads "yakındaki kafe" aramalarını yakalar. E-posta için müşteri listesi yok.',
+      creative: 'Yeni açılan butik kafe için duygusal/atmosfer odaklı içerik (sıcak kupa, dostluk anları) "fiyat indirim" mesajından daha iyi çalışır.'
+    }
+  },
+  {
+    id: 'taki', level: 1, icon: '💍',
+    client: 'El Yapımı Takı Atölyesi',
+    industry: 'E-ticaret / Etsy',
+    budget: 8000,
+    duration: '3 hafta',
+    goal: 'Online satış artırma',
+    description: 'Küçük ev atölyesi, Shopify mağazası var. Ürünleri görsel olarak çok güçlü. Hedef: yeni müşteriye keşfettirip ilk satışı kapatmak.',
+    ideal: {
+      audience: 'genç_mobil',
+      channels: { google: 20, meta: 60, email: 10, seo: 10 },
+      creative: 'duygusal'
+    },
+    rewards: { baseMoney: 8000, xp: 120 },
+    feedbackHints: {
+      audience: 'El yapımı/butik takı için Instagram\'da gezinen 22-35 yaş genç kadın profili en verimli kitledir.',
+      channels: 'Görsel ağırlıklı ürünlerde Meta (özellikle Instagram) kraldır. Google\'da düşük arama hacmi var.',
+      creative: 'El yapımı hikayesi (atölye, süreç, ustanın elleri) duygusal bağ kurar. İndirim mesajı zanaat değerini düşürür.'
+    }
+  },
+  {
+    id: 'fitapp', level: 2, icon: '🏃',
+    client: 'FitApp Mobil Uygulama',
+    industry: 'Mobil Uygulama (ASO)',
+    budget: 25000,
+    duration: '1 ay',
+    goal: 'Uygulama indirme (install)',
+    description: 'Fitness takip uygulaması, store sayfası optimize edildi (ASO). Şimdi ücretli kullanıcı kazanım dönemi. Hedef: install başına düşük maliyet.',
+    ideal: {
+      audience: 'genç_mobil',
+      channels: { google: 35, meta: 55, email: 0, seo: 10 },
+      creative: 'sosyal_kanıt'
+    },
+    rewards: { baseMoney: 18000, xp: 200 },
+    feedbackHints: {
+      audience: 'Mobil uygulama için doğal hedef mobil-öncelikli genç kitle. B2B veya geniş kitle bütçeyi yer.',
+      channels: 'Mobil install için Meta + Google UAC (Universal App Campaign) altın standart. E-posta install\'a dönüşmez.',
+      creative: '"500.000+ kullanıcı", "4.8 yıldız" gibi sosyal kanıt mesajları install oranını ciddi artırır.'
+    }
+  },
+  {
+    id: 'butikotel', level: 2, icon: '🏨',
+    client: 'Butik Otel — Kapadokya',
+    industry: 'Konaklama / Turizm',
+    budget: 20000,
+    duration: '1 ay',
+    goal: 'Direkt rezervasyon',
+    description: 'Kapadokya\'da 12 odalı butik otel. Booking komisyonundan kurtulup direkt rezervasyon istiyor. Hedef sezonu yaklaşıyor.',
+    ideal: {
+      audience: 'yüksek_niyet',
+      channels: { google: 55, meta: 30, email: 10, seo: 5 },
+      creative: 'sosyal_kanıt'
+    },
+    rewards: { baseMoney: 15000, xp: 180 },
+    feedbackHints: {
+      audience: '"Kapadokya otel", "balon turu konaklama" arayan yüksek niyetli kullanıcı en değerli kitle. Geniş hedefleme rezervasyona dönmez.',
+      channels: 'Otel rezervasyonu = arama niyeti. Google Ads ana kanal. Meta retargeting için kullanılır.',
+      creative: 'Booking yorumu (5 yıldız, "muhteşem manzara") + ödüller direkt rezervasyona iter. İndirim güveni zedeler.'
+    }
+  },
+  {
+    id: 'saascrm', level: 3, icon: '💻',
+    client: 'CloudCRM — B2B SaaS',
+    industry: 'B2B Yazılım',
+    budget: 50000,
+    duration: '2 ay',
+    goal: 'Demo talebi (lead gen)',
+    description: 'KOBİ\'lere CRM yazılımı satan SaaS. Sales-led büyüme. Pazarlama hedefi: ayda 40+ kalifiye demo talebi.',
+    ideal: {
+      audience: 'profesyonel',
+      channels: { google: 45, meta: 15, email: 25, seo: 15 },
+      creative: 'ürün_özelliği'
+    },
+    rewards: { baseMoney: 35000, xp: 300 },
+    feedbackHints: {
+      audience: 'B2B SaaS için iş ünvanı/şirket büyüklüğü bazlı hedefleme şart. Genç+mobil veya yerel kitle B2B\'de işe yaramaz.',
+      channels: 'B2B lead gen: Google (yüksek niyet) + E-posta (nurturing) + içerik (SEO/case study). Meta düşük pay alır.',
+      creative: 'Karar vericiler özellik karşılaştırması, ROI hesabı ister. Duygusal mesaj B2B\'de zayıf kalır.'
+    }
+  },
+  {
+    id: 'pastane', level: 1, icon: '🥐',
+    client: 'Mahalle Pastanesi — Bayram Özel',
+    industry: 'Yerel Fırın',
+    budget: 6000,
+    duration: '10 gün',
+    goal: 'Bayram öncesi sipariş artışı',
+    description: 'Aile işletmesi pastane, bayram için özel kurabiye/baklava paketleri çıkardı. Hedef: bayrama 10 gün kala mahalleden ön sipariş toplamak.',
+    ideal: {
+      audience: 'lokal_ilgi',
+      channels: { google: 30, meta: 50, email: 15, seo: 5 },
+      creative: 'duygusal'
+    },
+    rewards: { baseMoney: 6000, xp: 110 },
+    feedbackHints: {
+      audience: 'Bayram siparişi yerel ve duygusal bir karar. 5 km yarıçapta "ailem için" arayan kitle ideal.',
+      channels: 'Meta\'da görsel iştah açar; Google "bayram baklavası sipariş" niyetini yakalar; mevcut müşteriye e-posta hatırlatma çok değerli.',
+      creative: 'Bayram = aile, gelenek, hatıra. Duygusal "büyükannemden kalan tarif" hikayesi indirim mesajını ezer.'
+    }
+  },
+  {
+    id: 'ingilizcekurs', level: 2, icon: '📚',
+    client: 'SpeakNow — Online İngilizce Kursu',
+    industry: 'D2C Eğitim',
+    budget: 30000,
+    duration: '1 ay',
+    goal: 'Ücretsiz deneme dersi kaydı',
+    description: 'Canlı eğitmenli online İngilizce kursu. Funnel: ücretsiz deneme → aylık abonelik. Hedef: deneme kaydı başına maliyet ₺80 altı.',
+    ideal: {
+      audience: 'yüksek_niyet',
+      channels: { google: 50, meta: 25, email: 20, seo: 5 },
+      creative: 'sosyal_kanıt'
+    },
+    rewards: { baseMoney: 22000, xp: 220 },
+    feedbackHints: {
+      audience: 'İngilizce öğrenme niyeti yüksek olan (arama yapan, kurs karşılaştıran) kitle ücretsiz denemeye en hızlı dönüşür.',
+      channels: 'Google\'da "online ingilizce kursu" araması yüksek niyet. E-posta nurturing ile denemeden ödemeli aboneliğe geçiş hızlanır.',
+      creative: '"Öğrencilerimizin %78\'i 3 ayda B1 seviyesine ulaştı" gibi sosyal kanıt + sonuç odaklı mesaj denemeye iter.'
+    }
+  },
+  {
+    id: 'yoga', level: 2, icon: '🧘',
+    client: 'Zen Yoga Stüdyosu — Açılış',
+    industry: 'Yerel Hizmet / Sağlık',
+    budget: 12000,
+    duration: '3 hafta',
+    goal: 'Üyelik / aylık paket satışı',
+    description: 'Yeni açılan butik yoga stüdyosu. İlk ay tanıtım paketleri çıkardı (5 ders ₺499). Hedef: 80 yeni üye toplamak.',
+    ideal: {
+      audience: 'genç_mobil',
+      channels: { google: 25, meta: 55, email: 0, seo: 20 },
+      creative: 'duygusal'
+    },
+    rewards: { baseMoney: 11000, xp: 170 },
+    feedbackHints: {
+      audience: 'Yoga ilgisi genç-orta yaş, mobil-sosyal kullanıcıda yoğun. B2B veya geniş kitle uçurum.',
+      channels: 'Instagram\'da yaşam tarzı görselleri yoga için doğal kanal. Yerel SEO ("[mahalle] yoga") uzun vade altın madeni.',
+      creative: 'Yoga = sakinlik, denge, kendini bulma. Atmosfer/duygusal görsel + hikaye fiyat indiriminden çok daha iyi çalışır.'
+    }
+  },
+  {
+    id: 'sigorta', level: 3, icon: '🛡️',
+    client: 'KolaySigorta.com — Karşılaştırma Sitesi',
+    industry: 'Affiliate / Lead Gen',
+    budget: 60000,
+    duration: '1 ay',
+    goal: 'Teklif al formu doldurma',
+    description: 'Trafik sigortası karşılaştırma sitesi. Lead başına sigorta şirketinden komisyon alıyor. Hedef: form başına maliyet ₺25 altı.',
+    ideal: {
+      audience: 'yüksek_niyet',
+      channels: { google: 65, meta: 20, email: 5, seo: 10 },
+      creative: 'fiyat'
+    },
+    rewards: { baseMoney: 42000, xp: 320 },
+    feedbackHints: {
+      audience: '"Trafik sigortası karşılaştır", "en ucuz kasko" arayan kişi şu an satın almak üzere. En değerli kitle bu.',
+      channels: 'Sigorta = arama niyeti. Google Ads belirleyici kanal. Meta\'da hatırlatma/retargeting destekleyici rol.',
+      creative: 'Sigortada fiyat birinci satın alma kriteri. "%40\'a varan tasarruf, 30 saniyede teklif" mesajı dönüşümü uçurur.'
+    }
+  },
+  {
+    id: 'wellnesspro', level: 3, icon: '💆',
+    client: 'WellnessPro — Estetik Klinik Zinciri',
+    industry: 'Sağlık & Güzellik / CRM',
+    budget: 25000,
+    duration: '3 hafta',
+    goal: 'Mevcut müşteriden yeniden randevu',
+    description: '25.000 kişilik mevcut müşteri veritabanı var. Son 6 ayda gelmeyen müşterileri tekrar kazanmak istiyor. Açılış oranı düşük, ham e-posta listesi.',
+    ideal: {
+      audience: 'yüksek_niyet',
+      channels: { google: 10, meta: 15, email: 65, seo: 10 },
+      creative: 'duygusal'
+    },
+    rewards: { baseMoney: 22000, xp: 230 },
+    feedbackHints: {
+      audience: 'Mevcut müşteri = en yüksek niyet kitle. Soğuk geniş kitle bu hedef için boşa para.',
+      channels: 'CRM yeniden aktivasyon = e-posta. Düşük maliyet, yüksek kişiselleştirme. Meta retargeting destek rolünde.',
+      creative: 'Tıbbi/estetik konularda duygusal/empatik ton + kişisel ihtiyaç hatırlatması. Fiyat odaklı agresif mesaj güveni zedeler.'
+    }
+  },
+  {
+    id: 'tutorialhub', level: 4, icon: '📖',
+    client: 'TutorialHub — Yazılım Eğitim Platformu',
+    industry: 'EdTech / İçerik Pazarlaması',
+    budget: 40000,
+    duration: '3 ay',
+    goal: 'Organik kayıt (SEO)',
+    description: 'Yazılım kursları sunan platform. Ücretli reklam pahalı, sürdürülebilir değil. Hedef: 3 ayda organik aramadan ayda 10K ziyaretçi ve kayıt.',
+    ideal: {
+      audience: 'profesyonel',
+      channels: { google: 15, meta: 10, email: 15, seo: 60 },
+      creative: 'ürün_özelliği'
+    },
+    rewards: { baseMoney: 32000, xp: 380 },
+    feedbackHints: {
+      audience: 'Yazılım öğrenmek isteyen profesyonel / kariyer değiştiren kitle ICP. Yerel veya geniş hedefleme alakasız.',
+      channels: 'Uzun vadeli organik için SEO + içerik ana kanal. Ücretli mecralar destek. ROAS\'ı zamanla bileşik faiz gibi çalışır.',
+      creative: 'Eğitim alıcısı net özellik, müfredat, çıktı arar. Duygusal hikaye yerine "müfredat, eğitmenler, sertifika, kariyer çıktısı" mesajı kazanır.'
+    }
+  },
+  {
+    id: 'kozmetik', level: 3, icon: '💄',
+    client: 'Glow — Kozmetik Markası',
+    industry: 'D2C E-ticaret',
+    budget: 80000,
+    duration: '6 hafta',
+    goal: 'ROAS 4.0+ (Yatırım Getirisi)',
+    description: 'Bağımsız kozmetik markası, Shopify\'da satıyor. Müşteri tabanı oluştu, e-posta listesi 25K. Hedef ölçeklenebilir kârlı satış.',
+    ideal: {
+      audience: 'yüksek_niyet',
+      channels: { google: 30, meta: 45, email: 20, seo: 5 },
+      creative: 'sosyal_kanıt'
+    },
+    rewards: { baseMoney: 55000, xp: 400 },
+    feedbackHints: {
+      audience: 'Olgun e-ticaret markası için retargeting + lookalike (yüksek niyet) en kârlı segment. Soğuk geniş kitle ROAS\'ı düşürür.',
+      channels: 'Kozmetikte Meta görsel + E-posta sadakat kombinasyonu kâr makinası. SEO uzun vade işidir, kısa sürede ROAS getirmez.',
+      creative: '"Influencer kullanıyor", "10.000+ yorum 4.9 yıldız" sosyal kanıtı satın alma kararını hızlandırır.'
+    }
+  }
+];
+
+// ============== MINI-GAMES ==============
+// Tier values: high=3, med=2, low=1
+const MINIGAMES = {
+  kahveci: {
+    channel: 'meta', pick: 1,
+    title: 'En iyi Instagram reklam konseptini seç',
+    subtitle: 'Yerel kafe için ilk gün açılış kampanyası — hangisi mahalleyi cezbeder?',
+    options: [
+      { hook: 'Buharı tüten kupa close-up + "Mahallenin yeni buluşma noktası"', visual: '☕', tier: 'high', reason: 'Atmosfer + yerel aidiyet vurgusu. Niyet uyandırır, kahve içme hissi verir.' },
+      { hook: '"AÇILIŞA ÖZEL %30 İNDİRİM" büyük puntoyla', visual: '🏷️', tier: 'low', reason: 'Butik kafe konumlandırmasını zedeler, fiyat avcısı çeker. Yerel müdavim istiyorsun.' },
+      { hook: 'Boş kafe iç mekan + "Şehrin en iyi kahvesi!"', visual: '🏪', tier: 'low', reason: 'Boş atmosfer + abartılı iddia — güven zedeler, sosyal kanıt yok.' },
+      { hook: 'Arkadaşlar gülüşürken kahve içiyor + "Sevdiklerinle bir kahve molası"', visual: '👫', tier: 'med', reason: 'Duygusal ama jenerik. Yerel vurgu eksik, herhangi bir kafe olabilir.' }
+    ]
+  },
+  taki: {
+    channel: 'meta', pick: 1,
+    title: 'Instagram reklam kreatifini seç',
+    subtitle: 'El yapımı butik takı — keşif odaklı kampanya',
+    options: [
+      { hook: 'Ustanın elleri tel büküyor + "Her parça 4 saatte el emeğiyle"', visual: '✋', tier: 'high', reason: 'Zanaat hikayesi = premium konumlandırma. Fiyat hassasiyetini düşürür.' },
+      { hook: '"BUGÜNE ÖZEL %40 İNDİRİM, tükenmeden al"', visual: '🔥', tier: 'low', reason: 'El yapımı değerini ezer, ucuzluk algısı yaratır.' },
+      { hook: 'Mikro-influencer takıyı takıyor + "Aleyna\'nın favorisi"', visual: '👩', tier: 'med', reason: 'Sosyal kanıt güçlü ama hikaye değil ünlüye odaklı.' },
+      { hook: 'Stok katalog görseli + "Kaliteli takılar"', visual: '💍', tier: 'low', reason: 'Jenerik, dikkat çekmez. Markanın özgün hikayesini anlatmıyor.' }
+    ]
+  },
+  fitapp: {
+    channel: 'meta', pick: 1,
+    title: 'En yüksek install çıkaracak reklamı seç',
+    subtitle: 'Fitness uygulaması — UAC + Meta kullanıcı kazanım',
+    options: [
+      { hook: 'Uygulama ekran görüntüsü + "500.000+ kullanıcı, 4.8★ App Store"', visual: '⭐', tier: 'high', reason: 'Mobil install için sosyal kanıt + rating altın standart. Güven hızla kurar.' },
+      { hook: 'Önce/sonra fotoğraf + "30 günde 8 kilo"', visual: '📉', tier: 'med', reason: 'Dikkat çeker ama abartılı vaat reklam politikası ihlal riski + güven kaybı.' },
+      { hook: 'Fitness koçu konuşuyor + "Programıma katıl"', visual: '🏋️', tier: 'med', reason: 'Kişisel ama yavaş — install kararına direkt itmiyor.' },
+      { hook: 'Sadece logo + "İndir"', visual: '⬇️', tier: 'low', reason: 'Sebep vermez. Kullanıcı neden indireceğini anlamaz.' }
+    ]
+  },
+  butikotel: {
+    channel: 'google', pick: 3,
+    title: '3 anahtar kelime grubuna teklif ver',
+    subtitle: 'Kapadokya butik otel — yüksek niyet trafiği yakalamak istiyorsun',
+    options: [
+      { text: 'kapadokya butik otel', tier: 'high', reason: 'Yüksek niyet + niş — rezervasyon dönüşümü güçlü.' },
+      { text: 'balon turu konaklama', tier: 'high', reason: 'Spesifik deneyim arayan, satın almaya çok yakın.' },
+      { text: 'ürgüp mağara otel', tier: 'high', reason: 'Coğrafi + ürün tipi — rakipsiz niş kelime.' },
+      { text: 'otel', tier: 'low', reason: 'Çok genel, rekabet pahalı, dönüşüm düşük.' },
+      { text: 'tatil', tier: 'low', reason: 'Bilgilendirme niyetinde, satın alma yakın değil.' },
+      { text: 'kapadokya', tier: 'med', reason: 'Geniş, gezi blogu trafiği de gelir; ama rezervasyon niyeti karışık.' }
+    ]
+  },
+  saascrm: {
+    channel: 'google', pick: 3,
+    title: '3 anahtar kelime grubuna teklif ver',
+    subtitle: 'B2B CRM yazılımı — demo talebi arıyorsun',
+    options: [
+      { text: 'kobi crm yazılımı', tier: 'high', reason: 'Tam ICP eşleşmesi — KOBİ + ürün kategorisi.' },
+      { text: 'salesforce alternatifi', tier: 'high', reason: 'Karşılaştırma yapan kullanıcı = satın alma sürecinde.' },
+      { text: 'satış takip programı', tier: 'high', reason: 'Net problem + çözüm arıyor.' },
+      { text: 'crm', tier: 'low', reason: 'Çok geniş, "crm nedir?" arayan kişiler dahil — düşük niyet.' },
+      { text: 'müşteri', tier: 'low', reason: 'Anlamsız geniş — alakasız sorgular gelir.' },
+      { text: 'ücretsiz yazılım', tier: 'low', reason: 'Bütçesiz kullanıcı çeker, ödeyen müşteri değil.' }
+    ]
+  },
+  kozmetik: {
+    channel: 'meta', pick: 1,
+    title: 'Instagram reklam kreatifini seç',
+    subtitle: 'Olgun kozmetik markası — ROAS hedefi yüksek',
+    options: [
+      { hook: 'Carousel yorumlar + "10.000+ mutlu müşteri 4.9★"', visual: '⭐', tier: 'high', reason: 'Olgun marka için sosyal kanıt en hızlı satın aldıran tetik.' },
+      { hook: 'Influencer ürünü uyguluyor + "Günlük rutinim"', visual: '💋', tier: 'med', reason: 'İyi performans ama sosyal kanıt + ürün özelliği kombinasyonundan zayıf.' },
+      { hook: '"FLASH İNDİRİM 6 saat kaldı %50"', visual: '⏰', tier: 'low', reason: 'Olgun marka için aciliyet abuse — algı düşürür ve LTV\'yi vurur.' },
+      { hook: 'Ürün rafının fotoğrafı', visual: '🏬', tier: 'low', reason: 'Sebep yok, hikaye yok. Scroll\'da yenilir.' }
+    ]
+  },
+  pastane: {
+    channel: 'meta', pick: 1,
+    title: 'Bayram reklam konsepti',
+    subtitle: 'Aile işletmesi pastane — 10 gün kala duygusal bağ kurmalısın',
+    options: [
+      { hook: 'Yaşlı kadın + tepside taze kurabiye + "Anneannemin tarifi, 50 yıldır aynı"', visual: '👵', tier: 'high', reason: 'Bayram = aile + gelenek + duygu. Mükemmel ton.' },
+      { hook: '%15 bayram indirimi banner', visual: '🏷️', tier: 'low', reason: 'Aile işletmesi konumlandırmasını zedeler, ucuz görünür.' },
+      { hook: 'Şık kutu içinde baklava + "Yeni bayram lezzeti"', visual: '🎁', tier: 'med', reason: 'Görsel iştah açar ama duygusal bağ kurmuyor.' },
+      { hook: 'Boş pastane vitrini + "En iyi pastane"', visual: '🏪', tier: 'low', reason: 'Hareket yok, neden burası diye soru cevapsız.' }
+    ]
+  },
+  ingilizcekurs: {
+    channel: 'google', pick: 3,
+    title: '3 anahtar kelime grubuna teklif ver',
+    subtitle: 'Online İngilizce kursu — ücretsiz deneme kaydı topla',
+    options: [
+      { text: 'online ingilizce kursu', tier: 'high', reason: 'Tam ürün kategorisi + online — yüksek niyet.' },
+      { text: 'ingilizce konuşma pratiği', tier: 'high', reason: 'Net problem — kursun çözdüğü şey bu.' },
+      { text: 'ielts hazırlık kursu', tier: 'high', reason: 'Acil hedefi olan kullanıcı = hızlı dönüşüm.' },
+      { text: 'ingilizce', tier: 'low', reason: 'Devasa, "ingilizce nedir?" trafiği de gelir — bütçe israfı.' },
+      { text: 'ücretsiz', tier: 'low', reason: 'Ödeme yapmayacak kullanıcı çeker.' },
+      { text: 'youtube ingilizce', tier: 'low', reason: 'Ücretsiz alternatife yönelmiş, dönüştürmek zor.' }
+    ]
+  },
+  yoga: {
+    channel: 'meta', pick: 1,
+    title: 'Açılış kampanyası Instagram kreatifi',
+    subtitle: 'Yoga stüdyosu açılışı — atmosfer ve aidiyet hissi yarat',
+    options: [
+      { hook: 'Gün batımında yoga pozu + "Stresten kurtulmanın sessiz yolu"', visual: '🧘', tier: 'high', reason: 'Yoga = sakinlik, denge. Tam ton, tam görsel, tam hedef.' },
+      { hook: '%30 açılış indirimi', visual: '🏷️', tier: 'low', reason: 'Yoga değer önermesi indirim değil — wellness alanını zedeler.' },
+      { hook: 'Grup dersinin selfie\'si + gülüşmeler', visual: '👯', tier: 'med', reason: 'Sosyal bağ iyi ama yoga özünü (içe dönüş) iletmiyor.' },
+      { hook: 'Boş stüdyo iç mekanı', visual: '🏛️', tier: 'low', reason: 'İnsan yok, duygu yok. Dönüşüm zayıf.' }
+    ]
+  },
+  wellnesspro: {
+    channel: 'email', pick: 1,
+    title: 'En iyi e-posta konu satırını seç',
+    subtitle: 'Mevcut müşterilere yeniden aktivasyon — 25.000 alıcı, sadece bir şansın var',
+    options: [
+      { hook: '"Ayşe, 6 ay oldu — kendine bir mola hak ettin 🌸"', visual: '🌸', tier: 'high', reason: 'Kişiselleştirme + samimi hatırlatma + yumuşak emoji. Açılış oranını uçurur, satış baskısı yok.' },
+      { hook: '"BÜYÜK İNDİRİM!! HEMEN AÇIN!! SADECE BUGÜN"', visual: '⚠️', tier: 'low', reason: 'Spam filtresine yakalanır + caps lock = güven kaybı. Klinik markası için imaj felaketi.' },
+      { hook: '"Yeni programlarımız hakkında bilgilendirme"', visual: '📄', tier: 'low', reason: 'Sıkıcı, jenerik, kişisel değil. Açma motivasyonu sıfır.' },
+      { hook: '"Sana özel %25 indirim — yarın bitiyor"', visual: '💸', tier: 'med', reason: 'Net teklif iyi ama acelecilik premium klinik tonuyla çelişiyor. Sadakat değil sadece fiyat avcısı çeker.' }
+    ]
+  },
+  tutorialhub: {
+    channel: 'seo', pick: 3,
+    title: 'İçerik takvimine 3 konu seç',
+    subtitle: 'Yazılım eğitim platformu — uzun vadeli organik trafik için doğru içeriği seç',
+    options: [
+      { text: '"Python ile veri analizi başlangıç rehberi"', tier: 'high', reason: 'Yüksek arama hacmi + ürünle birebir eşleşme + öğrenme niyeti = kayıt dönüşümü güçlü.' },
+      { text: '"Frontend mi Backend mi? Kariyer karşılaştırması"', tier: 'high', reason: 'Karar verme aşamasındaki kitle — kursa abone olma niyeti zirvede.' },
+      { text: '"Web geliştirici olarak ilk işin nasıl bulunur"', tier: 'high', reason: 'Uzun kuyruk anahtar kelime + ICP eşleşmesi + uygulanabilir değer.' },
+      { text: '"En iyi kahve makineleri 2026"', tier: 'low', reason: 'Tamamen alakasız. SEO otoritesini sulandırır, kayıt getirmez.' },
+      { text: '"Pazarlama nedir?"', tier: 'low', reason: 'Devasa rekabet + ürünle alakasız + dönüşüm sıfır.' },
+      { text: '"Yapay zekanın tarihi"', tier: 'low', reason: 'Bilgilendirme niyetli okuyucu kayıt yaptırmaz. Trafik gelir ama dönüşmez.' }
+    ]
+  },
+  sigorta: {
+    channel: 'google', pick: 3,
+    title: '3 anahtar kelime grubuna teklif ver',
+    subtitle: 'Sigorta karşılaştırma sitesi — form doldurma hedefi',
+    options: [
+      { text: 'trafik sigortası karşılaştır', tier: 'high', reason: 'Karşılaştırıyor = satın alma noktasında. En değerli kelime.' },
+      { text: 'en ucuz kasko', tier: 'high', reason: 'Fiyat hassasiyetini gösteriyor + satın alma niyeti net.' },
+      { text: 'online sigorta teklif', tier: 'high', reason: 'Online + teklif = sitenin çözdüğü tam problem.' },
+      { text: 'sigorta', tier: 'low', reason: 'Devasa, "sigorta nedir?" araştırması da gelir.' },
+      { text: 'araba', tier: 'low', reason: 'Sigortayla ilgisiz, satın almaya gelmez.' },
+      { text: 'kasko hesapla', tier: 'med', reason: 'Hesaplamak isteyen niyetli ama henüz teklif almıyor.' }
+    ]
+  }
+};
+
+// ============== MARKET EVENTS ==============
+const MARKET_EVENTS = [
+  { id: 'competitor_sale',  icon: '⚔️', tone: 'bad',   title: 'Rakip büyük indirim açtı',              desc: 'Aynı dönemde rakip marka agresif kampanya başlattı. Tıklamalar etkilendi.',      modifier: -12 },
+  { id: 'viral_share',      icon: '🚀', tone: 'good',  title: 'İçerik viral oldu',                       desc: 'Bir kullanıcı reklamı paylaştı, organik erişim patladı.',                        modifier: 22 },
+  { id: 'seasonal_demand',  icon: '🌟', tone: 'good',  title: 'Sezonsal talep yüksek',                   desc: 'Pazar yüksek satın alma niyetinde, dönüşüm oranı destekleniyor.',                modifier: 12 },
+  { id: 'policy_block',     icon: '🚧', tone: 'bad',   title: 'Reklam politikası uyarısı',               desc: 'Bir reklam reddedildi, 2 gün gecikme yaşandı. Etkin gün sayısı düştü.',          modifier: -10 },
+  { id: 'micro_influencer', icon: '📢', tone: 'good',  title: 'Mikro-influencer ücretsiz paylaştı',      desc: 'Beklenmedik destek geldi, sosyal kanıt güçlendi.',                               modifier: 15 },
+  { id: 'algo_update',      icon: '🤖', tone: 'bad',   title: 'Platform algoritma güncellemesi',         desc: 'CPM\'ler %20 arttı, erişim daraldı.',                                            modifier: -10 },
+  { id: 'good_reviews',     icon: '💬', tone: 'good',  title: 'Pozitif yorum bombası',                   desc: 'Mevcut müşterilerden taze yorumlar geldi, güven yükseldi.',                      modifier: 10 },
+  { id: 'creative_fatigue', icon: '😴', tone: 'bad',   title: 'Kreatif yorgunluğu',                       desc: 'Aynı görsel çok gösterildi, CTR düşmeye başladı.',                                modifier: -8 }
+];
+
+function rollMarketEvent() {
+  if (Math.random() < 0.4) {
+    return MARKET_EVENTS[Math.floor(Math.random() * MARKET_EVENTS.length)];
+  }
+  return null;
+}
+
+// ============== ACHIEVEMENTS ==============
+const ACHIEVEMENTS = [
+  { id: 'first_campaign', icon: '🎬', name: 'İlk Adım',         desc: 'İlk kampanyanı tamamla',                  check: p => p.history.length >= 1 },
+  { id: 'three_stars',    icon: '⭐', name: 'Mükemmeliyetçi',    desc: '3 yıldız al',                              check: p => p.history.some(h => h.stars === 3) },
+  { id: 'streak_3',       icon: '🔥', name: 'Üst Üste 3',         desc: 'Arka arkaya 3 kampanyada 2+ yıldız',        check: p => { let c=0,m=0; p.history.forEach(h=>{ if(h.stars>=2){c++;m=Math.max(m,c);} else c=0; }); return m>=3; } },
+  { id: 'roi_500',        icon: '💸', name: 'ROI Avcısı',         desc: 'Bir kampanyada %500+ ROI',                 check: p => p.history.some(h => h.metrics.roi >= 500) },
+  { id: 'all_industries', icon: '🌍', name: 'Çok Yönlü',          desc: '5 farklı sektörde kampanya yap',            check: p => new Set(p.history.map(h => h.id)).size >= 5 },
+  { id: 'first_hire',     icon: '🤝', name: 'Ajans Kurucusu',     desc: 'İlk uzmanını işe al',                       check: p => (p.staff || []).length >= 1 },
+  { id: 'full_team',      icon: '🏢', name: 'Tam Kadro',          desc: '6 uzmanı da işe al',                        check: p => (p.staff || []).length >= 6 },
+  { id: 'rich',           icon: '💰', name: 'Milyoner',           desc: '₺100K+ birikim',                            check: p => p.money >= 100000 },
+  { id: 'level_3',        icon: '🚀', name: 'Senior Pazarlamacı', desc: 'Seviye 3\'e ulaş',                          check: p => levelFromXP(p.xp) >= 3 },
+  { id: 'half_briefs',    icon: '📋', name: 'Yarı Yolda',         desc: '6 brief tamamla',                           check: p => p.completedBriefs.length >= 6 },
+  { id: 'all_briefs',     icon: '🏆', name: 'Efsane',             desc: 'Tüm brief\'leri tamamla',                   check: p => p.completedBriefs.length >= BRIEFS.length },
+  { id: 'mini_perfect',   icon: '🎯', name: 'Keskin Nişancı',     desc: 'Mini görevde 100 puan',                    check: p => p.history.some(h => h.miniScore === 100) }
+];
+
+function unlockedAchievements() {
+  return ACHIEVEMENTS.filter(a => a.check(state.player));
+}
+function checkNewAchievements() {
+  const have = state.player.achievements || [];
+  const now = unlockedAchievements().map(a => a.id);
+  const fresh = now.filter(id => !have.includes(id));
+  state.player.achievements = now;
+  return fresh.map(id => ACHIEVEMENTS.find(a => a.id === id));
+}
+
+// ============== CUSTOMER PERSONAS ==============
+const PERSONAS = {
+  kahveci:       { name: 'Mehmet Yılmaz',  role: 'Kafe Sahibi',                avatar: '👨‍🍳',  quote: 'Yeni açıldık ama mahalleliyi yakalayamıyoruz. Sabah saatleri bomboş. Bütçem büyük değil ama doğru yere harcamak istiyorum.' },
+  taki:          { name: 'Selin Kara',     role: 'Atölye Kurucusu',            avatar: '👩‍🎨',  quote: 'Etsy\'de 47 satışım var ama büyümüyor. Markamın hikayesi güzel — sadece görünmüyorum. İndirim yapmak istemiyorum.' },
+  fitapp:        { name: 'Burak Demir',    role: 'Co-founder, FitApp',         avatar: '🧑‍💼',  quote: 'ASO tamam, store\'da 4.7 yıldızdayız. Şimdi install başına ₺15-20 maliyet hedefimiz var. Sosyal kanıtımız güçlü, kullanabilir miyiz?' },
+  butikotel:     { name: 'Fatma Kavak',    role: 'Otel İşletmecisi',           avatar: '👩‍💼',  quote: 'Booking %18 komisyon alıyor. Direkt rezervasyon için reklamcıya ödeyebileceğim bütçem var. Sezon yaklaşıyor, zamanım dar.' },
+  saascrm:       { name: 'Onur Çelik',     role: 'CMO, CloudCRM',              avatar: '🧑‍💻',  quote: 'Aylık 40 kalifiye demo lazım. Sales ekibimiz CAC\'ı ₺2.500\'e kadar tolere eder. Lead kalitesi quantitiden önemli.' },
+  kozmetik:      { name: 'İrem Su',        role: 'Kurucu, Glow',               avatar: '💁‍♀️',  quote: 'E-posta listemiz 25K. Reklam veriyoruz ama ROAS 2.5\'te tıkandı. 4.0 hedefliyorum — ölçeklenebilir olsun.' },
+  pastane:       { name: 'Hatice Hanım',   role: 'Pastane Sahibi',             avatar: '👵',     quote: 'Bayrama 10 gün kaldı. Geçen sene çok az sipariş geldi. Mahalleliyle aramız iyi sadece bizi görmüyorlar.' },
+  ingilizcekurs: { name: 'Deniz Aksoy',    role: 'Growth Lead',                avatar: '🧑‍🏫',  quote: 'Ücretsiz deneme dersi açıyoruz. Kayıt başı ₺80\'in altında kalmamız lazım. Sonra %22\'si aboneliğe dönüyor.' },
+  yoga:          { name: 'Cansu Ergin',    role: 'Stüdyo Sahibi',              avatar: '🧘‍♀️',  quote: 'Stüdyoyu açtık ama Instagram\'da sıfırız. Kapasitemiz sınırlı, 80 yeni üyeyle aylık geçimimi çıkarırım.' },
+  sigorta:       { name: 'Cem Bayram',     role: 'Performans Pazarlama Müdürü',avatar: '🧔',     quote: 'Form başı maliyet ₺25\'in üstüne çıkarsa zarar ediyoruz. Lead kalitesi ve dönüşüm net olmalı.' },
+  wellnesspro:   { name: 'Dr. Pınar Acar', role: 'Klinik CMO',                 avatar: '🩺',     quote: 'CRM\'de 25K müşteri var, son 6 ayda %38\'i hiç dönmedi. Yeni müşteri kazanmak 5 kat pahalı — mevcutlara dönmeliyiz.' },
+  tutorialhub:   { name: 'Ege Toprak',     role: 'CEO, TutorialHub',           avatar: '🧑‍💻',  quote: 'Ücretli reklam sürdürülebilir değil — pahalandı. 3 ayda organikten ayda 10K ziyaretçi ve %3 kayıt dönüşümü istiyorum.' }
+};
+
+// ============== AGENCY / STAFF ==============
+const STAFF = {
+  seo:      { id: 'seo',      icon: '🔍', name: 'SEO Uzmanı',           role: 'SEO kanalında karar puanını +25 artırır', hireCost: 8000,  salary: 3000, bonusChannel: 'seo',    bonus: 25 },
+  social:   { id: 'social',   icon: '📸', name: 'Sosyal Medya Yöneticisi', role: 'Meta kanalında karar puanını +25 artırır', hireCost: 10000, salary: 3500, bonusChannel: 'meta',   bonus: 25 },
+  ppc:      { id: 'ppc',      icon: '🎯', name: 'PPC Uzmanı',            role: 'Google Ads karar puanını +25 artırır',     hireCost: 12000, salary: 4000, bonusChannel: 'google', bonus: 25 },
+  email:    { id: 'email',    icon: '✉️', name: 'E-posta Stratejisti',   role: 'E-posta karar puanını +25 artırır',        hireCost: 6000,  salary: 2500, bonusChannel: 'email',  bonus: 25 },
+  creative: { id: 'creative', icon: '🎨', name: 'Kreatif Direktör',      role: 'Kreatif puanını +20 artırır + Meta mini-oyunda ipucu',  hireCost: 15000, salary: 4500, bonusType: 'creative', bonus: 20 },
+  data:     { id: 'data',     icon: '📊', name: 'Veri Analisti',         role: 'Sonuçlardaki rastgelelik azalır, ortalama +10 baz',   hireCost: 10000, salary: 3500, bonusType: 'data',     bonus: 10 }
+};
+
+function getStaff(id) { return state.player.staff?.find(s => s === id); }
+function hasStaff(id) { return state.player.staff?.includes(id); }
+function totalSalary() { return (state.player.staff || []).reduce((s, id) => s + (STAFF[id]?.salary || 0), 0); }
+function agencyUnlocked() { return levelFromXP(state.player.xp) >= 2 && state.player.completedBriefs.length >= 2; }
+
+function tierValue(t) { return t === 'high' ? 3 : t === 'med' ? 2 : 1; }
+function miniGameScore(picked, config) {
+  if (!picked.length) return 0;
+  const sum = picked.reduce((s, i) => s + tierValue(config.options[i].tier), 0);
+  const max = config.pick * 3;
+  return Math.round((sum / max) * 100);
+}
+
+// ============== STATE ==============
+
+const state = {
+  screen: 'welcome',
+  player: {
+    name: '',
+    level: 1,
+    xp: 0,
+    money: 0,
+    reputation: 0,
+    completedBriefs: [],
+    history: [],
+    staff: [],
+    agencyName: '',
+    achievements: []
+  },
+  currentBrief: null,
+  decisions: {
+    audience: null,
+    channels: { google: 25, meta: 25, email: 25, seo: 25 },
+    creative: null
+  },
+  wizardStep: 0,
+  lastResult: null,
+  miniGamePicked: [],
+  miniGameResult: null,
+  tutorialStep: 0
+};
+
+const TUTORIAL_STEPS = [
+  { icon: '📥', title: 'Brief Kutusu', desc: 'Burada müşterilerin sana açtığı kampanyaları görürsün. Her brief gerçek bir senaryodur: bütçe, hedef ve süre belirlidir.' },
+  { icon: '🧭', title: '3 Kritik Karar', desc: 'Her kampanyada hedef kitle, kanal dağılımı ve kreatif tonunu sen seçersin. Yanlış kombinasyon bütçeyi yer; doğru kombinasyon yıldız getirir.' },
+  { icon: '🎯', title: 'Mini Görev', desc: 'Baskın kanala özel hızlı bir karar: anahtar kelime seçimi, reklam konsepti, e-posta konu satırı ya da SEO konusu. Doğru seçim sonucu güçlendirir.' },
+  { icon: '📊', title: 'Metrik + Geri Bildirim', desc: 'Sonuçta CTR, dönüşüm, ROI metriklerini ve neden iyi/kötü gittiğine dair eğitici açıklamayı görürsün. Hatadan öğrenmek için tasarlandı.' },
+  { icon: '🏢', title: 'Ajansını Kur', desc: 'Seviye yükseldikçe uzman işe alabilirsin. Her uzman bir kanalda bonus verir ama maaşı kampanyadan kesilir. Stratejik kadro = kârlı ajans.' }
+];
+
+const SAVE_KEY = 'dijip_save_v1';
+function saveGame() {
+  try { localStorage.setItem(SAVE_KEY, JSON.stringify({ player: state.player })); } catch {}
+}
+function loadGame() {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+    if (data?.player?.name) {
+      state.player = { ...state.player, ...data.player };
+      state.screen = 'dashboard';
+      return true;
+    }
+  } catch {}
+  return false;
+}
+function resetGame() {
+  if (!confirm('Tüm ilerlemen silinecek. Emin misin?')) return;
+  localStorage.removeItem(SAVE_KEY);
+  state.player = { name: '', level: 1, xp: 0, money: 0, reputation: 0, completedBriefs: [], history: [] };
+  state.currentBrief = null;
+  state.decisions = { audience: null, channels: { google: 25, meta: 25, email: 25, seo: 25 }, creative: null };
+  state.wizardStep = 0;
+  state.lastResult = null;
+  state.screen = 'welcome';
+  render();
+}
+
+const XP_THRESHOLDS = [0, 200, 500, 900, 1400, 2000];
+function levelFromXP(xp) {
+  for (let i = XP_THRESHOLDS.length - 1; i >= 0; i--) if (xp >= XP_THRESHOLDS[i]) return i + 1;
+  return 1;
+}
+function xpToNext(xp) {
+  const lvl = levelFromXP(xp);
+  const next = XP_THRESHOLDS[lvl] ?? XP_THRESHOLDS[XP_THRESHOLDS.length - 1];
+  const prev = XP_THRESHOLDS[lvl - 1] ?? 0;
+  return { current: xp - prev, needed: next - prev, pct: Math.min(100, ((xp - prev) / (next - prev)) * 100) };
+}
+
+// ============== SIMULATION ==============
+
+function similarityScore(actual, ideal, type) {
+  if (type === 'audience' || type === 'creative') return actual === ideal ? 100 : 35;
+  if (type === 'channels') {
+    let diff = 0;
+    Object.keys(ideal).forEach(k => { diff += Math.abs((actual[k] || 0) - (ideal[k] || 0)); });
+    return Math.max(0, 100 - diff * 0.6);
+  }
+  return 0;
+}
+
+function runSimulation(brief, decisions, miniGameBonusPct = 0, marketEvent = null) {
+  let audScore = similarityScore(decisions.audience, brief.ideal.audience, 'audience');
+  let chScore  = similarityScore(decisions.channels, brief.ideal.channels, 'channels');
+  let crScore  = similarityScore(decisions.creative, brief.ideal.creative, 'creative');
+
+  const staff = state.player.staff || [];
+  const channelBonuses = {};
+  let creativeBonus = 0;
+  let dataBonus = 0;
+  staff.forEach(id => {
+    const s = STAFF[id]; if (!s) return;
+    if (s.bonusChannel) {
+      const allocation = (decisions.channels[s.bonusChannel] || 0) / 100;
+      if (allocation > 0) channelBonuses[s.bonusChannel] = (channelBonuses[s.bonusChannel] || 0) + s.bonus * allocation;
+    } else if (s.bonusType === 'creative') creativeBonus += s.bonus;
+    else if (s.bonusType === 'data') dataBonus += s.bonus;
+  });
+  const channelBonusTotal = Object.values(channelBonuses).reduce((a,b)=>a+b,0);
+  chScore = Math.min(100, chScore + channelBonusTotal);
+  crScore = Math.min(100, crScore + creativeBonus);
+
+  const overallRaw = (audScore * 0.35 + chScore * 0.4 + crScore * 0.25);
+  const eventMod = marketEvent ? marketEvent.modifier : 0;
+  const overall = Math.max(0, Math.min(100, overallRaw + miniGameBonusPct + dataBonus * 0.3 + eventMod));
+
+  const randRange = dataBonus > 0 ? 0.5 : 1;
+  const rand = (a, b) => a + Math.random() * (b - a) * randRange;
+  const factor = overall / 100;
+
+  const ctr = +(0.8 + factor * 6.5 + rand(-0.3, 0.5)).toFixed(2);
+  const cvr = +(0.5 + factor * 5.5 + rand(-0.2, 0.4)).toFixed(2);
+  const traffic = Math.round((brief.budget / 4) * (0.6 + factor * 1.4));
+  const conversions = Math.round(traffic * (cvr / 100));
+  const avgValue = brief.id === 'saascrm' ? 0 : (brief.id === 'butikotel' ? 4200 : 250 + factor * 200);
+  const revenue = brief.id === 'saascrm'
+    ? Math.round(conversions * 1500)
+    : Math.round(conversions * avgValue);
+  const roas = +(revenue / brief.budget).toFixed(2);
+  const roi  = +(((revenue - brief.budget) / brief.budget) * 100).toFixed(1);
+  const score = Math.round(overall);
+  const stars = score >= 85 ? 3 : score >= 65 ? 2 : score >= 40 ? 1 : 0;
+
+  const moneyEarned = Math.round(brief.rewards.baseMoney * (0.3 + factor * 1.2));
+  const xpEarned = Math.round(brief.rewards.xp * (0.4 + factor * 1.0));
+  const repDelta = stars === 3 ? +2 : stars === 2 ? +1 : stars === 1 ? 0 : -1;
+
+  const feedback = [];
+  if (decisions.audience !== brief.ideal.audience) {
+    feedback.push({
+      type: 'warn', area: 'Hedef Kitle',
+      title: `Seçtin: ${AUDIENCES[decisions.audience].name}`,
+      message: `İdeal: ${AUDIENCES[brief.ideal.audience].name}. ${brief.feedbackHints.audience}`
+    });
+  } else {
+    feedback.push({ type: 'ok', area: 'Hedef Kitle', title: 'Tam isabet', message: 'Kitle seçimi brief\'le birebir örtüştü.' });
+  }
+  const chDiff = Object.keys(brief.ideal.channels).reduce((s, k) => s + Math.abs((decisions.channels[k] || 0) - brief.ideal.channels[k]), 0);
+  if (chDiff > 30) {
+    feedback.push({
+      type: 'warn', area: 'Kanal Dağılımı',
+      title: `Bütçe dağılımı ideal değil`,
+      message: `${brief.feedbackHints.channels} İdeal dağılım: ${Object.entries(brief.ideal.channels).filter(([k,v])=>v>0).map(([k,v])=>`${CHANNELS[k].name.split(' ')[0]} %${v}`).join(', ')}.`
+    });
+  } else {
+    feedback.push({ type: 'ok', area: 'Kanal Dağılımı', title: 'İyi denge', message: 'Bütçeyi doğru kanallara dağıttın.' });
+  }
+  if (decisions.creative !== brief.ideal.creative) {
+    feedback.push({
+      type: 'warn', area: 'Kreatif Yaklaşım',
+      title: `Seçtin: ${CREATIVES[decisions.creative].name}`,
+      message: `İdeal: ${CREATIVES[brief.ideal.creative].name}. ${brief.feedbackHints.creative}`
+    });
+  } else {
+    feedback.push({ type: 'ok', area: 'Kreatif Yaklaşım', title: 'Doğru ton', message: 'Mesaj tonu hedef kitleyle uyumlu.' });
+  }
+
+  const salaryCost = totalSalary();
+  const netMoneyEarned = Math.max(0, moneyEarned - salaryCost);
+
+  return {
+    metrics: { ctr, cvr, traffic, conversions, revenue, roas, roi },
+    score, stars,
+    moneyEarned: netMoneyEarned, grossMoney: moneyEarned, salaryCost,
+    xpEarned, repDelta,
+    feedback,
+    staffContribution: { channelBonuses, creativeBonus, dataBonus, hired: [...staff] },
+    marketEvent,
+    scores: { audience: Math.round(audScore), channels: Math.round(chScore), creative: Math.round(crScore) }
+  };
+}
+
+// ============== RENDER ==============
+
+const app = document.getElementById('app');
+
+function fireConfetti() {
+  const colors = ['#06b6d4', '#8b5cf6', '#f59e0b', '#10b981', '#ec4899', '#fbbf24'];
+  for (let i = 0; i < 80; i++) {
+    const el = document.createElement('div');
+    el.className = 'confetti';
+    el.style.left = Math.random() * 100 + 'vw';
+    el.style.background = colors[Math.floor(Math.random() * colors.length)];
+    el.style.animationDelay = Math.random() * 0.6 + 's';
+    el.style.animationDuration = (2.5 + Math.random() * 1.5) + 's';
+    el.style.transform = `rotate(${Math.random() * 360}deg)`;
+    if (Math.random() > 0.5) el.style.borderRadius = '50%';
+    document.body.appendChild(el);
+    setTimeout(() => el.remove(), 4500);
+  }
+}
+
+function animateCounters() {
+  const els = document.querySelectorAll('[data-counter]');
+  els.forEach(el => {
+    const target = parseFloat(el.dataset.counter);
+    const decimals = parseInt(el.dataset.decimals || '0');
+    const suffix = el.dataset.suffix || '';
+    const prefix = el.dataset.prefix || '';
+    if (isNaN(target)) return;
+    const duration = 1100;
+    const start = performance.now();
+    const startValue = 0;
+    function step(now) {
+      const elapsed = now - start;
+      const t = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      const value = startValue + (target - startValue) * eased;
+      const formatted = decimals === 0 ? Math.round(value).toLocaleString('tr-TR') : value.toFixed(decimals);
+      el.textContent = `${prefix}${formatted}${suffix}`;
+      if (t < 1) requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+function render() {
+  const screens = {
+    welcome: renderWelcome,
+    dashboard: renderDashboard,
+    brief: renderBriefDetail,
+    wizard: renderWizard,
+    minigame: renderMiniGame,
+    simulating: renderSimulating,
+    results: renderResults,
+    report: renderReport,
+    agency: renderAgency,
+    victory: renderVictory
+  };
+  app.innerHTML = (screens[state.screen] || renderWelcome)();
+  if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
+    app.insertAdjacentHTML('beforeend', renderTutorial());
+  }
+  attachListeners();
+  requestAnimationFrame(animateCounters);
+}
+
+function renderTutorial() {
+  const step = state.tutorialStep;
+  const t = TUTORIAL_STEPS[step];
+  if (!t) return '';
+  return `
+    <div class="tutorial-backdrop" id="tutorial-bd">
+      <div class="tutorial-card fade-in">
+        <div class="text-6xl text-center mb-4">${t.icon}</div>
+        <div class="text-xs text-slate-400 text-center uppercase tracking-wider mb-1">Adım ${step + 1} / ${TUTORIAL_STEPS.length}</div>
+        <h3 class="text-2xl font-black text-center mb-3 gradient-text">${t.title}</h3>
+        <p class="text-slate-300 text-center leading-relaxed mb-6">${t.desc}</p>
+        <div class="flex items-center gap-2 justify-center mb-6">
+          ${TUTORIAL_STEPS.map((_, i) => `<div class="w-2 h-2 rounded-full ${i === step ? 'bg-purple-400' : i < step ? 'bg-purple-700' : 'bg-white/15'}"></div>`).join('')}
+        </div>
+        <div class="flex gap-2">
+          <button class="btn-ghost text-sm" data-action="tutorial-skip">Atla</button>
+          <div class="flex-1"></div>
+          ${step > 0 ? `<button class="btn-ghost text-sm" data-action="tutorial-prev">← Geri</button>` : ''}
+          <button class="btn-primary text-sm" data-action="tutorial-next">
+            ${step === TUTORIAL_STEPS.length - 1 ? 'Başlayalım 🚀' : 'Sonraki →'}
+          </button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function topBar() {
+  const p = state.player;
+  const xp = xpToNext(p.xp);
+  return `
+    <div class="glass px-5 lg:px-7 py-4 lg:py-5 flex items-center justify-between gap-4 mb-6 fade-in flex-wrap">
+      <div class="flex items-center gap-3 lg:gap-4">
+        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center font-bold text-white text-lg lg:text-xl flex-shrink-0" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); box-shadow: 0 4px 20px rgba(139,92,246,0.4);">${p.name[0]?.toUpperCase() || '?'}</div>
+        <div>
+          <div class="text-xs lg:text-sm text-slate-400">Dijital Pazarlama Uzmanı</div>
+          <div class="font-bold text-white text-lg lg:text-xl">${p.name || 'Oyuncu'}</div>
+        </div>
+      </div>
+      <div class="flex items-center gap-2 flex-wrap justify-end">
+        <div class="stat-pill"><span>⭐</span> Sv. ${levelFromXP(p.xp)}</div>
+        <div class="stat-pill"><span>💎</span> ${p.xp} XP</div>
+        <div class="stat-pill"><span>💰</span> ₺${p.money.toLocaleString('tr-TR')}</div>
+        <div class="stat-pill"><span>📊</span> İtibar ${p.reputation}</div>
+      </div>
+    </div>
+    <div class="mb-6 fade-in">
+      <div class="flex justify-between text-xs text-slate-400 mb-1.5">
+        <span>Sonraki seviyeye ilerleme</span>
+        <span>${xp.current}/${xp.needed} XP</span>
+      </div>
+      <div class="progress-track"><div class="progress-fill" style="width: ${xp.pct}%"></div></div>
+    </div>
+  `;
+}
+
+function renderWelcome() {
+  return `
+    <div class="min-h-screen flex items-center justify-center p-6 lg:p-10">
+      <div class="max-w-6xl w-full fade-in">
+        <div class="grid lg:grid-cols-2 gap-12 items-center">
+          <div class="text-center lg:text-left">
+            <div class="text-7xl lg:text-8xl mb-6">📱✨📊</div>
+            <h1 class="text-6xl md:text-7xl lg:text-8xl font-black mb-4 gradient-text leading-none">DijiP</h1>
+            <p class="text-xl lg:text-2xl text-slate-300 mb-3">Dijital Pazarlama Simülasyon Oyunu</p>
+            <p class="text-slate-400 mb-8 lg:max-w-md leading-relaxed">Gerçek brieflerle çalış. Kitle seç, bütçeyi böl, kreatif kur. Sonuçları gör, hatandan öğren. Junior'dan ajans kurucusuna giden yolda ilerle.</p>
+
+            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
+              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🎯</div><div class="text-xs text-slate-400">12 Brief</div></div>
+              <div class="glass p-4 text-center"><div class="text-3xl mb-1">📈</div><div class="text-xs text-slate-400">CTR · ROI</div></div>
+              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🧠</div><div class="text-xs text-slate-400">Hatadan Öğren</div></div>
+            </div>
+          </div>
+
+          <div class="glass-strong p-8 lg:p-10 w-full max-w-md mx-auto lg:max-w-none">
+            <div class="text-xs text-slate-400 uppercase tracking-widest mb-1">Hoş geldin</div>
+            <h2 class="text-2xl font-bold mb-6">Karakterini oluştur</h2>
+            <label class="block text-left text-sm text-slate-400 mb-2">İsminiz</label>
+            <input id="name-input" type="text" placeholder="Örn. Ali" class="w-full text-lg mb-5" maxlength="20" />
+            <button class="btn-primary w-full text-lg" id="start-btn">Oyuna Başla →</button>
+            <div class="text-xs text-slate-500 text-center mt-4">İlerleme cihazına otomatik kaydedilir</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderDashboard() {
+  const p = state.player;
+  const lvl = levelFromXP(p.xp);
+  const available = BRIEFS.filter(b => b.level <= lvl && !p.completedBriefs.includes(b.id));
+  const locked = BRIEFS.filter(b => b.level > lvl);
+  const done = p.completedBriefs.length;
+
+  return `
+    <div class="max-w-7xl mx-auto px-5 lg:px-8 py-8 lg:py-10">
+      ${topBar()}
+
+      <div class="flex items-center justify-between mb-6 fade-in flex-wrap gap-3">
+        <div>
+          <h2 class="text-3xl lg:text-4xl font-black text-white">Brief Kutusu</h2>
+          <p class="text-slate-400 text-sm mt-1">${available.length} aktif fırsat · ${done} kampanya tamamlandı</p>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          ${agencyUnlocked() ? `<button class="btn-ghost" data-action="agency">🏢 Ajansım ${state.player.staff?.length ? `(${state.player.staff.length})` : ''}</button>` : ''}
+          ${done >= 3 ? `<button class="btn-ghost" data-action="report">📊 Performans Raporu</button>` : ''}
+          <button class="btn-ghost text-sm" data-action="reset" title="İlerlemeyi sıfırla">🔄</button>
+        </div>
+      </div>
+
+      ${(state.player.achievements || []).length > 0 ? `
+        <div class="glass p-4 mb-6 fade-in">
+          <div class="flex items-center justify-between mb-2">
+            <div class="text-xs text-slate-400 uppercase tracking-wider">🏆 Rozetlerin (${state.player.achievements.length}/${ACHIEVEMENTS.length})</div>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            ${ACHIEVEMENTS.map(a => {
+              const got = state.player.achievements.includes(a.id);
+              return `<div title="${a.name} — ${a.desc}" class="text-2xl ${got ? '' : 'opacity-20 grayscale'}" style="${got ? '' : 'filter: grayscale(1);'}">${a.icon}</div>`;
+            }).join('')}
+          </div>
+        </div>
+      ` : ''}
+
+      ${available.length === 0 ? `
+        <div class="glass-strong p-10 text-center">
+          <div class="text-5xl mb-4">🎉</div>
+          <h3 class="text-2xl font-bold mb-2">Bu seviyenin tüm brief'leri tamam!</h3>
+          <p class="text-slate-400 mb-4">Daha fazla XP kazan ve yeni brief'lerin kilidini aç.</p>
+        </div>
+      ` : ''}
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+        ${available.map(b => {
+          const difficulty = '🔥'.repeat(b.level) + '·'.repeat(Math.max(0, 4 - b.level));
+          return `
+          <div class="glass-strong p-6 cursor-pointer transition-all hover:scale-[1.01] fade-in" data-action="open-brief" data-id="${b.id}">
+            <div class="flex items-start justify-between mb-3">
+              <div class="text-5xl">${b.icon}</div>
+              <div class="flex flex-col items-end gap-1.5">
+                <span class="badge badge-gold">₺${b.budget.toLocaleString('tr-TR')} bütçe</span>
+                <span class="badge badge-purple" title="Zorluk">${difficulty}</span>
+              </div>
+            </div>
+            <h3 class="text-xl font-bold text-white">${b.client}</h3>
+            <p class="text-sm text-slate-400 mb-2">${b.industry}</p>
+            <p class="text-sm text-slate-300 mb-4 line-clamp-2">${b.description}</p>
+            <div class="flex items-center gap-2 flex-wrap">
+              <span class="badge badge-cyan">🎯 ${b.goal}</span>
+              <span class="badge">⏱ ${b.duration}</span>
+            </div>
+          </div>
+        `; }).join('')}
+      </div>
+
+      ${locked.length > 0 ? `
+        <details class="glass p-5 mb-6">
+          <summary class="font-semibold text-slate-300 flex items-center gap-2">
+            🔒 Kilitli Brief'ler (${locked.length}) <span class="text-xs text-slate-500">→ Seviye atla, kilidini aç</span>
+          </summary>
+          <div class="mt-4 grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+            ${locked.map(b => `
+              <div class="opacity-50 p-4 rounded-xl border border-white/5">
+                <div class="flex items-center gap-3">
+                  <div class="text-3xl">${b.icon}</div>
+                  <div>
+                    <div class="font-semibold">${b.client}</div>
+                    <div class="text-xs text-slate-400">Seviye ${b.level} gerekli</div>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </details>
+      ` : ''}
+    </div>
+  `;
+}
+
+function renderBriefDetail() {
+  const b = state.currentBrief;
+  const p = PERSONAS[b.id];
+  const difficulty = '🔥'.repeat(b.level) + '·'.repeat(Math.max(0, 4 - b.level));
+
+  return `
+    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <button class="btn-ghost mb-6" data-action="back">← Brief kutusuna dön</button>
+
+      <div class="grid lg:grid-cols-3 gap-6 mb-6">
+        <div class="lg:col-span-2 glass-strong p-6 lg:p-8">
+          <div class="flex items-start justify-between mb-4">
+            <div class="text-7xl">${b.icon}</div>
+            <div class="flex flex-col items-end gap-2">
+              <span class="badge badge-gold text-base px-4 py-1.5">₺${b.budget.toLocaleString('tr-TR')}</span>
+              <span class="badge badge-purple" title="Zorluk">Zorluk ${difficulty}</span>
+            </div>
+          </div>
+          <h2 class="text-3xl lg:text-4xl font-black text-white mb-1">${b.client}</h2>
+          <p class="text-slate-400 mb-6">${b.industry}</p>
+
+          ${p ? `
+          <div class="glass p-5 mb-6" style="background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(139,92,246,0.06));">
+            <div class="flex items-start gap-4">
+              <div class="w-14 h-14 rounded-full flex items-center justify-center text-3xl flex-shrink-0" style="background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3);">${p.avatar}</div>
+              <div class="flex-1">
+                <div class="flex items-baseline gap-2 mb-2 flex-wrap">
+                  <div class="font-bold">${p.name}</div>
+                  <div class="text-xs text-slate-400">${p.role}</div>
+                </div>
+                <div class="text-slate-200 leading-relaxed text-sm italic relative pl-4 border-l-2 border-purple-500/40">
+                  "${p.quote}"
+                </div>
+              </div>
+            </div>
+          </div>
+          ` : ''}
+
+          <div class="border-t border-white/10 pt-5">
+            <div class="text-xs text-slate-400 uppercase tracking-wider mb-2">Brief Detayı</div>
+            <p class="text-slate-200 leading-relaxed">${b.description}</p>
+          </div>
+        </div>
+
+        <div class="space-y-4">
+          <div class="glass p-5">
+            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Hedef</div>
+            <div class="font-semibold text-cyan-300 text-lg">🎯 ${b.goal}</div>
+          </div>
+          <div class="glass p-5">
+            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Süre</div>
+            <div class="font-semibold text-lg">⏱ ${b.duration}</div>
+          </div>
+          <div class="glass p-5">
+            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Bütçe</div>
+            <div class="font-semibold text-lg text-amber-300">₺${b.budget.toLocaleString('tr-TR')}</div>
+          </div>
+          <div class="glass-strong p-5">
+            <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">Başarı Ödülü</div>
+            <div class="flex gap-2 flex-wrap">
+              <span class="badge badge-gold">💰 ₺${b.rewards.baseMoney.toLocaleString('tr-TR')}</span>
+              <span class="badge badge-cyan">💎 ${b.rewards.xp} XP</span>
+              <span class="badge badge-success">📈 İtibar</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn-primary w-full text-lg py-4" data-action="start-wizard">Kampanyayı Kurmaya Başla →</button>
+    </div>
+  `;
+}
+
+function renderWizard() {
+  const steps = ['Hedef Kitle', 'Kanal Dağılımı', 'Kreatif Yaklaşım', 'Onay'];
+  const b = state.currentBrief;
+  const step = state.wizardStep;
+
+  let content = '';
+  if (step === 0) content = renderAudienceStep();
+  else if (step === 1) content = renderChannelStep();
+  else if (step === 2) content = renderCreativeStep();
+  else if (step === 3) content = renderReviewStep();
+
+  return `
+    <div class="max-w-5xl mx-auto px-5 lg:px-8 py-8 lg:py-10">
+      <div class="flex items-center justify-between mb-2 fade-in">
+        <div>
+          <div class="text-xs text-slate-400">${b.icon} ${b.client}</div>
+          <h2 class="text-2xl lg:text-3xl font-bold">Kampanya Stratejisi</h2>
+        </div>
+        <button class="btn-ghost text-sm" data-action="back">← Vazgeç</button>
+      </div>
+
+      <div class="flex items-center gap-2 mb-6 fade-in">
+        ${steps.map((s, i) => `
+          <div class="flex-1">
+            <div class="h-1 rounded-full ${i <= step ? 'bg-gradient-to-r from-cyan-400 to-purple-500' : 'bg-white/10'}"></div>
+            <div class="text-xs mt-1.5 ${i === step ? 'text-white font-semibold' : 'text-slate-500'}">${s}</div>
+          </div>
+        `).join('')}
+      </div>
+
+      <div class="fade-in">${content}</div>
+
+      <div class="flex gap-3 mt-8">
+        ${step > 0 ? `<button class="btn-ghost" data-action="wiz-prev">← Geri</button>` : ''}
+        <div class="flex-1"></div>
+        <button class="btn-primary" data-action="wiz-next" id="wiz-next-btn">
+          ${step < 3 ? 'Devam →' : '🚀 Kampanyayı Yayınla'}
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAudienceStep() {
+  const sel = state.decisions.audience;
+  return `
+    <div>
+      <h3 class="text-xl lg:text-2xl font-bold mb-2">Hedef kitleyi kim olsun?</h3>
+      <p class="text-slate-400 text-sm mb-5">Brief'i tekrar oku: ${state.currentBrief.description}</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${Object.values(AUDIENCES).map(a => `
+          <div class="option-card ${sel === a.id ? 'selected' : ''}" data-action="select-audience" data-id="${a.id}">
+            <div class="flex items-start gap-3">
+              <div class="text-3xl">${a.icon}</div>
+              <div class="flex-1">
+                <div class="font-bold mb-0.5">${a.name}</div>
+                <div class="text-xs text-slate-400 mb-2">${a.desc}</div>
+                <span class="badge text-[10px]">${a.tag}</span>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderChannelStep() {
+  const ch = state.decisions.channels;
+  const total = Object.values(ch).reduce((a, b) => a + b, 0);
+  const budget = state.currentBrief.budget;
+  return `
+    <div>
+      <h3 class="text-xl font-bold mb-2">Bütçeyi kanallara böl</h3>
+      <p class="text-slate-400 text-sm mb-5">Toplam ₺${budget.toLocaleString('tr-TR')} bütçe · Yüzdeler 100'e ulaşmalı</p>
+
+      <div class="glass p-4 mb-5 flex items-center justify-between">
+        <span class="text-slate-400 text-sm">Toplam dağıtım</span>
+        <span class="text-2xl lg:text-3xl font-black ${total === 100 ? 'text-emerald-400' : 'text-amber-400'}">${total}%</span>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-3 mb-3">
+        ${Object.values(CHANNELS).map(c => `
+          <div class="glass p-4">
+            <div class="flex items-start justify-between mb-3">
+              <div>
+                <div class="font-semibold flex items-center gap-2">${c.icon} ${c.name}</div>
+                <div class="text-xs text-slate-400">${c.desc}</div>
+              </div>
+              <div class="text-right ml-3">
+                <div class="font-bold text-lg">${ch[c.id]}%</div>
+                <div class="text-xs text-slate-400">₺${Math.round(budget * ch[c.id] / 100).toLocaleString('tr-TR')}</div>
+              </div>
+            </div>
+            <input type="range" min="0" max="100" step="5" value="${ch[c.id]}" data-channel="${c.id}" class="w-full" />
+          </div>
+        `).join('')}
+      </div>
+
+      <button class="btn-ghost mt-2 text-sm" data-action="normalize">⚖️ Otomatik %100'e dengele</button>
+    </div>
+  `;
+}
+
+function renderCreativeStep() {
+  const sel = state.decisions.creative;
+  return `
+    <div>
+      <h3 class="text-xl lg:text-2xl font-bold mb-2">Kreatif mesajın tonu ne olsun?</h3>
+      <p class="text-slate-400 text-sm mb-5">Hangi açı bu müşteri için en güçlü?</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+        ${Object.values(CREATIVES).map(c => `
+          <div class="option-card ${sel === c.id ? 'selected' : ''}" data-action="select-creative" data-id="${c.id}">
+            <div class="text-3xl mb-2">${c.icon}</div>
+            <div class="font-bold">${c.name}</div>
+            <div class="text-xs text-slate-400 mt-1">${c.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    </div>
+  `;
+}
+
+function renderReviewStep() {
+  const d = state.decisions;
+  const b = state.currentBrief;
+  return `
+    <div>
+      <h3 class="text-xl font-bold mb-5">Kampanyayı yayınlamadan önce gözden geçir</h3>
+      <div class="space-y-3">
+        <div class="glass p-4">
+          <div class="text-xs text-slate-400 uppercase mb-1">Hedef Kitle</div>
+          <div class="font-bold">${AUDIENCES[d.audience].icon} ${AUDIENCES[d.audience].name}</div>
+        </div>
+        <div class="glass p-4">
+          <div class="text-xs text-slate-400 uppercase mb-2">Kanal Dağılımı (₺${b.budget.toLocaleString('tr-TR')})</div>
+          ${Object.entries(d.channels).filter(([k,v])=>v>0).map(([k,v]) => `
+            <div class="flex justify-between text-sm py-1">
+              <span>${CHANNELS[k].icon} ${CHANNELS[k].name}</span>
+              <span class="font-semibold">%${v} · ₺${Math.round(b.budget*v/100).toLocaleString('tr-TR')}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="glass p-4">
+          <div class="text-xs text-slate-400 uppercase mb-1">Kreatif Yaklaşım</div>
+          <div class="font-bold">${CREATIVES[d.creative].icon} ${CREATIVES[d.creative].name}</div>
+        </div>
+      </div>
+      <p class="text-slate-400 text-sm mt-5 text-center">⚠️ Yayınladıktan sonra değişiklik yapamazsın. Hazır mısın?</p>
+    </div>
+  `;
+}
+
+function renderMiniGame() {
+  const b = state.currentBrief;
+  const mg = MINIGAMES[b.id];
+  const picked = state.miniGamePicked;
+  const channelInfo = CHANNELS[mg.channel];
+  const canConfirm = picked.length === mg.pick;
+
+  return `
+    <div class="max-w-5xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <div class="flex items-center gap-3 mb-2">
+        <span class="badge badge-purple">🎯 MİNİ GÖREV — ${channelInfo.icon} ${channelInfo.name}</span>
+      </div>
+      <h2 class="text-2xl lg:text-3xl font-bold mb-1">${mg.title}</h2>
+      <p class="text-slate-400 text-sm mb-6">${mg.subtitle}</p>
+
+      <div class="glass p-4 mb-5 flex items-center justify-between">
+        <span class="text-sm text-slate-300">Seçimin: <span class="font-bold ${canConfirm ? 'text-emerald-400' : 'text-amber-400'}">${picked.length}/${mg.pick}</span></span>
+        <span class="text-xs text-slate-400">Doğru seçim kampanya sonucunu güçlendirir</span>
+      </div>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
+        ${mg.options.map((o, i) => {
+          const sel = picked.includes(i);
+          const channelLabel = {
+            google: 'Aranma kelimesi olarak teklif ver',
+            seo: 'İçerik takvimine konu olarak ekle',
+            email: 'E-posta gönderimi için konu satırı',
+            meta: 'Reklam konsepti'
+          }[mg.channel];
+          const content = (mg.channel === 'google' || mg.channel === 'seo')
+            ? `<div class="text-base font-bold">${o.text}</div><div class="text-xs text-slate-400 mt-2">${channelLabel}</div>`
+            : `<div class="flex items-start gap-3"><div class="text-3xl">${o.visual}</div><div class="text-sm">${o.hook}</div></div>`;
+          return `
+            <div class="option-card ${sel ? 'selected' : ''}" data-action="toggle-mg" data-idx="${i}">
+              ${content}
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="flex gap-3">
+        <button class="btn-ghost" data-action="skip-mg">Atla</button>
+        <div class="flex-1"></div>
+        <button class="btn-primary ${canConfirm ? '' : 'opacity-50'}" data-action="confirm-mg">${canConfirm ? '🚀 Kampanyayı Yayınla' : `${mg.pick - picked.length} seçim daha gerekli`}</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderSimulating() {
+  return `
+    <div class="min-h-screen flex items-center justify-center p-6">
+      <div class="text-center fade-in">
+        <div class="spinner mx-auto mb-6"></div>
+        <h2 class="text-2xl font-bold mb-2 gradient-text">Kampanya yayında...</h2>
+        <p class="text-slate-400" id="sim-status">Reklamlar görüntüleniyor...</p>
+      </div>
+    </div>
+  `;
+}
+
+function renderResults() {
+  const r = state.lastResult;
+  const b = state.currentBrief;
+  const stars = '★'.repeat(r.stars) + '☆'.repeat(3 - r.stars);
+  const verdict = r.stars === 3 ? 'Mükemmel!' : r.stars === 2 ? 'İyi iş!' : r.stars === 1 ? 'Kabul edilebilir' : 'Düşük performans';
+  const verdictClass = r.stars === 3 ? 'text-emerald-400' : r.stars === 2 ? 'text-cyan-400' : r.stars === 1 ? 'text-amber-400' : 'text-rose-400';
+
+  return `
+    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <div class="text-center mb-8">
+        <div class="text-7xl lg:text-8xl mb-3">${b.icon}</div>
+        <div class="text-4xl lg:text-5xl mb-1">${stars.split('').map((s,i)=>`<span class="star ${i>=r.stars?'empty':''} ${r.stars===3 && i<3 ? 'star-glow' : ''}">${s}</span>`).join('')}</div>
+        <h2 class="text-3xl lg:text-4xl font-black ${verdictClass} verdict-pop">${verdict}</h2>
+        <p class="text-slate-400 mt-1">${b.client} kampanyası tamamlandı</p>
+      </div>
+
+      ${r.newAchievements?.length ? `
+        <div class="glass-strong p-5 mb-6 fade-in" style="background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(139,92,246,0.1)); border-color: rgba(245,158,11,0.3);">
+          <div class="text-sm font-bold text-amber-300 mb-3 flex items-center gap-2">🏆 Yeni Rozetler Kazandın</div>
+          ${r.newAchievements.map(a => `
+            <div class="flex items-center gap-3 py-2">
+              <div class="text-3xl">${a.icon}</div>
+              <div>
+                <div class="font-bold">${a.name}</div>
+                <div class="text-xs text-slate-400">${a.desc}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">TIKLAMA ORANI</div>
+          <div class="text-2xl lg:text-3xl font-black gradient-text" data-counter="${r.metrics.ctr}" data-suffix="%" data-decimals="2">0%</div>
+          <div class="text-xs text-slate-500 mt-1">CTR</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">DÖNÜŞÜM ORANI</div>
+          <div class="text-2xl lg:text-3xl font-black gradient-text" data-counter="${r.metrics.cvr}" data-suffix="%" data-decimals="2">0%</div>
+          <div class="text-xs text-slate-500 mt-1">CVR</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">${b.id==='saascrm'?'DEMO TALEPLERİ':'DÖNÜŞÜM'}</div>
+          <div class="text-2xl lg:text-3xl font-black gradient-text" data-counter="${r.metrics.conversions}" data-decimals="0">0</div>
+          <div class="text-xs text-slate-500 mt-1"><span data-counter="${r.metrics.traffic}" data-decimals="0">0</span> trafik</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">ROI</div>
+          <div class="text-2xl lg:text-3xl font-black ${r.metrics.roi >= 0 ? 'text-emerald-400' : 'text-rose-400'}" data-counter="${r.metrics.roi}" data-suffix="%" data-prefix="${r.metrics.roi >= 0 ? '+' : ''}" data-decimals="1">0%</div>
+          <div class="text-xs text-slate-500 mt-1">ROAS <span data-counter="${r.metrics.roas}" data-suffix="x" data-decimals="2">0x</span></div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-6 items-start">
+
+      <div class="glass-strong p-5 mb-6">
+        <div class="text-sm font-bold mb-3 text-slate-300">⚖️ Karar Puanları</div>
+        ${[
+          ['Hedef Kitle Seçimi', r.scores.audience],
+          ['Kanal Dağılımı', r.scores.channels],
+          ['Kreatif Yaklaşım', r.scores.creative]
+        ].map(([n, v]) => `
+          <div class="mb-3">
+            <div class="flex justify-between text-sm mb-1">
+              <span>${n}</span>
+              <span class="font-bold">${v}/100</span>
+            </div>
+            <div class="progress-track"><div class="progress-fill" style="width: ${v}%"></div></div>
+          </div>
+        `).join('')}
+      </div>
+
+      ${r.marketEvent ? `
+        <div class="glass-strong p-5 mb-6 fade-in" style="border-color: ${r.marketEvent.tone === 'good' ? 'rgba(16,185,129,0.4)' : 'rgba(244,63,94,0.4)'}; background: linear-gradient(135deg, ${r.marketEvent.tone === 'good' ? 'rgba(16,185,129,0.08)' : 'rgba(244,63,94,0.08)'}, transparent);">
+          <div class="flex items-start gap-4">
+            <div class="text-4xl">${r.marketEvent.icon}</div>
+            <div class="flex-1">
+              <div class="text-xs text-slate-400 uppercase tracking-wider">PAZAR OLAYI · KAMPANYA SÜRESİNCE</div>
+              <div class="font-bold text-lg ${r.marketEvent.tone === 'good' ? 'text-emerald-300' : 'text-rose-300'}">${r.marketEvent.title}</div>
+              <div class="text-sm text-slate-300 mt-1">${r.marketEvent.desc}</div>
+            </div>
+            <div class="badge ${r.marketEvent.tone === 'good' ? 'badge-success' : 'badge-danger'} text-base self-center">${r.marketEvent.modifier > 0 ? '+' : ''}${r.marketEvent.modifier} puan</div>
+          </div>
+        </div>
+      ` : ''}
+
+      ${r.miniGame ? `
+        <div class="glass-strong p-5 mb-6">
+          <div class="flex items-center justify-between mb-3">
+            <div class="text-sm font-bold text-slate-300">🎯 Mini Görev Sonucu</div>
+            <span class="badge ${r.miniGame.score >= 75 ? 'badge-success' : r.miniGame.score >= 50 ? 'badge-cyan' : 'badge-danger'}">${r.miniGame.score}/100</span>
+          </div>
+          ${r.miniGame.picks.map(p => `
+            <div class="flex items-start gap-3 py-2 border-b border-white/5 last:border-0">
+              <div class="text-2xl">${p.tier === 'high' ? '✅' : p.tier === 'med' ? '⚠️' : '❌'}</div>
+              <div class="flex-1">
+                <div class="text-sm font-semibold">${p.text || p.hook}</div>
+                <div class="text-xs text-slate-400 mt-1">${p.reason}</div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      ` : ''}
+
+      <div class="space-y-3 mb-6">
+        <div class="text-sm font-bold text-slate-300 px-1">📝 Eğitici Geri Bildirim</div>
+        ${r.feedback.map(f => `
+          <div class="glass p-4 border-l-4 ${f.type === 'ok' ? 'border-emerald-500' : 'border-amber-500'}">
+            <div class="flex items-start gap-3">
+              <div class="text-2xl">${f.type === 'ok' ? '✅' : '💡'}</div>
+              <div class="flex-1">
+                <div class="text-xs text-slate-400 uppercase tracking-wider">${f.area}</div>
+                <div class="font-bold mb-1">${f.title}</div>
+                <div class="text-sm text-slate-300 leading-relaxed">${f.message}</div>
+              </div>
+            </div>
+          </div>
+        `).join('')}
+      </div>
+
+      ${r.staffContribution?.hired?.length ? `
+        <div class="glass-strong p-5 mb-6">
+          <div class="text-sm font-bold mb-3 text-slate-300">👥 Kadronun Katkısı</div>
+          ${r.staffContribution.hired.map(id => {
+            const s = STAFF[id]; if (!s) return '';
+            let contrib = '';
+            if (s.bonusChannel) {
+              const v = r.staffContribution.channelBonuses[s.bonusChannel] || 0;
+              contrib = v > 0 ? `+${Math.round(v)} ${CHANNELS[s.bonusChannel].name} puanı` : `Bu kanala bütçe ayırmadın`;
+            } else if (s.bonusType === 'creative') contrib = `+${s.bonus} Kreatif puanı`;
+            else if (s.bonusType === 'data') contrib = `+${s.bonus} sonuç istikrarı`;
+            return `<div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+              <div class="flex items-center gap-3"><div class="text-2xl">${s.icon}</div><div class="text-sm font-semibold">${s.name}</div></div>
+              <div class="text-xs text-slate-400">${contrib}</div>
+            </div>`;
+          }).join('')}
+        </div>
+      ` : ''}
+
+      <div class="glass-strong p-5 mb-6">
+        <div class="text-sm font-bold mb-3 text-slate-300">🎁 Kazanımlar</div>
+        <div class="flex gap-3 flex-wrap">
+          <span class="badge badge-gold text-base px-4 py-2">💰 Net +₺${r.moneyEarned.toLocaleString('tr-TR')}</span>
+          ${r.salaryCost > 0 ? `<span class="badge badge-danger text-sm">Brüt ₺${r.grossMoney.toLocaleString('tr-TR')} − Maaş ₺${r.salaryCost.toLocaleString('tr-TR')}</span>` : ''}
+          <span class="badge badge-cyan text-base px-4 py-2">💎 +${r.xpEarned} XP</span>
+          <span class="badge ${r.repDelta >= 0 ? 'badge-success' : 'badge-danger'} text-base px-4 py-2">
+            📊 İtibar ${r.repDelta >= 0 ? '+' : ''}${r.repDelta}
+          </span>
+        </div>
+      </div>
+
+      </div>
+
+      <div class="flex gap-3 mt-8">
+        <button class="btn-ghost flex-1" data-action="back-dashboard">📥 Brief Kutusuna Dön</button>
+        ${state.player.completedBriefs.length >= 3 ? `<button class="btn-primary flex-1" data-action="report">📊 Genel Rapor</button>` : ''}
+      </div>
+    </div>
+  `;
+}
+
+function renderVictory() {
+  const p = state.player;
+  const totalRev = p.history.reduce((s, h) => s + (h.metrics.revenue || 0), 0);
+  const avgScore = Math.round(p.history.reduce((s, h) => s + h.score, 0) / Math.max(1, p.history.length));
+  const threeStarCount = p.history.filter(h => h.stars === 3).length;
+  return `
+    <div class="max-w-5xl mx-auto px-5 lg:px-8 py-12 lg:py-16 fade-in text-center">
+      <div class="text-8xl lg:text-9xl mb-4">🏆</div>
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-black gradient-text mb-3">Dijital Pazarlama Ustası!</h1>
+      <p class="text-xl text-slate-300 mb-2">Tebrikler ${p.name}</p>
+      <p class="text-slate-400 mb-10 max-w-lg mx-auto">${BRIEFS.length} brief'i tamamladın. Junior pazarlamacıdan ajans kurucusuna giden yolu kapattın. Artık gerçek dünyada karar verirken hangi sinyale dikkat edeceğini biliyorsun.</p>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">SEVİYE</div>
+          <div class="text-3xl font-black gradient-text">${levelFromXP(p.xp)}</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">ORT. SKOR</div>
+          <div class="text-3xl font-black gradient-text" data-counter="${avgScore}">0</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">3★ KAMPANYA</div>
+          <div class="text-3xl font-black text-amber-400" data-counter="${threeStarCount}">0</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">TOPLAM GELİR</div>
+          <div class="text-2xl font-black text-emerald-400" data-counter="${totalRev}" data-prefix="₺">₺0</div>
+        </div>
+      </div>
+
+      <div class="glass-strong p-6 mb-8">
+        <div class="text-sm text-slate-400 mb-3">🏅 Kazandığın Rozetler</div>
+        <div class="flex flex-wrap gap-3 justify-center">
+          ${(p.achievements || []).map(id => {
+            const a = ACHIEVEMENTS.find(x => x.id === id);
+            return a ? `<div class="glass p-3 min-w-[80px]" title="${a.desc}"><div class="text-3xl">${a.icon}</div><div class="text-xs mt-1">${a.name}</div></div>` : '';
+          }).join('')}
+        </div>
+      </div>
+
+      <div class="flex gap-3 justify-center">
+        <button class="btn-ghost" data-action="back-dashboard">📥 Brief Kutusu</button>
+        <button class="btn-primary" data-action="report">📊 Tam Rapor</button>
+      </div>
+    </div>
+  `;
+}
+
+function renderAgency() {
+  const p = state.player;
+  const hired = (p.staff || []).map(id => STAFF[id]).filter(Boolean);
+  const available = Object.values(STAFF).filter(s => !hasStaff(s.id));
+  const monthly = totalSalary();
+
+  return `
+    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
+
+      <div class="glass-strong p-6 mb-6">
+        <div class="flex items-start justify-between flex-wrap gap-4">
+          <div>
+            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Ajans Yönetimi</div>
+            <h2 class="text-3xl font-black gradient-text">🏢 ${p.agencyName || p.name + ' Digital'}</h2>
+            <p class="text-slate-400 mt-1">Uzman ekibini kur, kampanya performansını yükselt</p>
+          </div>
+          <div class="flex gap-3">
+            <div class="metric-card text-center px-5 py-3">
+              <div class="text-xs text-slate-400">HAZİNE</div>
+              <div class="text-xl font-black text-amber-300">₺${p.money.toLocaleString('tr-TR')}</div>
+            </div>
+            <div class="metric-card text-center px-5 py-3">
+              <div class="text-xs text-slate-400">KADRO MAAŞI / KAMPANYA</div>
+              <div class="text-xl font-black ${monthly > 0 ? 'text-rose-300' : 'text-slate-500'}">₺${monthly.toLocaleString('tr-TR')}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <h3 class="font-bold text-lg mb-3 flex items-center gap-2">👥 Aktif Kadron <span class="badge">${hired.length}</span></h3>
+      ${hired.length === 0 ? `
+        <div class="glass p-8 text-center mb-8">
+          <div class="text-4xl mb-2">🪑</div>
+          <p class="text-slate-400">Henüz çalışanın yok. Aşağıdan ilk uzmanını işe al.</p>
+        </div>
+      ` : `
+        <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3 mb-8">
+          ${hired.map(s => `
+            <div class="glass-strong p-4">
+              <div class="flex items-start gap-3">
+                <div class="text-4xl">${s.icon}</div>
+                <div class="flex-1">
+                  <div class="font-bold">${s.name}</div>
+                  <div class="text-xs text-slate-400 mb-2">${s.role}</div>
+                  <div class="flex items-center justify-between">
+                    <span class="badge badge-danger">₺${s.salary.toLocaleString('tr-TR')}/kampanya</span>
+                    <button class="btn-ghost text-xs py-1.5 px-3" data-action="fire" data-id="${s.id}">İşten Çıkar</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `}
+
+      <h3 class="font-bold text-lg mb-3 flex items-center gap-2">📋 İşe Alınabilir Uzmanlar <span class="badge">${available.length}</span></h3>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
+        ${available.map(s => {
+          const canAfford = p.money >= s.hireCost;
+          return `
+            <div class="glass-strong p-4 ${canAfford ? '' : 'opacity-60'}">
+              <div class="flex items-start gap-3">
+                <div class="text-4xl">${s.icon}</div>
+                <div class="flex-1">
+                  <div class="font-bold">${s.name}</div>
+                  <div class="text-xs text-slate-400 mb-3">${s.role}</div>
+                  <div class="flex items-center gap-2 flex-wrap mb-3">
+                    <span class="badge badge-gold">İşe alma: ₺${s.hireCost.toLocaleString('tr-TR')}</span>
+                    <span class="badge">Maaş: ₺${s.salary.toLocaleString('tr-TR')}</span>
+                  </div>
+                  <button class="btn-primary text-sm w-full ${canAfford ? '' : 'opacity-50'}" data-action="hire" data-id="${s.id}" ${canAfford ? '' : 'disabled'}>
+                    ${canAfford ? '🤝 İşe Al' : 'Yeterli para yok'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="glass p-4 mt-6 text-sm text-slate-400">
+        💡 İpucu: Kanal uzmanları sadece o kanala bütçe ayırırsan etkili olur. Kreatif Direktör tüm kampanyalarda kreatif puanını yükseltir. Veri Analisti sonuçların rastgeleliğini azaltır.
+      </div>
+    </div>
+  `;
+}
+
+function renderReport() {
+  const p = state.player;
+  const history = p.history;
+  if (history.length === 0) {
+    return `
+      <div class="max-w-2xl mx-auto px-5 py-12 text-center">
+        <div class="text-6xl mb-4">📊</div>
+        <h2 class="text-2xl font-bold mb-2">Henüz rapor için yeterli veri yok</h2>
+        <p class="text-slate-400 mb-6">En az 3 kampanya tamamla.</p>
+        <button class="btn-primary" data-action="back-dashboard">Brief Kutusuna Dön</button>
+      </div>
+    `;
+  }
+
+  const avgScore = Math.round(history.reduce((s, h) => s + h.score, 0) / history.length);
+  const totalRev = history.reduce((s, h) => s + h.metrics.revenue, 0);
+  const totalSpend = history.reduce((s, h) => s + h.spend, 0);
+  const overallROI = totalSpend > 0 ? +(((totalRev - totalSpend) / totalSpend) * 100).toFixed(1) : 0;
+  const avgAudScore = Math.round(history.reduce((s, h) => s + h.scores.audience, 0) / history.length);
+  const avgChScore = Math.round(history.reduce((s, h) => s + h.scores.channels, 0) / history.length);
+  const avgCrScore = Math.round(history.reduce((s, h) => s + h.scores.creative, 0) / history.length);
+
+  const strengths = [];
+  const weaknesses = [];
+  if (avgAudScore >= 75) strengths.push('Hedef kitle seçiminde tutarlı isabet');
+  else if (avgAudScore < 50) weaknesses.push('Hedef kitle seçimi — brief\'i daha dikkatli oku, "kim alır?" sorusunu sor');
+  if (avgChScore >= 75) strengths.push('Bütçe dağılımında dengeli yaklaşım');
+  else if (avgChScore < 50) weaknesses.push('Kanal seçimi — niyet (Google) vs keşif (Meta) ayrımını netleştir');
+  if (avgCrScore >= 75) strengths.push('Kreatif ton ile hedef kitle eşleşmesi güçlü');
+  else if (avgCrScore < 50) weaknesses.push('Kreatif yaklaşım — B2B özellik, B2C duygu/sosyal kanıt');
+
+  return `
+    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
+      <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
+
+      <div class="text-center mb-8">
+        <div class="text-6xl lg:text-7xl mb-3">📊</div>
+        <h2 class="text-4xl lg:text-5xl font-black gradient-text">Performans Raporu</h2>
+        <p class="text-slate-400 mt-2">${p.name} · Seviye ${levelFromXP(p.xp)} · ${history.length} kampanya</p>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">ORTALAMA SKOR</div>
+          <div class="text-2xl font-black gradient-text" data-counter="${avgScore}" data-suffix="/100">0/100</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">TOPLAM GELİR</div>
+          <div class="text-2xl font-black text-emerald-400" data-counter="${totalRev}" data-prefix="₺">₺0</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">GENEL ROI</div>
+          <div class="text-2xl font-black ${overallROI >= 0 ? 'text-emerald-400' : 'text-rose-400'}" data-counter="${overallROI}" data-suffix="%" data-prefix="${overallROI >= 0 ? '+' : ''}" data-decimals="1">0%</div>
+        </div>
+        <div class="metric-card text-center">
+          <div class="text-xs text-slate-400 mb-1">İTİBAR</div>
+          <div class="text-2xl font-black text-amber-400" data-counter="${p.reputation}">0</div>
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-4 mb-6">
+        <div class="glass-strong p-5">
+          <h3 class="font-bold mb-3 text-emerald-400">💪 Güçlü Yönlerin</h3>
+          ${strengths.length ? strengths.map(s => `<div class="text-sm mb-2">✅ ${s}</div>`).join('') : '<div class="text-sm text-slate-400">Daha fazla kampanya tamamla.</div>'}
+        </div>
+        <div class="glass-strong p-5">
+          <h3 class="font-bold mb-3 text-amber-400">🎯 Gelişim Alanları</h3>
+          ${weaknesses.length ? weaknesses.map(w => `<div class="text-sm mb-2">💡 ${w}</div>`).join('') : '<div class="text-sm text-slate-400">Açıkça zayıf alan yok — istikrarlı performans!</div>'}
+        </div>
+      </div>
+
+      <div class="grid lg:grid-cols-2 gap-4">
+        <div class="glass-strong p-5">
+          <h3 class="font-bold mb-4">📈 Karar Yetkinliği Ortalaması</h3>
+          ${[
+            ['Hedef Kitle', avgAudScore],
+            ['Kanal Dağılımı', avgChScore],
+            ['Kreatif', avgCrScore]
+          ].map(([n, v]) => `
+            <div class="mb-3">
+              <div class="flex justify-between text-sm mb-1"><span>${n}</span><span class="font-bold">${v}/100</span></div>
+              <div class="progress-track"><div class="progress-fill" style="width: ${v}%"></div></div>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="glass-strong p-5">
+          <h3 class="font-bold mb-3">📋 Kampanya Geçmişi</h3>
+        ${history.map(h => `
+          <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+            <div class="flex items-center gap-3">
+              <div class="text-2xl">${h.icon}</div>
+              <div>
+                <div class="font-semibold text-sm">${h.client}</div>
+                <div class="text-xs text-slate-400">${'★'.repeat(h.stars)}${'☆'.repeat(3-h.stars)}</div>
+              </div>
+            </div>
+            <div class="text-right">
+              <div class="font-bold text-sm">${h.score}/100</div>
+              <div class="text-xs text-slate-400">ROI ${h.metrics.roi}%</div>
+            </div>
+          </div>
+        `).join('')}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+// ============== EVENTS ==============
+
+function attachListeners() {
+  const startBtn = document.getElementById('start-btn');
+  if (startBtn) {
+    const input = document.getElementById('name-input');
+    input?.focus();
+    const handleStart = () => {
+      const name = (input.value || '').trim();
+      if (!name) { input.focus(); return; }
+      state.player.name = name;
+      state.screen = 'dashboard';
+      saveGame();
+      render();
+    };
+    startBtn.addEventListener('click', handleStart);
+    input?.addEventListener('keydown', e => { if (e.key === 'Enter') handleStart(); });
+  }
+
+  document.querySelectorAll('[data-action]').forEach(el => {
+    el.addEventListener('click', e => {
+      const action = el.dataset.action;
+      const id = el.dataset.id;
+      handleAction(action, id, el);
+    });
+  });
+
+  document.querySelectorAll('input[type="range"][data-channel]').forEach(el => {
+    el.addEventListener('input', e => {
+      const ch = el.dataset.channel;
+      state.decisions.channels[ch] = parseInt(el.value);
+      render();
+    });
+  });
+}
+
+function handleAction(action, id, el) {
+  switch (action) {
+    case 'open-brief':
+      state.currentBrief = BRIEFS.find(b => b.id === id);
+      state.screen = 'brief';
+      render();
+      break;
+    case 'back':
+      state.screen = 'dashboard';
+      state.currentBrief = null;
+      render();
+      break;
+    case 'back-dashboard':
+      if (state.player.completedBriefs.length >= BRIEFS.length && state.screen === 'results' && !state.player.victorySeen) {
+        state.player.victorySeen = true;
+        saveGame();
+        state.screen = 'victory';
+        state.currentBrief = null;
+        state.lastResult = null;
+        render();
+        setTimeout(fireConfetti, 300);
+        setTimeout(fireConfetti, 1800);
+        return;
+      }
+      state.screen = 'dashboard';
+      state.currentBrief = null;
+      state.lastResult = null;
+      state.decisions = { audience: null, channels: { google: 25, meta: 25, email: 25, seo: 25 }, creative: null };
+      state.wizardStep = 0;
+      state.miniGamePicked = [];
+      state.miniGameResult = null;
+      render();
+      break;
+    case 'start-wizard':
+      state.wizardStep = 0;
+      state.decisions = { audience: null, channels: { google: 25, meta: 25, email: 25, seo: 25 }, creative: null };
+      state.screen = 'wizard';
+      render();
+      break;
+    case 'select-audience':
+      state.decisions.audience = id;
+      render();
+      break;
+    case 'select-creative':
+      state.decisions.creative = id;
+      render();
+      break;
+    case 'normalize': {
+      const total = Object.values(state.decisions.channels).reduce((a,b) => a+b, 0);
+      if (total > 0) {
+        Object.keys(state.decisions.channels).forEach(k => {
+          state.decisions.channels[k] = Math.round((state.decisions.channels[k] / total) * 100 / 5) * 5;
+        });
+        const newTotal = Object.values(state.decisions.channels).reduce((a,b)=>a+b,0);
+        if (newTotal !== 100) {
+          const diff = 100 - newTotal;
+          const maxKey = Object.keys(state.decisions.channels).reduce((a,b) => state.decisions.channels[a] > state.decisions.channels[b] ? a : b);
+          state.decisions.channels[maxKey] += diff;
+        }
+      } else {
+        state.decisions.channels = { google: 25, meta: 25, email: 25, seo: 25 };
+      }
+      render();
+      break;
+    }
+    case 'wiz-prev':
+      state.wizardStep = Math.max(0, state.wizardStep - 1);
+      render();
+      break;
+    case 'wiz-next': {
+      const s = state.wizardStep;
+      if (s === 0 && !state.decisions.audience) { toast('Hedef kitle seç'); return; }
+      if (s === 1) {
+        const total = Object.values(state.decisions.channels).reduce((a,b)=>a+b,0);
+        if (total !== 100) { toast(`Bütçe %${total} — %100\'e ulaşmalı`); return; }
+      }
+      if (s === 2 && !state.decisions.creative) { toast('Kreatif yaklaşım seç'); return; }
+      if (s < 3) { state.wizardStep++; render(); }
+      else goToMiniGameOrLaunch();
+      break;
+    }
+    case 'toggle-mg': {
+      const idx = parseInt(el.dataset.idx);
+      const mg = MINIGAMES[state.currentBrief.id];
+      const picked = state.miniGamePicked;
+      const pos = picked.indexOf(idx);
+      if (pos >= 0) picked.splice(pos, 1);
+      else if (picked.length < mg.pick) picked.push(idx);
+      else if (mg.pick === 1) { picked.length = 0; picked.push(idx); }
+      render();
+      break;
+    }
+    case 'confirm-mg': {
+      const mg = MINIGAMES[state.currentBrief.id];
+      if (state.miniGamePicked.length !== mg.pick) return;
+      const score = miniGameScore(state.miniGamePicked, mg);
+      state.miniGameResult = {
+        score,
+        picks: state.miniGamePicked.map(i => mg.options[i]),
+        config: mg
+      };
+      launchCampaign();
+      break;
+    }
+    case 'skip-mg':
+      state.miniGameResult = null;
+      launchCampaign();
+      break;
+    case 'report':
+      state.screen = 'report';
+      render();
+      break;
+    case 'reset':
+      resetGame();
+      break;
+    case 'agency':
+      state.screen = 'agency';
+      render();
+      break;
+    case 'hire': {
+      const s = STAFF[id];
+      if (!s) return;
+      if (state.player.money < s.hireCost) { toast('Yeterli paran yok'); return; }
+      if (hasStaff(id)) return;
+      state.player.money -= s.hireCost;
+      state.player.staff = [...(state.player.staff || []), id];
+      saveGame();
+      toast(`${s.icon} ${s.name} ekibe katıldı!`);
+      render();
+      break;
+    }
+    case 'fire': {
+      const s = STAFF[id];
+      if (!s) return;
+      if (!confirm(`${s.name} işten çıkarılacak. Devam?`)) return;
+      state.player.staff = (state.player.staff || []).filter(x => x !== id);
+      saveGame();
+      toast(`${s.name} ayrıldı`);
+      render();
+      break;
+    }
+    case 'tutorial-next':
+      if (state.tutorialStep < TUTORIAL_STEPS.length - 1) {
+        state.tutorialStep++;
+        render();
+      } else {
+        state.player.tutorialDone = true;
+        state.tutorialStep = 0;
+        saveGame();
+        render();
+      }
+      break;
+    case 'tutorial-prev':
+      if (state.tutorialStep > 0) { state.tutorialStep--; render(); }
+      break;
+    case 'tutorial-skip':
+      state.player.tutorialDone = true;
+      saveGame();
+      render();
+      break;
+  }
+}
+
+function goToMiniGameOrLaunch() {
+  if (MINIGAMES[state.currentBrief.id]) {
+    state.miniGamePicked = [];
+    state.miniGameResult = null;
+    state.screen = 'minigame';
+    render();
+  } else {
+    launchCampaign();
+  }
+}
+
+function launchCampaign() {
+  state.screen = 'simulating';
+  render();
+  const messages = ['Reklamlar görüntüleniyor...', 'Hedef kitle yakalanıyor...', 'Tıklamalar geliyor...', 'Dönüşümler hesaplanıyor...', 'Sonuçlar derleniyor...'];
+  let i = 0;
+  const interval = setInterval(() => {
+    const el = document.getElementById('sim-status');
+    if (el) el.textContent = messages[i % messages.length];
+    i++;
+  }, 600);
+
+  const marketEvent = rollMarketEvent();
+  if (marketEvent) {
+    setTimeout(() => {
+      const el = document.getElementById('sim-status');
+      if (el) el.innerHTML = `<span class="${marketEvent.tone === 'good' ? 'text-emerald-300' : 'text-rose-300'}">${marketEvent.icon} ${marketEvent.title}</span>`;
+    }, 1500);
+  }
+
+  setTimeout(() => {
+    clearInterval(interval);
+    const mgBonus = state.miniGameResult ? (state.miniGameResult.score - 50) * 0.3 : 0;
+    const result = runSimulation(state.currentBrief, state.decisions, mgBonus, marketEvent);
+    result.miniGame = state.miniGameResult;
+    state.lastResult = result;
+    state.player.money += result.moneyEarned;
+    state.player.xp += result.xpEarned;
+    state.player.reputation += result.repDelta;
+    state.player.completedBriefs.push(state.currentBrief.id);
+    state.player.history.push({
+      id: state.currentBrief.id,
+      client: state.currentBrief.client,
+      icon: state.currentBrief.icon,
+      score: result.score,
+      stars: result.stars,
+      metrics: result.metrics,
+      scores: result.scores,
+      miniScore: state.miniGameResult?.score || 0,
+      spend: state.currentBrief.budget,
+      date: new Date().toISOString()
+    });
+    const newAch = checkNewAchievements();
+    state.lastResult.newAchievements = newAch;
+    state.screen = 'results';
+    saveGame();
+    render();
+    if (result.stars === 3) setTimeout(fireConfetti, 400);
+    if (newAch.length) setTimeout(() => newAch.forEach((a, i) => setTimeout(() => toast(`🏆 ${a.icon} Yeni Rozet: ${a.name}`), i * 700)), 800);
+  }, 3000);
+}
+
+function toast(msg) {
+  const existing = document.querySelector('.toast');
+  if (existing) existing.remove();
+  const el = document.createElement('div');
+  el.className = 'toast';
+  el.textContent = msg;
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 2500);
+}
+
+// ============== INIT ==============
+loadGame();
+render();
+</script>
+</body>
+</html>

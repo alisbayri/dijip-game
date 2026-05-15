@@ -1,0 +1,14 @@
+{
+  "name": "dijip-game",
+  "version": "1.0.0",
+  "description": "DijiP — Dijital Pazarlama Simülasyon Oyunu (Ciddi Oyun)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "author": "Ali Bayrı",
+  "license": "MIT"
+}
