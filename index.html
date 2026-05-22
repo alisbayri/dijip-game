@@ -35,6 +35,32 @@
       radial-gradient(circle at 50% 100%, rgba(245, 158, 11, 0.08) 0%, transparent 50%);
     pointer-events: none; z-index: 0;
   }
+  /* Sci-fi grid arka planı */
+  body::after {
+    content: '';
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(139, 92, 246, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(139, 92, 246, 0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    background-position: -1px -1px;
+    pointer-events: none;
+    z-index: 0;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    animation: gridShift 30s linear infinite;
+  }
+  @keyframes gridShift {
+    from { background-position: 0 0; }
+    to { background-position: 60px 60px; }
+  }
+  /* Floating particles canvas */
+  #particles {
+    position: fixed; inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+  }
   .glass {
     background: rgba(255, 255, 255, 0.04);
     backdrop-filter: blur(20px) saturate(180%);
@@ -310,6 +336,298 @@
     .char-line { font-size: 14px; }
   }
 
+  /* ==================== GAME UI ==================== */
+
+  /* HUD top bar */
+  .game-hud {
+    background: linear-gradient(180deg, rgba(15, 15, 35, 0.95), rgba(15, 15, 35, 0.85));
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 14px;
+    padding: 14px 20px;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(20px);
+  }
+  .game-hud::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #8b5cf6, #06b6d4, #8b5cf6, transparent);
+    background-size: 200% 100%;
+    animation: scanlineMove 3s linear infinite;
+  }
+  @keyframes scanlineMove {
+    from { background-position: 0 0; }
+    to { background-position: -200% 0; }
+  }
+  .hud-corner {
+    position: absolute;
+    width: 14px; height: 14px;
+    border-color: rgba(6, 182, 212, 0.8);
+    border-style: solid;
+  }
+  .hud-corner.tl { top: 4px; left: 4px; border-width: 2px 0 0 2px; }
+  .hud-corner.tr { top: 4px; right: 4px; border-width: 2px 2px 0 0; }
+  .hud-corner.bl { bottom: 4px; left: 4px; border-width: 0 0 2px 2px; }
+  .hud-corner.br { bottom: 4px; right: 4px; border-width: 0 2px 2px 0; }
+
+  .hud-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 10px;
+    background: rgba(6, 182, 212, 0.12);
+    border: 1px solid rgba(6, 182, 212, 0.4);
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.15em;
+    color: #67e8f9;
+    text-transform: uppercase;
+  }
+  .hud-tag.gold { background: rgba(245, 158, 11, 0.12); border-color: rgba(245, 158, 11, 0.4); color: #fbbf24; }
+  .hud-tag.purple { background: rgba(139, 92, 246, 0.12); border-color: rgba(139, 92, 246, 0.4); color: #c4b5fd; }
+  .hud-tag.success { background: rgba(16, 185, 129, 0.12); border-color: rgba(16, 185, 129, 0.4); color: #6ee7b7; }
+  .hud-tag .live-dot {
+    width: 6px; height: 6px;
+    background: #10b981;
+    border-radius: 50%;
+    box-shadow: 0 0 8px #10b981;
+    animation: livePulse 1.5s ease-in-out infinite;
+  }
+  @keyframes livePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  /* Mission card with rarity */
+  .mission-card {
+    position: relative;
+    background: linear-gradient(135deg, rgba(15, 15, 30, 0.7), rgba(20, 20, 40, 0.5));
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 20px;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    overflow: hidden;
+  }
+  .mission-card::before {
+    content: '';
+    position: absolute;
+    inset: -1px;
+    border-radius: 16px;
+    padding: 1px;
+    background: linear-gradient(135deg, transparent, transparent);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    transition: background 0.3s;
+    pointer-events: none;
+  }
+  .mission-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 30px rgba(139, 92, 246, 0.25);
+  }
+  .mission-card .corner {
+    position: absolute;
+    width: 12px; height: 12px;
+    border-color: var(--rarity, rgba(139, 92, 246, 0.6));
+    border-style: solid;
+    transition: border-color 0.3s;
+  }
+  .mission-card .corner.tl { top: 6px; left: 6px; border-width: 2px 0 0 2px; }
+  .mission-card .corner.tr { top: 6px; right: 6px; border-width: 2px 2px 0 0; }
+  .mission-card .corner.bl { bottom: 6px; left: 6px; border-width: 0 0 2px 2px; }
+  .mission-card .corner.br { bottom: 6px; right: 6px; border-width: 0 2px 2px 0; }
+
+  .rarity-common    { --rarity: #94a3b8; }
+  .rarity-rare      { --rarity: #06b6d4; }
+  .rarity-epic      { --rarity: #a855f7; }
+  .rarity-legendary { --rarity: #f59e0b; }
+  .mission-card.rarity-epic      { box-shadow: 0 0 0 1px rgba(168, 85, 247, 0.3), 0 4px 20px rgba(168, 85, 247, 0.15); }
+  .mission-card.rarity-legendary { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4), 0 4px 20px rgba(245, 158, 11, 0.2); animation: legendaryPulse 4s ease-in-out infinite; }
+  @keyframes legendaryPulse {
+    0%, 100% { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.4), 0 4px 20px rgba(245, 158, 11, 0.2); }
+    50% { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.6), 0 4px 35px rgba(245, 158, 11, 0.35); }
+  }
+
+  .rarity-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    padding: 3px 9px;
+    border-radius: 4px;
+    font-family: 'Courier New', monospace;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+  .rarity-badge.common    { background: rgba(148, 163, 184, 0.15); color: #94a3b8; border: 1px solid rgba(148, 163, 184, 0.4); }
+  .rarity-badge.rare      { background: rgba(6, 182, 212, 0.15);  color: #67e8f9; border: 1px solid rgba(6, 182, 212, 0.4); }
+  .rarity-badge.epic      { background: rgba(168, 85, 247, 0.15); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.4); }
+  .rarity-badge.legendary { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.5); }
+
+  .mission-id {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #67e8f9;
+    letter-spacing: 0.15em;
+    font-weight: 700;
+  }
+
+  /* Energy bar */
+  .energy-bar {
+    position: relative;
+    height: 10px;
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(139, 92, 246, 0.3);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+  .energy-bar::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(90deg, transparent, transparent 8%, rgba(0,0,0,0.3) 8%, rgba(0,0,0,0.3) 10%);
+    pointer-events: none;
+    z-index: 1;
+  }
+  .energy-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.6);
+    transition: width 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  /* Game button - keep btn-primary but enhance */
+  .btn-game {
+    position: relative;
+    background: linear-gradient(135deg, #06b6d4, #8b5cf6);
+    color: white;
+    font-weight: 700;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 13px;
+    padding: 14px 28px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+  }
+  .btn-game::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 100%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+  }
+  .btn-game:hover::before { left: 100%; }
+
+  /* Mission complete overlay */
+  .mission-complete-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 5, 15, 0.93);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    animation: overlayFadeIn 0.4s ease;
+  }
+  @keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .mc-tag {
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+    color: #67e8f9;
+    letter-spacing: 0.5em;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+  .mc-title {
+    font-size: clamp(48px, 10vw, 96px);
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    background: linear-gradient(180deg, #fbbf24, #f59e0b 50%, #b45309);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 60px rgba(245, 158, 11, 0.5);
+    animation: titleSlam 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    line-height: 0.95;
+  }
+  .mc-title.fail {
+    background: linear-gradient(180deg, #f87171, #dc2626 50%, #7f1d1d);
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 0 0 60px rgba(220, 38, 38, 0.4);
+  }
+  @keyframes titleSlam {
+    0% { transform: scale(2); opacity: 0; filter: blur(20px); }
+    60% { transform: scale(0.95); opacity: 1; filter: blur(0); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .mc-subtitle {
+    font-family: 'Courier New', monospace;
+    color: #cbd5e1;
+    margin-top: 8px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 13px;
+    animation: fadeIn 1s ease 0.6s both;
+  }
+
+  /* Level up overlay */
+  @keyframes levelUpBurst {
+    0% { transform: scale(0) rotate(-45deg); opacity: 0; }
+    50% { transform: scale(1.2) rotate(0deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+  .level-up-banner {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 250;
+    text-align: center;
+    animation: levelUpBurst 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  /* Scanline overlay (subtle, for game feel) */
+  .scanlines {
+    position: fixed;
+    inset: 0;
+    background-image: repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.015) 0px,
+      rgba(255, 255, 255, 0.015) 1px,
+      transparent 1px,
+      transparent 3px
+    );
+    pointer-events: none;
+    z-index: 2;
+    mix-blend-mode: overlay;
+  }
+
+  /* Cinematic letterbox for important screens */
+  .cinematic::before, .cinematic::after {
+    content: '';
+    position: fixed;
+    left: 0; right: 0;
+    height: 30px;
+    background: #000;
+    z-index: 100;
+    pointer-events: none;
+  }
+  .cinematic::before { top: 0; }
+  .cinematic::after { bottom: 0; }
+
   /* Certificate styling */
   .certificate {
     background: linear-gradient(135deg, #0f0f23 0%, #1a1033 100%);
@@ -377,7 +695,72 @@
 </style>
 </head>
 <body>
+  <canvas id="particles"></canvas>
+  <div class="scanlines"></div>
   <div id="app" class="relative" style="z-index: 1;"></div>
+<script>
+// Particle field
+(function() {
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let particles = [];
+  function resize() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+  function initParticles() {
+    const count = Math.min(80, Math.floor((canvas.width * canvas.height) / 18000));
+    particles = [];
+    for (let i = 0; i < count; i++) {
+      particles.push({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        vx: (Math.random() - 0.5) * 0.15,
+        vy: (Math.random() - 0.5) * 0.15,
+        size: Math.random() * 1.6 + 0.4,
+        opacity: Math.random() * 0.5 + 0.2,
+        color: Math.random() < 0.5 ? '139, 92, 246' : '6, 182, 212'
+      });
+    }
+  }
+  initParticles();
+  window.addEventListener('resize', initParticles);
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = canvas.width;
+      if (p.x > canvas.width) p.x = 0;
+      if (p.y < 0) p.y = canvas.height;
+      if (p.y > canvas.height) p.y = 0;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${p.color}, ${p.opacity})`;
+      ctx.fill();
+    });
+    // Lines between nearby particles
+    for (let i = 0; i < particles.length; i++) {
+      for (let j = i + 1; j < particles.length; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.strokeStyle = `rgba(139, 92, 246, ${0.08 * (1 - dist / 120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.stroke();
+        }
+      }
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+})();
+</script>
 <script>
 // ============== GAME DATA ==============
 
@@ -1583,28 +1966,55 @@ function renderTutorial() {
 function topBar() {
   const p = state.player;
   const xp = xpToNext(p.xp);
+  const lvl = levelFromXP(p.xp);
+  const dayCount = (p.completedBriefs?.length || 0) + 1;
   return `
-    <div class="glass px-5 lg:px-7 py-4 lg:py-5 flex items-center justify-between gap-4 mb-6 fade-in flex-wrap">
-      <div class="flex items-center gap-3 lg:gap-4">
-        <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-full flex items-center justify-center font-bold text-white text-lg lg:text-xl flex-shrink-0" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); box-shadow: 0 4px 20px rgba(139,92,246,0.4);">${p.name[0]?.toUpperCase() || '?'}</div>
-        <div>
-          <div class="text-xs lg:text-sm text-slate-400">${state.authUser?.email || 'Dijital Pazarlama Uzmanı'}</div>
-          <div class="font-bold text-white text-lg lg:text-xl">${p.name || 'Oyuncu'}</div>
+    <div class="game-hud mb-4 fade-in">
+      <div class="hud-corner tl"></div>
+      <div class="hud-corner tr"></div>
+      <div class="hud-corner bl"></div>
+      <div class="hud-corner br"></div>
+
+      <div class="flex items-center justify-between gap-4 flex-wrap">
+        <div class="flex items-center gap-3 lg:gap-4">
+          <div class="w-12 h-12 lg:w-14 lg:h-14 rounded-lg flex items-center justify-center font-bold text-white text-lg lg:text-xl flex-shrink-0 relative" style="background: linear-gradient(135deg, #06b6d4, #8b5cf6); box-shadow: 0 0 24px rgba(139,92,246,0.5); clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);">${p.name[0]?.toUpperCase() || '?'}</div>
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="hud-tag"><span class="live-dot"></span> Online</span>
+              <span class="hud-tag purple">Ajan</span>
+            </div>
+            <div class="font-bold text-white text-base lg:text-lg leading-tight">${p.name || 'OPERATÖR'}</div>
+            <div class="text-[10px] text-slate-500 font-mono tracking-wider">${state.authUser?.email || 'AGENT@DIJIP'}</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-4 lg:gap-6 flex-wrap">
+          <div class="text-center">
+            <div class="text-[10px] text-slate-500 font-mono tracking-widest">RÜTBE</div>
+            <div class="text-2xl font-black text-cyan-300 leading-none">LV ${lvl}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[10px] text-slate-500 font-mono tracking-widest">GÜN</div>
+            <div class="text-2xl font-black text-purple-300 leading-none">${String(dayCount).padStart(2, '0')}</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[10px] text-slate-500 font-mono tracking-widest">KASA</div>
+            <div class="text-lg font-black text-amber-300 leading-none">₺${(p.money/1000).toFixed(1)}K</div>
+          </div>
+          <div class="text-center">
+            <div class="text-[10px] text-slate-500 font-mono tracking-widest">İTİBAR</div>
+            <div class="text-lg font-black text-emerald-300 leading-none">+${p.reputation}</div>
+          </div>
         </div>
       </div>
-      <div class="flex items-center gap-2 flex-wrap justify-end">
-        <div class="stat-pill"><span>⭐</span> Sv. ${levelFromXP(p.xp)}</div>
-        <div class="stat-pill"><span>💎</span> ${p.xp} XP</div>
-        <div class="stat-pill"><span>💰</span> ₺${p.money.toLocaleString('tr-TR')}</div>
-        <div class="stat-pill"><span>📊</span> İtibar ${p.reputation}</div>
+
+      <div class="mt-4 pt-4 border-t border-white/5">
+        <div class="flex justify-between items-center text-[10px] text-slate-500 mb-1.5 font-mono tracking-wider">
+          <span>EXP ▸ NEXT_RANK</span>
+          <span>${xp.current} / ${xp.needed}</span>
+        </div>
+        <div class="energy-bar"><div class="energy-fill" style="width: ${xp.pct}%"></div></div>
       </div>
-    </div>
-    <div class="mb-6 fade-in">
-      <div class="flex justify-between text-xs text-slate-400 mb-1.5">
-        <span>Sonraki seviyeye ilerleme</span>
-        <span>${xp.current}/${xp.needed} XP</span>
-      </div>
-      <div class="progress-track"><div class="progress-fill" style="width: ${xp.pct}%"></div></div>
     </div>
   `;
 }
@@ -1812,8 +2222,9 @@ function renderDashboard() {
 
       <div class="flex items-center justify-between mb-6 fade-in flex-wrap gap-3">
         <div>
-          <h2 class="text-3xl lg:text-4xl font-black text-white">Brief Kutusu</h2>
-          <p class="text-slate-400 text-sm mt-1">${available.length} aktif fırsat · ${done} kampanya tamamlandı</p>
+          <div class="text-[10px] font-mono text-cyan-400 tracking-[0.3em] mb-1">▸ KOMUTA MERKEZİ</div>
+          <h2 class="text-3xl lg:text-4xl font-black text-white">Görev Kutusu</h2>
+          <p class="text-slate-400 text-sm mt-1 font-mono">[ ${available.length} aktif görev · ${done} tamamlandı · ${state.player.staff?.length || 0} ajan ]</p>
         </div>
         <div class="flex gap-2 flex-wrap">
           <button class="btn-ghost" data-action="academy">🎓 Akademi (${Object.values(state.player.lessons || {}).filter(l => l?.completed).length}/${LESSONS.length})</button>
@@ -1861,24 +2272,38 @@ function renderDashboard() {
         </div>
       ` : ''}
 
+      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <div class="flex items-center gap-2">
+          <span class="hud-tag"><span class="live-dot"></span> Aktif Görevler</span>
+          <span class="hud-tag purple font-mono">${String(available.length).padStart(2, '0')} ADET</span>
+        </div>
+      </div>
+
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        ${available.map(b => {
-          const difficulty = '🔥'.repeat(b.level) + '·'.repeat(Math.max(0, 4 - b.level));
+        ${available.map((b, idx) => {
+          const rarity = b.level >= 4 ? 'legendary' : b.level === 3 ? 'epic' : b.level === 2 ? 'rare' : 'common';
+          const rarityLabel = { legendary: 'EFSANEVI', epic: 'EPİK', rare: 'NADİR', common: 'NORMAL' }[rarity];
+          const missionId = 'DJP-' + String(BRIEFS.indexOf(b) + 1).padStart(3, '0');
           return `
-          <div class="glass-strong p-6 cursor-pointer transition-all hover:scale-[1.01] fade-in" data-action="open-brief" data-id="${b.id}">
+          <div class="mission-card rarity-${rarity} fade-in" data-action="open-brief" data-id="${b.id}">
+            <span class="corner tl"></span><span class="corner tr"></span>
+            <span class="corner bl"></span><span class="corner br"></span>
+
             <div class="flex items-start justify-between mb-3">
-              <div class="text-5xl">${b.icon}</div>
-              <div class="flex flex-col items-end gap-1.5">
-                <span class="badge badge-gold">₺${b.budget.toLocaleString('tr-TR')} bütçe</span>
-                <span class="badge badge-purple" title="Zorluk">${difficulty}</span>
+              <div>
+                <div class="mission-id mb-1">${missionId}</div>
+                <span class="rarity-badge ${rarity}">${rarityLabel}</span>
               </div>
+              <div class="text-5xl">${b.icon}</div>
             </div>
-            <h3 class="text-xl font-bold text-white">${b.client}</h3>
-            <p class="text-sm text-slate-400 mb-2">${b.industry}</p>
-            <p class="text-sm text-slate-300 mb-4 line-clamp-2">${b.description}</p>
-            <div class="flex items-center gap-2 flex-wrap">
-              <span class="badge badge-cyan">🎯 ${b.goal}</span>
-              <span class="badge">⏱ ${b.duration}</span>
+
+            <h3 class="text-xl font-bold text-white mb-1">${b.client}</h3>
+            <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">${b.industry}</p>
+            <p class="text-sm text-slate-300 mb-4 line-clamp-2 leading-relaxed">${b.description}</p>
+
+            <div class="flex items-center justify-between gap-2 flex-wrap pt-3 border-t border-white/5">
+              <span class="hud-tag gold">₺${(b.budget/1000).toFixed(0)}K BÜTÇE</span>
+              <span class="hud-tag">⏱ ${b.duration}</span>
             </div>
           </div>
         `; }).join('')}
@@ -4281,6 +4706,7 @@ function launchCampaign() {
     });
     const newAch = checkNewAchievements();
     state.lastResult.newAchievements = newAch;
+    showMissionComplete(result);
     state.screen = 'results';
     saveGame();
     render();
@@ -4307,6 +4733,23 @@ function launchCampaign() {
       });
     }
   }, 3000);
+}
+
+function showMissionComplete(result) {
+  const success = result.stars >= 2;
+  const overlay = document.createElement('div');
+  overlay.className = 'mission-complete-overlay';
+  overlay.innerHTML = `
+    <div class="mc-tag">▸ ${success ? 'GÖREV BAŞARIYLA TAMAMLANDI' : 'GÖREV TAMAMLANDI'} ◂</div>
+    <div class="mc-title ${success ? '' : 'fail'}">${success ? 'MISSION COMPLETE' : 'MISSION FAILED'}</div>
+    <div class="mc-subtitle">★ ${result.stars} / 3 · ${result.score} PUAN</div>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    overlay.style.transition = 'opacity 0.5s';
+    overlay.style.opacity = '0';
+    setTimeout(() => overlay.remove(), 500);
+  }, 2200);
 }
 
 function toast(msg) {
