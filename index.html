@@ -235,6 +235,81 @@
   details summary::-webkit-details-marker { display: none; }
   .scroll-hide::-webkit-scrollbar { display: none; }
 
+  /* Karakter konuşma balonu */
+  .dialog-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 18px 20px;
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.10), rgba(6, 182, 212, 0.05));
+    border: 1px solid rgba(139, 92, 246, 0.25);
+    border-radius: 20px;
+    position: relative;
+  }
+  .dialog-row.ada {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(16, 185, 129, 0.05));
+    border-color: rgba(6, 182, 212, 0.3);
+  }
+  .char-avatar {
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ec4899, #8b5cf6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
+    position: relative;
+  }
+  .char-avatar.ada {
+    background: linear-gradient(135deg, #06b6d4, #10b981);
+    box-shadow: 0 4px 20px rgba(6, 182, 212, 0.4);
+  }
+  .char-avatar::after {
+    content: '';
+    position: absolute;
+    bottom: 2px; right: 2px;
+    width: 14px; height: 14px;
+    background: #10b981;
+    border-radius: 50%;
+    border: 2px solid #0a0a1f;
+  }
+  .char-meta {
+    flex: 1;
+    min-width: 0;
+  }
+  .char-tag {
+    display: flex;
+    align-items: baseline;
+    gap: 8px;
+    margin-bottom: 6px;
+    flex-wrap: wrap;
+  }
+  .char-name {
+    font-weight: 800;
+    font-size: 15px;
+    color: #fbbf24;
+  }
+  .char-name.ada { color: #67e8f9; }
+  .char-role {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .char-line {
+    font-size: 15px;
+    line-height: 1.55;
+    color: #e2e8f0;
+  }
+  .char-line strong { color: #fbbf24; }
+  @media (max-width: 640px) {
+    .char-avatar { width: 48px; height: 48px; font-size: 28px; }
+    .dialog-row { padding: 14px 16px; gap: 12px; }
+    .char-line { font-size: 14px; }
+  }
+
   /* Certificate styling */
   .certificate {
     background: linear-gradient(135deg, #0f0f23 0%, #1a1033 100%);
@@ -595,6 +670,110 @@ const BRIEFS = [
     }
   }
 ];
+
+// ============== KARAKTERLER ==============
+const CHARACTERS = {
+  defne: { id: 'defne', name: 'Defne', role: 'Ajans Direktörü', avatar: '👩‍💼', cls: '' },
+  ada:   { id: 'ada',   name: 'Ada',   role: 'AI Veri Asistanı', avatar: '🤖',    cls: 'ada' }
+};
+
+const DIALOGS = {
+  defne: {
+    welcome_new: [
+      "Merhaba {name}! Ben Defne, ajansımın direktörüyüm. Bugün senin için heyecan verici bir gün — birlikte gerçek müşterilerle pratik yapacağız. Önce Akademi'de temelleri çalışalım, sonra brief kutunuza yeni işler düşmeye başlayacak.",
+      "Selam {name}! Hoş geldin ajansa. Sana şöyle anlatayım: her hafta birkaç gerçek müşteri brief'i geliyor — sen strateji kuracaksın, ben yol göstereceğim. Hatalar olacak, korkma; biz onlardan öğrenerek büyürüz."
+    ],
+    welcome_returning: [
+      "Tekrar hoş geldin {name}. Kaldığın yerden devam edelim.",
+      "{name}, sana iyi haberlerim var — brief kutunda yeni işler var.",
+      "İyi ki geldin {name}. Bugün ne çalışmak istersin?"
+    ],
+    brief_intro: [
+      "Yeni brief geldi, dikkatle oku. Müşterinin söylediği şeyle <strong>gerçek ihtiyacı</strong> bazen farklı olur — ikisini ayır.",
+      "Bu müşteriyi inceledim. Bütçe sınırlı ama doğru kanal seçimiyle güzel sonuç çıkar. Acele etme.",
+      "Önce müşteriyi anla, sonra strateji. <strong>Kim alıyor, neden alıyor, nereden bulmuş</strong> — bu üçü hep aklında olsun.",
+      "Brief'i okurken kendine sor: bu müşterinin müşterisi kim? Kararı veren kişi mi yoksa onaylatan biri mi var?",
+      "Müşteri kendi sektöründe uzman ama dijital pazarlamada değil. Bizden onun bilmediği şeyi öneriyor olmamızı bekliyor."
+    ],
+    quiz_pass_3: [
+      "Vay! {score}/100 — bu konu artık senin. Pratiğe geçebiliriz.",
+      "Mükemmel {score}/100. Brief kutunda yeni işler aktif oldu, bir göz at."
+    ],
+    quiz_pass_2: [
+      "İyi gidiyorsun, {score}/100. Birkaç ince noktayı atlamışsın ama temelin sağlam.",
+      "Geçtin, {score}/100. Yine de dersi bir kez daha gözden geçirmen iyi olur — özellikle özet kutucuklarını."
+    ],
+    quiz_fail: [
+      "Henüz hazır değiliz. Dersi bir kez daha oku, sonra tekrar dene. Acelemiz yok.",
+      "%70'in altında kaldın ama panik yok — quiz öğrenmeye yarar, ceza değil. Dersi tekrar gözden geçir."
+    ],
+    result_3star: [
+      "Vay {name}! Bu kampanya gerçek hayatta da örnek gösterilir. Müşteri çok memnun.",
+      "3 yıldız — strateji, kanal seçimi, kreatif hepsi yerli yerinde. Tebrikler.",
+      "Bunu nasıl çözdüğünü iyi kaydet, çünkü gelecekte rehberin olacak."
+    ],
+    result_2star: [
+      "İyi iş. Tek bir kararı değiştirseydin daha güçlüydü — geri bildirimi dikkatli oku.",
+      "Sağlam bir kampanya. Bir sonrakinde bu noktaları daha keskin yapabiliriz.",
+      "Müşteri memnun ama bence sen daha iyisini yapabilirdin. Hangi adımda tereddüt ettin?"
+    ],
+    result_1star: [
+      "Kabul edilebilir ama daha iyisi mümkündü. Hata için utanma — geri bildirim senin için yazıldı.",
+      "Öğrenmek için iyi bir kampanya oldu. Hangi karar farklı olabilirdi, kendine sor."
+    ],
+    result_0star: [
+      "Bu sefer hedefi tutturamadık. Önemli olan <strong>neden</strong> — geri bildirimde net açıklıyorum.",
+      "Düşük çıktı ama düşmek de öğrenmenin parçası. Şimdi neyi farklı yapacağına odaklan."
+    ],
+    academy_intro: [
+      "Akademimde 8 modül var. Sıralı gitmen şart değil ama 'Pazarlama Temeli' ile başlamanı öneririm — her şey orada yapılanıyor.",
+      "Her ders 3-5 dakika okuma + 5 soruluk quiz. Geçince ilgili brief'lerin kilidi açılır."
+    ],
+    dashboard_no_briefs: [
+      "Şu an açık brief yok — biraz Akademi'de çalışıp yeni brief'lerin kilidini açabilirsin.",
+      "Yeni brief'ler için ya seviyeni yükselt ya da modülleri bitir."
+    ]
+  },
+  ada: {
+    lab_intro: [
+      "Merhaba, ben Ada. Brief'ini yaz, ben üç farklı strateji önereceğim — biri ihtiyatlı, biri dengeli, biri cesur. Sen seçeceksin.",
+      "Lab moduna hoş geldin. Verdiğin brief'i analiz edip rakip stratejiler önereceğim. Hangisinin senin için en uygun olduğuna sen karar vereceksin."
+    ],
+    lab_analyzing: [
+      "Brief'i inceliyorum, kanal kombinasyonlarını hesaplıyorum...",
+      "Strateji alternatiflerini hazırlıyorum, biraz bekle..."
+    ],
+    feedback_pre: [
+      "Kararlarını ideal stratejiyle karşılaştırıp 3 paragrafta yorumlayacağım."
+    ]
+  }
+};
+
+function dialog(charId, key, vars = {}) {
+  const lines = DIALOGS[charId]?.[key] || [];
+  if (!lines.length) return '';
+  const line = lines[Math.floor(Math.random() * lines.length)];
+  return Object.entries(vars).reduce((s, [k, v]) => s.replaceAll(`{${k}}`, v), line);
+}
+
+function characterDialog(charId, key, vars = {}) {
+  const c = CHARACTERS[charId];
+  if (!c) return '';
+  const line = dialog(charId, key, vars);
+  if (!line) return '';
+  return `
+    <div class="dialog-row ${c.cls} fade-in">
+      <div class="char-avatar ${c.cls}">${c.avatar}</div>
+      <div class="char-meta">
+        <div class="char-tag">
+          <span class="char-name ${c.cls}">${c.name}</span>
+          <span class="char-role">${c.role}</span>
+        </div>
+        <div class="char-line">${line}</div>
+      </div>
+    </div>
+  `;
+}
 
 // ============== AKADEMİ (DERSLER + QUIZ) ==============
 const LESSON_RESOURCES = {
@@ -1135,7 +1314,7 @@ async function loadGame() {
     const r = await api('GET', '/api/state');
     if (r.state) state.player = { ...state.player, ...r.state };
     state.player.name = state.authUser.name;
-    // Admin için tüm dersleri otomatik tamamla
+    // Admin için tüm dersleri otomatik tamamla + onboarding skip
     if (state.authUser.isAdmin) {
       state.player.lessons = state.player.lessons || {};
       state.player.quizScores = state.player.quizScores || {};
@@ -1147,9 +1326,16 @@ async function loadGame() {
           changed = true;
         }
       });
+      state.player.onboarded = true;
       if (changed) saveGame();
+      state.screen = 'dashboard';
+    } else if (!state.player.onboarded) {
+      // Onboarding görmeyen kullanıcıyı Defne karşılasın
+      state.onboardStep = 0;
+      state.screen = 'welcome';
+    } else {
+      state.screen = 'dashboard';
     }
-    state.screen = 'dashboard';
     return true;
   } catch (e) {
     setToken(null);
@@ -1544,31 +1730,66 @@ function renderLeaderboard() {
 }
 
 function renderWelcome() {
+  const onboardStep = state.onboardStep || 0;
+  const p = state.player;
+  const ONBOARD = [
+    {
+      avatar: '👩‍💼',
+      tag: 'Defne · Ajans Direktörü',
+      lines: [
+        `Merhaba <strong>${p.name}</strong>! Ben <strong>Defne</strong> — bu ajansın direktörüyüm. Aramıza katıldığın için seviniyorum.`,
+        `Bu ajansta gerçek müşterilerle, gerçek brieflerle çalışacağız. Hatalar olacak, kayıplar olacak. Önemli olan: hatadan öğrenip bir sonrakinde daha akıllıca davranmak.`
+      ]
+    },
+    {
+      avatar: '👩‍💼',
+      tag: 'Defne · Ajans Direktörü',
+      lines: [
+        `Sana yol haritamı söyleyeyim: önce <strong>Akademi</strong>'mizde 8 kısa modül var. Pazarlama temeli, hedef kitle, Google Ads, Meta, e-posta, SEO, metrikleri okuma ve bütçe yönetimi.`,
+        `Her modülün sonunda bir quiz var. Geçtikçe ilgili brief'lerin kilidi açılır ve onlar üzerinde çalışırsın.`
+      ]
+    },
+    {
+      avatar: '👩‍💼',
+      tag: 'Defne · Ajans Direktörü',
+      lines: [
+        `Bir de <strong>AI Lab</strong>'ımız var — orada <strong>Ada</strong> seni karşılayacak. Ada bizim veri asistanımız; sen serbestçe bir brief yazıyorsun, o sana 3 farklı strateji öneriyor. Hangisini denemek istersen seç, ben yorumlarım.`,
+        `Hazır mısın? Brief kutuna geçelim.`
+      ]
+    }
+  ];
+
+  const step = ONBOARD[onboardStep];
+  const last = onboardStep === ONBOARD.length - 1;
+
   return `
     <div class="min-h-screen flex items-center justify-center p-6 lg:p-10">
-      <div class="max-w-6xl w-full fade-in">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div class="text-center lg:text-left">
-            <div class="text-7xl lg:text-8xl mb-6">📱✨📊</div>
-            <h1 class="text-6xl md:text-7xl lg:text-8xl font-black mb-4 gradient-text leading-none">DijiP</h1>
-            <p class="text-xl lg:text-2xl text-slate-300 mb-3">Dijital Pazarlama Simülasyon Oyunu</p>
-            <p class="text-slate-400 mb-8 lg:max-w-md leading-relaxed">Gerçek brieflerle çalış. Kitle seç, bütçeyi böl, kreatif kur. Sonuçları gör, hatandan öğren. Junior'dan ajans kurucusuna giden yolda ilerle.</p>
+      <div class="max-w-3xl w-full fade-in">
+        <div class="text-center mb-8">
+          <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Bayri Dijital Ajans · 1. Gün</div>
+          <h1 class="text-3xl lg:text-4xl font-black gradient-text mb-2">Ajansına Hoş Geldin</h1>
+          <div class="flex justify-center gap-1.5 mt-4">
+            ${ONBOARD.map((_, i) => `<div class="h-1 w-12 rounded-full ${i <= onboardStep ? 'bg-gradient-to-r from-cyan-400 to-purple-500' : 'bg-white/10'}"></div>`).join('')}
+          </div>
+        </div>
 
-            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
-              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🎯</div><div class="text-xs text-slate-400">12 Brief</div></div>
-              <div class="glass p-4 text-center"><div class="text-3xl mb-1">📈</div><div class="text-xs text-slate-400">CTR · ROI</div></div>
-              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🧠</div><div class="text-xs text-slate-400">Hatadan Öğren</div></div>
+        <div class="dialog-row mb-6">
+          <div class="char-avatar">${step.avatar}</div>
+          <div class="char-meta">
+            <div class="char-tag">
+              <span class="char-name">Defne</span>
+              <span class="char-role">Ajans Direktörü</span>
+            </div>
+            <div class="char-line space-y-3">
+              ${step.lines.map(l => `<p>${l}</p>`).join('')}
             </div>
           </div>
+        </div>
 
-          <div class="glass-strong p-8 lg:p-10 w-full max-w-md mx-auto lg:max-w-none">
-            <div class="text-xs text-slate-400 uppercase tracking-widest mb-1">Hoş geldin</div>
-            <h2 class="text-2xl font-bold mb-6">Karakterini oluştur</h2>
-            <label class="block text-left text-sm text-slate-400 mb-2">İsminiz</label>
-            <input id="name-input" type="text" placeholder="Örn. Ali" class="w-full text-lg mb-5" maxlength="20" />
-            <button class="btn-primary w-full text-lg" id="start-btn">Oyuna Başla →</button>
-            <div class="text-xs text-slate-500 text-center mt-4">İlerleme cihazına otomatik kaydedilir</div>
-          </div>
+        <div class="flex justify-between items-center">
+          ${onboardStep > 0 ? `<button class="btn-ghost" data-action="onboard-prev">← Geri</button>` : '<div></div>'}
+          <div class="text-xs text-slate-500">Adım ${onboardStep + 1} / ${ONBOARD.length}</div>
+          <button class="btn-primary" data-action="onboard-next">${last ? 'Ajansa Gir →' : 'Devam →'}</button>
         </div>
       </div>
     </div>
@@ -1628,6 +1849,8 @@ function renderDashboard() {
           <p class="text-slate-400 mb-4">Daha fazla XP kazan ve yeni brief'lerin kilidini aç.</p>
         </div>
       ` : ''}
+
+      ${done > 0 && available.length > 0 ? `<div class="mb-5">${characterDialog('defne', 'welcome_returning', { name: state.player.name })}</div>` : ''}
 
       ${available.length === 0 && lockedByLesson.length > 0 ? `
         <div class="glass-strong p-8 mb-6 text-center" style="background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08)); border-color: rgba(245,158,11,0.3);">
@@ -1720,6 +1943,8 @@ function renderBriefDetail() {
   return `
     <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <button class="btn-ghost mb-6" data-action="back">← Brief kutusuna dön</button>
+
+      <div class="mb-5">${characterDialog('defne', 'brief_intro', { budget: b.budget.toLocaleString('tr-TR') })}</div>
 
       <div class="grid lg:grid-cols-3 gap-6 mb-6">
         <div class="lg:col-span-2 glass-strong p-6 lg:p-8">
@@ -2006,6 +2231,8 @@ function renderResults() {
   const verdict = r.stars === 3 ? 'Mükemmel!' : r.stars === 2 ? 'İyi iş!' : r.stars === 1 ? 'Kabul edilebilir' : 'Düşük performans';
   const verdictClass = r.stars === 3 ? 'text-emerald-400' : r.stars === 2 ? 'text-cyan-400' : r.stars === 1 ? 'text-amber-400' : 'text-rose-400';
 
+  const defneDialogKey = r.stars === 3 ? 'result_3star' : r.stars === 2 ? 'result_2star' : r.stars === 1 ? 'result_1star' : 'result_0star';
+
   return `
     <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <div class="text-center mb-8">
@@ -2014,6 +2241,8 @@ function renderResults() {
         <h2 class="text-3xl lg:text-4xl font-black ${verdictClass} verdict-pop">${verdict}</h2>
         <p class="text-slate-400 mt-1">${b.client} kampanyası tamamlandı</p>
       </div>
+
+      <div class="mb-6">${characterDialog('defne', defneDialogKey, { name: state.player.name, score: r.score })}</div>
 
       ${r.newAchievements?.length ? `
         <div class="glass-strong p-5 mb-6 fade-in" style="background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(139,92,246,0.1)); border-color: rgba(245,158,11,0.3);">
@@ -2194,6 +2423,8 @@ function renderAcademy() {
         <button class="btn-ghost" data-action="back-dashboard">← Brief Kutusu</button>
       </div>
 
+      ${totalDone < 2 ? `<div class="mb-6">${characterDialog('defne', 'academy_intro')}</div>` : ''}
+
       <div class="glass p-5 mb-6">
         <div class="flex justify-between text-xs text-slate-400 mb-1.5">
           <span>Genel ilerleme</span>
@@ -2313,13 +2544,17 @@ function renderQuiz() {
     const correct = ans.filter((a, i) => a === qs[i].a).length;
     const score = Math.round((correct / qs.length) * 100);
     const passed = score >= 70;
+    const defneKey = !passed ? 'quiz_fail' : score >= 85 ? 'quiz_pass_3' : 'quiz_pass_2';
     return `
       <div class="max-w-2xl mx-auto px-5 py-12 fade-in text-center">
         <div class="text-8xl mb-4">${passed ? '🎉' : '📚'}</div>
         <h2 class="text-4xl font-black mb-2 ${passed ? 'gradient-text' : 'text-amber-400'}">${passed ? 'Geçtin!' : 'Tekrar dene'}</h2>
         <p class="text-slate-400 mb-6">${l.title}</p>
         <div class="text-7xl font-black mb-2 ${passed ? 'text-emerald-400' : 'text-amber-400'}">${score}/100</div>
-        <p class="text-slate-300 mb-8">${correct}/${qs.length} doğru cevap</p>
+        <p class="text-slate-300 mb-6">${correct}/${qs.length} doğru cevap</p>
+
+        <div class="mb-6 text-left">${characterDialog('defne', defneKey, { score })}</div>
+
         ${passed ? `
           <div class="glass-strong p-5 mb-6">
             <div class="text-sm text-emerald-300 font-semibold mb-1">✓ Bu modül tamamlandı</div>
@@ -2970,11 +3205,13 @@ function renderLab() {
     <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
 
-      <div class="text-center mb-8">
+      <div class="text-center mb-6">
         <div class="text-6xl mb-3">🧪</div>
-        <h2 class="text-4xl lg:text-5xl font-black gradient-text">AI Lab — Serbest Brief</h2>
-        <p class="text-slate-400 mt-2">Kendi brief'ini yaz, AI ideal stratejiyi öner ve sen kur</p>
+        <h2 class="text-4xl lg:text-5xl font-black gradient-text">AI Lab</h2>
+        <p class="text-slate-400 mt-2">Ada ile çalışma alanı</p>
       </div>
+
+      <div class="mb-6">${characterDialog('ada', lab.loading ? 'lab_analyzing' : 'lab_intro')}</div>
 
       ${lab.aiEnabled === false ? `
         <div class="glass-strong p-6 mb-6 border-l-4 border-amber-500">
@@ -3637,13 +3874,33 @@ async function handleAction(action, id, el) {
         setToken(r.token);
         state.authUser = r.user;
         state.player.name = r.user.name;
-        state.screen = 'dashboard';
+        // Yeni kullanıcıyı Defne onboarding'e götür
+        state.screen = state.authUser.isAdmin ? 'dashboard' : 'welcome';
+        state.onboardStep = 0;
         state.authLoading = false;
         saveGame();
         render();
       } catch (e) {
         state.authLoading = false;
         state.authError = e.message;
+        render();
+      }
+      break;
+    }
+    case 'onboard-prev':
+      state.onboardStep = Math.max(0, (state.onboardStep || 0) - 1);
+      render();
+      break;
+    case 'onboard-next': {
+      const step = state.onboardStep || 0;
+      if (step >= 2) {
+        state.onboardStep = 0;
+        state.player.onboarded = true;
+        saveGame();
+        state.screen = 'academy';
+        render();
+      } else {
+        state.onboardStep = step + 1;
         render();
       }
       break;
