@@ -615,6 +615,249 @@
     mix-blend-mode: overlay;
   }
 
+  /* ==================== ANIMATED CUSTOMER SCENE ==================== */
+  .customer-scene {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0;
+    position: relative;
+    min-height: 70vh;
+    border-radius: 24px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(15, 15, 30, 0.6), rgba(15, 15, 30, 0.9));
+    border: 1px solid rgba(139, 92, 246, 0.25);
+  }
+  @media (min-width: 1024px) {
+    .customer-scene {
+      grid-template-columns: 1fr 1fr;
+      min-height: 580px;
+    }
+  }
+  .scene-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+  }
+  .scene-bg::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.7;
+  }
+  .scene-bg.mood-warm::before { background: radial-gradient(ellipse at 75% 30%, rgba(245, 158, 11, 0.25), transparent 60%), radial-gradient(ellipse at 30% 80%, rgba(244, 63, 94, 0.15), transparent 60%); }
+  .scene-bg.mood-cool::before { background: radial-gradient(ellipse at 75% 30%, rgba(6, 182, 212, 0.25), transparent 60%), radial-gradient(ellipse at 30% 80%, rgba(59, 130, 246, 0.18), transparent 60%); }
+  .scene-bg.mood-pink::before { background: radial-gradient(ellipse at 75% 30%, rgba(236, 72, 153, 0.25), transparent 60%), radial-gradient(ellipse at 30% 80%, rgba(168, 85, 247, 0.18), transparent 60%); }
+  .scene-bg.mood-green::before { background: radial-gradient(ellipse at 75% 30%, rgba(16, 185, 129, 0.25), transparent 60%), radial-gradient(ellipse at 30% 80%, rgba(6, 182, 212, 0.15), transparent 60%); }
+  .scene-bg::after {
+    /* floor/ground gradient */
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 30%;
+    background: linear-gradient(180deg, transparent, rgba(0,0,0,0.5));
+  }
+
+  .character-stage {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px 20px;
+    min-height: 280px;
+    grid-row: 1;
+  }
+  @media (min-width: 1024px) {
+    .character-stage {
+      grid-row: auto;
+      grid-column: 2;
+      min-height: auto;
+    }
+  }
+
+  /* Character shadow */
+  .character-shadow {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 200px;
+    height: 24px;
+    background: radial-gradient(ellipse, rgba(0,0,0,0.5) 0%, transparent 70%);
+    animation: shadowBob 3.2s ease-in-out infinite;
+  }
+  @keyframes shadowBob {
+    0%, 100% { width: 200px; opacity: 0.6; }
+    50% { width: 240px; opacity: 0.3; }
+  }
+
+  .character-figure {
+    position: relative;
+    font-size: clamp(140px, 22vw, 260px);
+    line-height: 1;
+    animation: idleBob 3.2s ease-in-out infinite;
+    filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5));
+    transform-origin: 50% 100%;
+  }
+  @keyframes idleBob {
+    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+    50% { transform: translateY(-12px) rotate(1.5deg); }
+  }
+  .character-figure.talking {
+    animation: idleBob 3.2s ease-in-out infinite, talkBounce 0.4s ease-in-out infinite;
+  }
+  @keyframes talkBounce {
+    0%, 100% { filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5)); }
+    50% { filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5)) brightness(1.1); }
+  }
+
+  /* Halo / aura around character */
+  .character-aura {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 320px; height: 320px;
+    border-radius: 50%;
+    background: radial-gradient(circle, var(--aura-color, rgba(139, 92, 246, 0.3)) 0%, transparent 60%);
+    z-index: -1;
+    animation: auraPulse 3s ease-in-out infinite;
+  }
+  @keyframes auraPulse {
+    0%, 100% { opacity: 0.5; transform: translate(-50%, -50%) scale(1); }
+    50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+  }
+
+  /* Mood emoji that pops above */
+  .mood-emoji {
+    position: absolute;
+    top: 8%;
+    right: 18%;
+    font-size: 32px;
+    animation: floatUp 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+  }
+  @keyframes floatUp {
+    0%, 100% { transform: translateY(0); opacity: 0.7; }
+    50% { transform: translateY(-10px); opacity: 1; }
+  }
+
+  /* Speech bubble area */
+  .speech-area {
+    position: relative;
+    z-index: 2;
+    padding: 24px 22px 28px;
+    background: linear-gradient(180deg, rgba(15, 15, 30, 0.85), rgba(15, 15, 30, 0.98));
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(139, 92, 246, 0.3);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 240px;
+  }
+  @media (min-width: 1024px) {
+    .speech-area {
+      grid-column: 1;
+      grid-row: 1;
+      border-top: none;
+      border-right: 1px solid rgba(139, 92, 246, 0.2);
+      padding: 36px 32px;
+      min-height: auto;
+    }
+  }
+
+  .speech-name-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  .speech-name-avatar {
+    width: 44px; height: 44px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 24px;
+    flex-shrink: 0;
+    box-shadow: 0 4px 16px rgba(245, 158, 11, 0.3);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+  }
+  .speech-name {
+    font-weight: 800;
+    font-size: 16px;
+    color: #fbbf24;
+    line-height: 1.2;
+  }
+  .speech-role {
+    font-size: 11px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+
+  .speech-text {
+    font-size: 17px;
+    line-height: 1.65;
+    color: #e2e8f0;
+    min-height: 100px;
+    margin-bottom: 16px;
+    flex: 1;
+  }
+  @media (min-width: 1024px) {
+    .speech-text { font-size: 18px; min-height: 140px; }
+  }
+
+  .typewriter-cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1.1em;
+    background: #fbbf24;
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 0.8s steps(2) infinite;
+  }
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+
+  .speech-progress {
+    display: flex;
+    gap: 6px;
+    margin-bottom: 14px;
+  }
+  .speech-dot {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    transition: background 0.3s;
+  }
+  .speech-dot.active {
+    background: linear-gradient(90deg, #06b6d4, #8b5cf6);
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.6);
+  }
+
+  .speech-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+  }
+
+  .tap-hint {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #67e8f9;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    opacity: 0;
+    animation: tapPulse 1.5s ease-in-out infinite;
+  }
+  @keyframes tapPulse {
+    0%, 100% { opacity: 0.5; }
+    50% { opacity: 1; }
+  }
+
   /* Cinematic letterbox for important screens */
   .cinematic::before, .cinematic::after {
     content: '';
@@ -1555,18 +1798,102 @@ function checkNewAchievements() {
 
 // ============== CUSTOMER PERSONAS ==============
 const PERSONAS = {
-  kahveci:       { name: 'Mehmet Yılmaz',  role: 'Kafe Sahibi',                avatar: '👨‍🍳',  quote: 'Yeni açıldık ama mahalleliyi yakalayamıyoruz. Sabah saatleri bomboş. Bütçem büyük değil ama doğru yere harcamak istiyorum.' },
-  taki:          { name: 'Selin Kara',     role: 'Atölye Kurucusu',            avatar: '👩‍🎨',  quote: 'Etsy\'de 47 satışım var ama büyümüyor. Markamın hikayesi güzel — sadece görünmüyorum. İndirim yapmak istemiyorum.' },
-  fitapp:        { name: 'Burak Demir',    role: 'Co-founder, FitApp',         avatar: '🧑‍💼',  quote: 'ASO tamam, store\'da 4.7 yıldızdayız. Şimdi install başına ₺15-20 maliyet hedefimiz var. Sosyal kanıtımız güçlü, kullanabilir miyiz?' },
-  butikotel:     { name: 'Fatma Kavak',    role: 'Otel İşletmecisi',           avatar: '👩‍💼',  quote: 'Booking %18 komisyon alıyor. Direkt rezervasyon için reklamcıya ödeyebileceğim bütçem var. Sezon yaklaşıyor, zamanım dar.' },
-  saascrm:       { name: 'Onur Çelik',     role: 'CMO, CloudCRM',              avatar: '🧑‍💻',  quote: 'Aylık 40 kalifiye demo lazım. Sales ekibimiz CAC\'ı ₺2.500\'e kadar tolere eder. Lead kalitesi quantitiden önemli.' },
-  kozmetik:      { name: 'İrem Su',        role: 'Kurucu, Glow',               avatar: '💁‍♀️',  quote: 'E-posta listemiz 25K. Reklam veriyoruz ama ROAS 2.5\'te tıkandı. 4.0 hedefliyorum — ölçeklenebilir olsun.' },
-  pastane:       { name: 'Hatice Hanım',   role: 'Pastane Sahibi',             avatar: '👵',     quote: 'Bayrama 10 gün kaldı. Geçen sene çok az sipariş geldi. Mahalleliyle aramız iyi sadece bizi görmüyorlar.' },
-  ingilizcekurs: { name: 'Deniz Aksoy',    role: 'Growth Lead',                avatar: '🧑‍🏫',  quote: 'Ücretsiz deneme dersi açıyoruz. Kayıt başı ₺80\'in altında kalmamız lazım. Sonra %22\'si aboneliğe dönüyor.' },
-  yoga:          { name: 'Cansu Ergin',    role: 'Stüdyo Sahibi',              avatar: '🧘‍♀️',  quote: 'Stüdyoyu açtık ama Instagram\'da sıfırız. Kapasitemiz sınırlı, 80 yeni üyeyle aylık geçimimi çıkarırım.' },
-  sigorta:       { name: 'Cem Bayram',     role: 'Performans Pazarlama Müdürü',avatar: '🧔',     quote: 'Form başı maliyet ₺25\'in üstüne çıkarsa zarar ediyoruz. Lead kalitesi ve dönüşüm net olmalı.' },
-  wellnesspro:   { name: 'Dr. Pınar Acar', role: 'Klinik CMO',                 avatar: '🩺',     quote: 'CRM\'de 25K müşteri var, son 6 ayda %38\'i hiç dönmedi. Yeni müşteri kazanmak 5 kat pahalı — mevcutlara dönmeliyiz.' },
-  tutorialhub:   { name: 'Ege Toprak',     role: 'CEO, TutorialHub',           avatar: '🧑‍💻',  quote: 'Ücretli reklam sürdürülebilir değil — pahalandı. 3 ayda organikten ayda 10K ziyaretçi ve %3 kayıt dönüşümü istiyorum.' }
+  kahveci: { name: 'Mehmet Yılmaz', role: 'Kafe Sahibi', avatar: '👨‍🍳', mood: 'warm',
+    quote: 'Yeni açıldık ama mahalleliyi yakalayamıyoruz.',
+    dialog: [
+      'Selam! Ben Mehmet 👋 Mahalledeki yeni kafenin sahibiyim. Üç ay önce açtık, kahveye takıntılı biriyim.',
+      'Sorun şu: Sabahları bomboş 😞 İnsanlar bizi henüz keşfetmedi. Mahalleliyim ama dijital pazarlama hiç bilmiyorum.',
+      'Bütçem ₺5.000. Az gibi gelebilir ama doğru yere harcamak istiyorum. Beni mahallenin sabah molası rotası yapmaya yardım eder misin? ☕'
+    ]
+  },
+  taki: { name: 'Selin Kara', role: 'Atölye Kurucusu', avatar: '👩‍🎨', mood: 'pink',
+    quote: 'Etsy\'de 47 satışım var ama büyümüyor.',
+    dialog: [
+      'Merhaba, ben Selin 💖 Üç yıldır mutfağımda el yapımı takı atölyem var. Etsy\'de 47 satışa ulaştım.',
+      'Ama büyümüyor 😕 Markamın hikayesi çok güzel — eski Anadolu motifleri, kadın ustalar, çevreci ambalaj. Sadece görünmüyoruz.',
+      'İndirim yapmak istemiyorum, her parça 4 saatte el emeği ✋ Marka değerimi koruyarak nasıl büyürüm?'
+    ]
+  },
+  fitapp: { name: 'Burak Demir', role: 'Co-founder, FitApp', avatar: '🧑‍💼', mood: 'cool',
+    quote: 'Install başına ₺15-20 maliyet hedefimiz var.',
+    dialog: [
+      'Selam, ben Burak 🚀 FitApp\'in co-founder\'ıyım. 6 ay önce launch\'ladık, App Store\'da 4.7 yıldızdayız.',
+      'ASO işimiz tamam, sayfamız optimize. Şimdi paid acquisition zamanı 📲 Install başına ₺15-20 hedefimiz var.',
+      '500.000+ kullanıcımız ve güçlü yorumlarımız var ⭐ Bu sosyal kanıtı reklamda nasıl kullanırız?'
+    ]
+  },
+  butikotel: { name: 'Fatma Kavak', role: 'Otel İşletmecisi', avatar: '👩‍💼', mood: 'warm',
+    quote: 'Booking %18 komisyon alıyor.',
+    dialog: [
+      'Merhaba, ben Fatma 🌅 Kapadokya\'da 12 odalı butik otelim var, ailem 25 yıldır işletiyor.',
+      'Booking %18 komisyon alıyor. O parayı doğrudan kazanmak istiyorum 💰 Sezon yaklaşıyor, zamanım dar.',
+      '₺20.000 bütçem var. Direkt rezervasyon hedefliyorum 🏨 Hangi kanalda görünmemiz lazım?'
+    ]
+  },
+  saascrm: { name: 'Onur Çelik', role: 'CMO, CloudCRM', avatar: '🧑‍💻', mood: 'cool',
+    quote: 'Aylık 40 kalifiye demo lazım.',
+    dialog: [
+      'Onur\'um, CloudCRM\'in CMO\'suyum 👔 KOBİ\'lere CRM yazılımı satıyoruz, ticaretimiz iyi gidiyor.',
+      'Aylık 40 kalifiye demo talebi gerekiyor 📞 Sales ekibim CAC\'ı ₺2.500\'e kadar tolere edebilir.',
+      'Lead kalitesi kantiteden önemli ⚖️ Doğru karar vericileri yakalamamız lazım. Stratejin ne?'
+    ]
+  },
+  kozmetik: { name: 'İrem Su', role: 'Kurucu, Glow', avatar: '💁‍♀️', mood: 'pink',
+    quote: 'ROAS 2.5\'te tıkandık, 4.0 hedefliyoruz.',
+    dialog: [
+      'İrem\'im, Glow markasının kurucusuyum 💄 4 yıldır kozmetik satıyoruz, e-posta listemiz 25K.',
+      'Şu an Meta + Google reklamı veriyoruz, ROAS 2.5\'te tıkandı 😬 ₺80.000 bütçeyle 4.0+ hedefliyorum.',
+      'Listemiz büyük ama yeterince kullanmıyoruz 📧 Ölçeklenebilir bir formül lazım — sen ne önerirsin?'
+    ]
+  },
+  pastane: { name: 'Hatice Hanım', role: 'Pastane Sahibi', avatar: '👵', mood: 'warm',
+    quote: 'Bayrama 10 gün kaldı.',
+    dialog: [
+      'Ben Hatice Anne canım 🥰 Pastanemiz 22 yıllık, baklavalar anneanne tarifi, kurabiyeleri Selma elimle yaparım.',
+      'Bayrama 10 gün kaldı 🌙 Geçen sene az sipariş geldi, üzüldüm. Mahalleliyle aramız iyi ama sosyal medyada yokuz.',
+      'Bilmiyorum bu işleri evladım 💕 Bütçem ₺6.000. Bayram için sipariş çoğalır mı? Senin yardımına ihtiyacım var.'
+    ]
+  },
+  ingilizcekurs: { name: 'Deniz Aksoy', role: 'Growth Lead', avatar: '🧑‍🏫', mood: 'cool',
+    quote: 'Kayıt başına ₺80 altında kalmalı.',
+    dialog: [
+      'Selam, ben Deniz 📚 SpeakNow\'un Growth Lead\'iyim. Online İngilizce kursuyuz, native speaker birebir.',
+      'Free trial dersle başlıyoruz, sonra %22\'si aylık aboneliğe geçiyor 📈 Kayıt başına maliyet ₺80 altında olmalı.',
+      '₺30.000 bütçem var 💸 Nereye yatırmalıyım? Sen mantıklı bir mix kur.'
+    ]
+  },
+  yoga: { name: 'Cansu Ergin', role: 'Stüdyo Sahibi', avatar: '🧘‍♀️', mood: 'green',
+    quote: 'Instagram\'da neredeyse sıfırız.',
+    dialog: [
+      'Cansu ben 🧘‍♀️ Zen Yoga\'nın sahibi. Stüdyoyu üç ay önce açtık, beğenenler tekrar geliyor.',
+      'Ama Instagram\'da neredeyse sıfırız 📱 Kapasitemiz sınırlı — 80 yeni üye lazım aylık geçinmek için.',
+      '₺12.000 bütçem var, 3 hafta süre 🌿 Stüdyomu mahallenin wellness mekanı yapacak şey nedir?'
+    ]
+  },
+  sigorta: { name: 'Cem Bayram', role: 'Performans Pazarlama Müdürü', avatar: '🧔', mood: 'cool',
+    quote: 'Form başı maliyet ₺25 üstüne çıkmamalı.',
+    dialog: [
+      'Cem\'im 📊 KolaySigorta\'nın performans pazarlama müdürüyüm. Affiliate modelle çalışıyoruz.',
+      'Her dolduran form bizim için para. Ama maliyet ₺25 üstüne çıkarsa zarar ediyoruz 📉 ₺60.000 bütçem var.',
+      'Quick wins lazım, sürdürülebilir kanaldan 🎯 Lead kalitesi de net olmalı — saçma trafik bizi bitirir.'
+    ]
+  },
+  wellnesspro: { name: 'Dr. Pınar Acar', role: 'Klinik CMO', avatar: '🩺', mood: 'green',
+    quote: '%38\'i 6 aydır hiç dönmedi.',
+    dialog: [
+      'Dr. Pınar 🩺 Premium wellness kliniği CMO\'suyum. CRM\'de 25K müşteri var.',
+      'Ama son 6 ayda %38\'i hiç dönmedi 😟 Yeni müşteri kazanmak 5 kat pahalı, mevcutları kaybediyoruz.',
+      'Reaktivasyon kampanyası lazım 💌 ₺25.000 bütçem var — bu listeyle ne yapabiliriz?'
+    ]
+  },
+  tutorialhub: { name: 'Ege Toprak', role: 'CEO, TutorialHub', avatar: '🧑‍💻', mood: 'cool',
+    quote: 'Ücretli reklam artık sürdürülebilir değil.',
+    dialog: [
+      'Ege Toprak 💻 TutorialHub\'un CEO\'suyum. Yazılım eğitim platformuyuz, video kursları sunuyoruz.',
+      'Ücretli reklam sürdürülebilir değil — CPM uçtu, marjlar daraldı 📉 Organic trafik istiyoruz.',
+      '₺40.000 bütçeli 3 aylık SEO+içerik planı kurmamız lazım 🌱 Ayda 10K ziyaretçi + %3 kayıt dönüşümü.'
+    ]
+  }
 };
 
 // ============== AGENCY / STAFF ==============
@@ -1655,7 +1982,8 @@ const state = {
   lastResult: null,
   miniGamePicked: [],
   miniGameResult: null,
-  tutorialStep: 0
+  tutorialStep: 0,
+  customerScene: null
 };
 
 const TUTORIAL_STEPS = [
@@ -2363,76 +2691,131 @@ function renderDashboard() {
 function renderBriefDetail() {
   const b = state.currentBrief;
   const p = PERSONAS[b.id];
-  const difficulty = '🔥'.repeat(b.level) + '·'.repeat(Math.max(0, 4 - b.level));
+  const rarity = b.level >= 4 ? 'legendary' : b.level === 3 ? 'epic' : b.level === 2 ? 'rare' : 'common';
+  const rarityLabel = { legendary: 'EFSANEVI', epic: 'EPİK', rare: 'NADİR', common: 'NORMAL' }[rarity];
+  const missionId = 'DJP-' + String(BRIEFS.indexOf(b) + 1).padStart(3, '0');
+
+  // Customer scene state init
+  if (!state.customerScene || state.customerScene.briefId !== b.id) {
+    state.customerScene = {
+      briefId: b.id,
+      step: 0,
+      typed: '',
+      typing: true,
+      done: false
+    };
+  }
+  const sc = state.customerScene;
+  const dialog = p?.dialog || [b.description];
+  const currentLine = dialog[sc.step] || '';
+  const lastStep = sc.step >= dialog.length - 1;
+  const mood = p?.mood || 'cool';
+
+  // Mood emoji (varies by step / based on persona quote)
+  const moodEmojis = { warm: '☕', cool: '💼', pink: '✨', green: '🌿' };
 
   return `
-    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <button class="btn-ghost mb-6" data-action="back">← Brief kutusuna dön</button>
-
-      <div class="mb-5">${characterDialog('defne', 'brief_intro', { budget: b.budget.toLocaleString('tr-TR') })}</div>
-
-      <div class="grid lg:grid-cols-3 gap-6 mb-6">
-        <div class="lg:col-span-2 glass-strong p-6 lg:p-8">
-          <div class="flex items-start justify-between mb-4">
-            <div class="text-7xl">${b.icon}</div>
-            <div class="flex flex-col items-end gap-2">
-              <span class="badge badge-gold text-base px-4 py-1.5">₺${b.budget.toLocaleString('tr-TR')}</span>
-              <span class="badge badge-purple" title="Zorluk">Zorluk ${difficulty}</span>
-            </div>
-          </div>
-          <h2 class="text-3xl lg:text-4xl font-black text-white mb-1">${b.client}</h2>
-          <p class="text-slate-400 mb-6">${b.industry}</p>
-
-          ${p ? `
-          <div class="glass p-5 mb-6" style="background: linear-gradient(135deg, rgba(6,182,212,0.06), rgba(139,92,246,0.06));">
-            <div class="flex items-start gap-4">
-              <div class="w-14 h-14 rounded-full flex items-center justify-center text-3xl flex-shrink-0" style="background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3);">${p.avatar}</div>
-              <div class="flex-1">
-                <div class="flex items-baseline gap-2 mb-2 flex-wrap">
-                  <div class="font-bold">${p.name}</div>
-                  <div class="text-xs text-slate-400">${p.role}</div>
-                </div>
-                <div class="text-slate-200 leading-relaxed text-sm italic relative pl-4 border-l-2 border-purple-500/40">
-                  "${p.quote}"
-                </div>
-              </div>
-            </div>
-          </div>
-          ` : ''}
-
-          <div class="border-t border-white/10 pt-5">
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-2">Brief Detayı</div>
-            <p class="text-slate-200 leading-relaxed">${b.description}</p>
-          </div>
-        </div>
-
-        <div class="space-y-4">
-          <div class="glass p-5">
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Hedef</div>
-            <div class="font-semibold text-cyan-300 text-lg">🎯 ${b.goal}</div>
-          </div>
-          <div class="glass p-5">
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Süre</div>
-            <div class="font-semibold text-lg">⏱ ${b.duration}</div>
-          </div>
-          <div class="glass p-5">
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Bütçe</div>
-            <div class="font-semibold text-lg text-amber-300">₺${b.budget.toLocaleString('tr-TR')}</div>
-          </div>
-          <div class="glass-strong p-5">
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">Başarı Ödülü</div>
-            <div class="flex gap-2 flex-wrap">
-              <span class="badge badge-gold">💰 ₺${b.rewards.baseMoney.toLocaleString('tr-TR')}</span>
-              <span class="badge badge-cyan">💎 ${b.rewards.xp} XP</span>
-              <span class="badge badge-success">📈 İtibar</span>
-            </div>
-          </div>
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-8 fade-in">
+      <div class="flex items-center justify-between mb-4 gap-2 flex-wrap">
+        <button class="btn-ghost text-sm" data-action="back">← Geri</button>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="mission-id">${missionId}</span>
+          <span class="rarity-badge ${rarity}">${rarityLabel}</span>
+          <span class="hud-tag gold">₺${(b.budget/1000).toFixed(0)}K</span>
         </div>
       </div>
 
-      <button class="btn-primary w-full text-lg py-4" data-action="start-wizard">Kampanyayı Kurmaya Başla →</button>
+      <div class="customer-scene">
+        <div class="scene-bg mood-${mood}"></div>
+
+        <div class="speech-area">
+          <div>
+            <div class="speech-name-row">
+              <div class="speech-name-avatar">${p?.avatar || b.icon}</div>
+              <div>
+                <div class="speech-name">${p?.name || b.client}</div>
+                <div class="speech-role">${p?.role || b.industry}</div>
+              </div>
+            </div>
+
+            <div class="speech-progress">
+              ${dialog.map((_, i) => `<div class="speech-dot ${i <= sc.step ? 'active' : ''}"></div>`).join('')}
+            </div>
+
+            <div class="speech-text" id="speech-text">${sc.typed}${sc.typing ? '<span class="typewriter-cursor"></span>' : ''}</div>
+          </div>
+
+          <div class="speech-controls">
+            ${sc.typing ? `
+              <button class="btn-ghost text-sm" data-action="speech-skip">⏩ Atla</button>
+            ` : !lastStep ? `
+              <button class="btn-primary flex-1" data-action="speech-next" style="font-family: 'Courier New', monospace; letter-spacing: 0.1em;">
+                DEVAM ▸
+              </button>
+              <span class="tap-hint">[ TAP ]</span>
+            ` : `
+              <button class="btn-ghost text-sm" data-action="speech-replay">↻ Tekrar Dinle</button>
+              <button class="btn-primary flex-1" data-action="start-wizard" style="font-family: 'Courier New', monospace; letter-spacing: 0.1em;">
+                STRATEJİ KUR ▸
+              </button>
+            `}
+          </div>
+        </div>
+
+        <div class="character-stage">
+          <div class="character-aura" style="--aura-color: ${mood === 'warm' ? 'rgba(245,158,11,0.3)' : mood === 'pink' ? 'rgba(236,72,153,0.3)' : mood === 'green' ? 'rgba(16,185,129,0.3)' : 'rgba(6,182,212,0.3)'};"></div>
+          <div class="character-shadow"></div>
+          <div class="character-figure ${sc.typing ? 'talking' : ''}">${p?.avatar || b.icon}</div>
+          ${sc.typing ? `<div class="mood-emoji">💬</div>` : `<div class="mood-emoji">${moodEmojis[mood]}</div>`}
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mt-4">
+        <div class="glass p-3 text-center">
+          <div class="text-[10px] text-slate-500 font-mono">HEDEF</div>
+          <div class="text-xs font-bold text-cyan-300 mt-1">🎯 ${b.goal}</div>
+        </div>
+        <div class="glass p-3 text-center">
+          <div class="text-[10px] text-slate-500 font-mono">SÜRE</div>
+          <div class="text-xs font-bold mt-1">⏱ ${b.duration}</div>
+        </div>
+        <div class="glass p-3 text-center">
+          <div class="text-[10px] text-slate-500 font-mono">ÖDÜL</div>
+          <div class="text-xs font-bold text-amber-300 mt-1">💎 ${b.rewards.xp} XP</div>
+        </div>
+      </div>
     </div>
   `;
+}
+
+// Typewriter animation
+let typewriterTimer = null;
+function startTypewriter() {
+  if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+  const sc = state.customerScene;
+  if (!sc || !sc.typing) return;
+  const b = state.currentBrief;
+  const p = PERSONAS[b?.id];
+  const dialog = p?.dialog || [b?.description || ''];
+  const fullText = dialog[sc.step] || '';
+  let idx = sc.typed.length;
+  typewriterTimer = setInterval(() => {
+    if (!state.customerScene || state.screen !== 'brief') {
+      clearInterval(typewriterTimer); typewriterTimer = null; return;
+    }
+    if (idx >= fullText.length) {
+      sc.typing = false;
+      clearInterval(typewriterTimer); typewriterTimer = null;
+      const el = document.getElementById('speech-text');
+      if (el) el.innerHTML = fullText;
+      render(); // re-render to show next/continue button
+      return;
+    }
+    idx++;
+    sc.typed = fullText.slice(0, idx);
+    const el = document.getElementById('speech-text');
+    if (el) el.innerHTML = sc.typed + '<span class="typewriter-cursor"></span>';
+  }, 28);
 }
 
 function renderWizard() {
@@ -4092,9 +4475,43 @@ async function handleAction(action, id, el) {
   switch (action) {
     case 'open-brief':
       state.currentBrief = BRIEFS.find(b => b.id === id);
+      state.customerScene = null;
       state.screen = 'brief';
       render();
+      setTimeout(startTypewriter, 100);
       break;
+    case 'speech-skip': {
+      const sc = state.customerScene;
+      const p = PERSONAS[state.currentBrief?.id];
+      const dialog = p?.dialog || [state.currentBrief?.description || ''];
+      if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+      sc.typed = dialog[sc.step] || '';
+      sc.typing = false;
+      render();
+      break;
+    }
+    case 'speech-next': {
+      const sc = state.customerScene;
+      const p = PERSONAS[state.currentBrief?.id];
+      const dialog = p?.dialog || [state.currentBrief?.description || ''];
+      if (sc.step < dialog.length - 1) {
+        sc.step++;
+        sc.typed = '';
+        sc.typing = true;
+        render();
+        setTimeout(startTypewriter, 50);
+      }
+      break;
+    }
+    case 'speech-replay': {
+      const sc = state.customerScene;
+      sc.step = 0;
+      sc.typed = '';
+      sc.typing = true;
+      render();
+      setTimeout(startTypewriter, 50);
+      break;
+    }
     case 'back':
       state.screen = 'dashboard';
       state.currentBrief = null;
