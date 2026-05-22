@@ -988,6 +988,209 @@
   }
   .audio-toggle:hover { border-color: #fbbf24; }
 
+  /* ============ CUSTOMER REACTION SCENE ============ */
+  .reaction-scene {
+    min-height: calc(100vh - 40px);
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+  }
+  .reaction-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+  .reaction-bg::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center top, var(--mood-color, rgba(139, 92, 246, 0.25)) 0%, transparent 60%);
+  }
+  .reaction-bg.stars-3 { --mood-color: rgba(245, 158, 11, 0.35); }
+  .reaction-bg.stars-2 { --mood-color: rgba(6, 182, 212, 0.3); }
+  .reaction-bg.stars-1 { --mood-color: rgba(168, 85, 247, 0.25); }
+  .reaction-bg.stars-0 { --mood-color: rgba(244, 63, 94, 0.2); }
+  .reaction-bg::after {
+    /* dramatic light rays */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      repeating-conic-gradient(from 0deg at 50% 0%,
+        transparent 0deg,
+        transparent 20deg,
+        var(--mood-color, rgba(139, 92, 246, 0.15)) 20deg,
+        var(--mood-color, rgba(139, 92, 246, 0.15)) 23deg);
+    opacity: 0.4;
+    mask-image: linear-gradient(180deg, black 0%, transparent 70%);
+    -webkit-mask-image: linear-gradient(180deg, black 0%, transparent 70%);
+    animation: raysRotate 60s linear infinite;
+  }
+  @keyframes raysRotate {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  .reaction-stage {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    z-index: 1;
+    min-height: 220px;
+  }
+
+  .reaction-character {
+    position: relative;
+    font-size: clamp(160px, 28vw, 280px);
+    line-height: 1;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.6));
+    transform-origin: 50% 100%;
+  }
+  .reaction-character.happy {
+    animation: reactHappy 0.6s cubic-bezier(0.16, 1, 0.3, 1), idleBob 3s ease-in-out 0.6s infinite;
+  }
+  .reaction-character.sad {
+    animation: reactSad 0.8s cubic-bezier(0.16, 1, 0.3, 1), sadSway 4s ease-in-out 0.8s infinite;
+  }
+  @keyframes reactHappy {
+    0% { transform: translateY(40px) scale(0.5); opacity: 0; }
+    60% { transform: translateY(-20px) scale(1.15); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes reactSad {
+    0% { transform: translateY(20px) scale(0.7); opacity: 0; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  @keyframes sadSway {
+    0%, 100% { transform: translateY(0) rotate(-1deg); }
+    50% { transform: translateY(4px) rotate(1deg); }
+  }
+
+  .reaction-expression {
+    position: absolute;
+    top: -20px;
+    right: -10px;
+    font-size: 64px;
+    animation: expressionPop 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s both, floatUp 2.5s ease-in-out 1s infinite;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.4));
+  }
+  @keyframes expressionPop {
+    0% { transform: scale(0) rotate(-90deg); opacity: 0; }
+    70% { transform: scale(1.3) rotate(15deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* Star burst around character (for 3-star) */
+  .star-burst {
+    position: absolute;
+    top: 50%; left: 50%;
+    pointer-events: none;
+    z-index: -1;
+  }
+  .star-burst .star-particle {
+    position: absolute;
+    top: 0; left: 0;
+    font-size: 24px;
+    animation: starFly 1.6s ease-out forwards;
+  }
+  @keyframes starFly {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+    20% { transform: translate(calc(-50% + var(--tx, 0px) * 0.3), calc(-50% + var(--ty, 0px) * 0.3)) scale(1); opacity: 1; }
+    100% { transform: translate(calc(-50% + var(--tx, 0px)), calc(-50% + var(--ty, 0px))) scale(0.5); opacity: 0; }
+  }
+
+  /* Speech bubble — comic style */
+  .speech-bubble-comic {
+    position: relative;
+    z-index: 1;
+    background: linear-gradient(180deg, rgba(15, 15, 30, 0.95), rgba(15, 15, 30, 0.98));
+    border: 2px solid rgba(245, 158, 11, 0.5);
+    border-radius: 20px;
+    padding: 22px 22px 18px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 12px 40px rgba(0,0,0,0.5);
+    margin-bottom: 12px;
+    animation: bubblePop 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  @keyframes bubblePop {
+    0% { transform: scale(0.8) translateY(20px); opacity: 0; }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .speech-bubble-comic::before {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: 30px;
+    width: 24px; height: 14px;
+    background: rgba(15, 15, 30, 0.97);
+    border-top: 2px solid rgba(245, 158, 11, 0.5);
+    border-right: 2px solid rgba(245, 158, 11, 0.5);
+    clip-path: polygon(0 100%, 100% 0, 100% 100%);
+    transform: rotate(-15deg);
+  }
+
+  .bubble-name-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+  .bubble-name-avatar {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,0.15);
+  }
+  .bubble-name {
+    font-weight: 800;
+    font-size: 14px;
+    color: #fbbf24;
+  }
+  .bubble-role {
+    font-size: 10px;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+  }
+  .bubble-text {
+    font-size: 17px;
+    line-height: 1.6;
+    color: #f5f5f5;
+    min-height: 90px;
+    margin-bottom: 12px;
+  }
+  @media (min-width: 1024px) {
+    .bubble-text { font-size: 19px; min-height: 110px; }
+    .reaction-character { font-size: clamp(200px, 24vw, 320px); }
+  }
+
+  .reaction-stars {
+    display: flex;
+    gap: 4px;
+    justify-content: center;
+    margin-bottom: 12px;
+  }
+  .reaction-stars .star-icon {
+    font-size: 28px;
+    animation: starAppear 0.4s cubic-bezier(0.16, 1, 0.3, 1) both;
+    display: inline-block;
+  }
+  .reaction-stars .star-icon:nth-child(1) { animation-delay: 0.2s; }
+  .reaction-stars .star-icon:nth-child(2) { animation-delay: 0.4s; }
+  .reaction-stars .star-icon:nth-child(3) { animation-delay: 0.6s; }
+  @keyframes starAppear {
+    0% { transform: scale(0) rotate(-180deg); opacity: 0; }
+    60% { transform: scale(1.4) rotate(20deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
   /* Cinematic letterbox for important screens */
   .cinematic::before, .cinematic::after {
     content: '';
@@ -1994,7 +2197,13 @@ const PERSONAS = {
       'Selam! Ben Mehmet 👋 Mahalledeki yeni kafenin sahibiyim. Üç ay önce açtık, kahveye takıntılı biriyim.',
       'Sorun şu: Sabahları bomboş 😞 İnsanlar bizi henüz keşfetmedi. Mahalleliyim ama dijital pazarlama hiç bilmiyorum.',
       'Bütçem ₺5.000. Az gibi gelebilir ama doğru yere harcamak istiyorum. Beni mahallenin sabah molası rotası yapmaya yardım eder misin? ☕'
-    ]
+    ],
+    reactions: {
+      3: ['ŞUNA BAK!! 🤩 Sabahları sıraya giriyor insanlar! Mahalleliyle yeni tanıştım.', 'Sosyal medya hesabımız patladı — fotoğraflar geliyor sürekli. Sana borçluyum, sen bu işin ustasısın!'],
+      2: ['Müşteriler gelmeye başladı 😊 Henüz tıkış değil ama trend yukarı. Sabahları biraz daha doluyor.', 'Bir dahaki sefere belki daha cesur olalım — neyin daha güçlü olabileceğini düşüneyim.'],
+      1: ['Birkaç yeni yüz geldi sadece 😕 Beklediğim gibi olmadı. Yakın mahalleden değil de uzak yerlerden gelenler çoğu.', 'Belki yanlış kitleye gittik? Geri bildirimden öğrenelim, yorulmuyorum ben.'],
+      0: ['Hala bomboşum 😔 Bütçe gitti, sonuç yok. Ama umutsuz değilim — bir yerlerde hata var, beraber bulalım.', 'Sen ne diyorsun — yanlış kanal mı yanlış mesaj mı? Pes etmiyoruz Mehmet abi olarak söylüyorum.']
+    }
   },
   taki: { name: 'Selin Kara', role: 'Atölye Kurucusu', avatar: '👩‍🎨', mood: 'pink',
     quote: 'Etsy\'de 47 satışım var ama büyümüyor.',
@@ -2002,7 +2211,13 @@ const PERSONAS = {
       'Merhaba, ben Selin 💖 Üç yıldır mutfağımda el yapımı takı atölyem var. Etsy\'de 47 satışa ulaştım.',
       'Ama büyümüyor 😕 Markamın hikayesi çok güzel — eski Anadolu motifleri, kadın ustalar, çevreci ambalaj. Sadece görünmüyoruz.',
       'İndirim yapmak istemiyorum, her parça 4 saatte el emeği ✋ Marka değerimi koruyarak nasıl büyürüm?'
-    ]
+    ],
+    reactions: {
+      3: ['Ağlayacağım 🥹 Instagram patladı, takiplerim üç katına çıktı! "Hikaye" mesajlarınız tam markamızı anlattı.', 'İndirim olmadan satıyoruz, fiyat tartışılmıyor — değer hissi tam istediğim gibi. Sana minnettarım.'],
+      2: ['Güzel sonuçlar 💫 Yeni müşteriler geldi, çoğu hikayemizi seviyor. Ama hala büyütmek istiyorum.', 'Belki içerik yelpazesini genişletmeliyiz — ne dersin?'],
+      1: ['Az satış geldi 😕 Görünürlük arttı ama dönüşüm zayıf kaldı. Doğru kişilere göstermedik sanki.', 'Markayı koruduk en azından, indirim avcıları çekmedik. Bir sonrakine daha hedefli olalım.'],
+      0: ['Hiçbir şey olmadı 😞 Bütçem boşa gitti, üzgünüm. Ama markamı düşürmedim, o değerli benim için.', 'Kanal seçimini birlikte gözden geçirelim — atölyemde dururken Instagram\'da görmedim kendimi.']
+    }
   },
   fitapp: { name: 'Burak Demir', role: 'Co-founder, FitApp', avatar: '🧑‍💼', mood: 'cool',
     quote: 'Install başına ₺15-20 maliyet hedefimiz var.',
@@ -2010,7 +2225,13 @@ const PERSONAS = {
       'Selam, ben Burak 🚀 FitApp\'in co-founder\'ıyım. 6 ay önce launch\'ladık, App Store\'da 4.7 yıldızdayız.',
       'ASO işimiz tamam, sayfamız optimize. Şimdi paid acquisition zamanı 📲 Install başına ₺15-20 hedefimiz var.',
       '500.000+ kullanıcımız ve güçlü yorumlarımız var ⭐ Bu sosyal kanıtı reklamda nasıl kullanırız?'
-    ]
+    ],
+    reactions: {
+      3: ['Install başına ₺12 geldi 🤯 Hedefin altında! Aktif kullanıcılar da kalıyor — D7 retention %38.', 'Sosyal kanıt mesajları işe yaradı, kullanıcı kalitesi yüksek. Series A pitch\'imizde bu numbers golden!'],
+      2: ['Install ₺18 oldu 👍 Hedef bandında. Yine de daha düşürebileceğimizi düşünüyorum.', 'Sonraki iterasyonda creative test çeşitliliğini artıralım.'],
+      1: ['Install ₺28 çıktı 😬 Bütçeden ayrı bir budget kaydetmem gerek. Trafik düşük niyetliydi.', 'Belki audience layering daha sıkı olmalı — feedback\'i okuyorum.'],
+      0: ['Install başına ₺50 üstü oldu 🥵 Bu sürdürülemez, Burn rate uçtu.', 'Strateji baştan revize lazım — bu kanıtlanmış playbook\'a uymadı sanki.']
+    }
   },
   butikotel: { name: 'Fatma Kavak', role: 'Otel İşletmecisi', avatar: '👩‍💼', mood: 'warm',
     quote: 'Booking %18 komisyon alıyor.',
@@ -2018,7 +2239,13 @@ const PERSONAS = {
       'Merhaba, ben Fatma 🌅 Kapadokya\'da 12 odalı butik otelim var, ailem 25 yıldır işletiyor.',
       'Booking %18 komisyon alıyor. O parayı doğrudan kazanmak istiyorum 💰 Sezon yaklaşıyor, zamanım dar.',
       '₺20.000 bütçem var. Direkt rezervasyon hedefliyorum 🏨 Hangi kanalda görünmemiz lazım?'
-    ]
+    ],
+    reactions: {
+      3: ['Tamamen doluyuz canım 🥹 Direkt rezervasyon %70\'e çıktı, Booking komisyonundan kurtulduk!', 'Yorumlar da harika, balon turu paketimiz tükendi. Eline sağlık, eve davetlisin.'],
+      2: ['Rezervasyonlar iyi geldi 🏡 Direkt site üzerinden hatırı sayılır artış var. Booking\'i azaltabildik.', 'Bir dahaki sezona daha güçlü gireriz.'],
+      1: ['Bazı boş odalar kaldı 😕 Booking\'e dönmek zorunda kaldım kısmen. Direkt trafik zayıftı.', 'Hedef kitle belki yanlıştı — niyetli aramaları yakalayamadık.'],
+      0: ['Sezonu zarar ettim 😞 Boş odalar Booking\'e bile yetmedi. Bütçemi büyük kayıpla kapattım.', 'Kanal seçimi çok yanlıştı sanırım — beraber öğrenelim, gelecek sezon için.']
+    }
   },
   saascrm: { name: 'Onur Çelik', role: 'CMO, CloudCRM', avatar: '🧑‍💻', mood: 'cool',
     quote: 'Aylık 40 kalifiye demo lazım.',
@@ -2026,7 +2253,13 @@ const PERSONAS = {
       'Onur\'um, CloudCRM\'in CMO\'suyum 👔 KOBİ\'lere CRM yazılımı satıyoruz, ticaretimiz iyi gidiyor.',
       'Aylık 40 kalifiye demo talebi gerekiyor 📞 Sales ekibim CAC\'ı ₺2.500\'e kadar tolere edebilir.',
       'Lead kalitesi kantiteden önemli ⚖️ Doğru karar vericileri yakalamamız lazım. Stratejin ne?'
-    ]
+    ],
+    reactions: {
+      3: ['48 demo geldi 📈 Hedefin üzerinde, üstelik %70 SQL. Sales ekibim sevinçten uçuyor.', 'CAC ₺1.800\'e indi. Board\'da bunu göstereceğim — bu çeyrek başarı geçtik.'],
+      2: ['42 demo aldık 👌 Hedef tutturuldu. Lead kalitesi karışık ama Sales filtreliyor.', 'Bir sonraki çeyrekte daha hedefli ICP filtresi konuşalım.'],
+      1: ['28 demo geldi 😐 Hedefin altında. Çoğu KOBİ değildi — küçük freelancer\'lardan geldi.', 'B2B kitle hedefleme yeniden gözden geçirilmeli.'],
+      0: ['12 demo geldi, hiçbiri kalifiye değil 😞 Sales ekibim de moral bozdu, bütçe israfı oldu.', 'B2B\'de dijital pazarlama kolay değil — kanal mix\'imiz tamamen yanlış sanırım.']
+    }
   },
   kozmetik: { name: 'İrem Su', role: 'Kurucu, Glow', avatar: '💁‍♀️', mood: 'pink',
     quote: 'ROAS 2.5\'te tıkandık, 4.0 hedefliyoruz.',
@@ -2034,7 +2267,13 @@ const PERSONAS = {
       'İrem\'im, Glow markasının kurucusuyum 💄 4 yıldır kozmetik satıyoruz, e-posta listemiz 25K.',
       'Şu an Meta + Google reklamı veriyoruz, ROAS 2.5\'te tıkandı 😬 ₺80.000 bütçeyle 4.0+ hedefliyorum.',
       'Listemiz büyük ama yeterince kullanmıyoruz 📧 Ölçeklenebilir bir formül lazım — sen ne önerirsin?'
-    ]
+    ],
+    reactions: {
+      3: ['ROAS 4.6 oldu 🚀 Hedefin üstünde! E-posta + Meta kombosu iş gördü, listeyle ölçekledik.', 'Bu çeyrek %70 büyüdük. Sen bizim sırrımızsın artık.'],
+      2: ['ROAS 3.7\'ye çıktı 💖 Hedefe yakın. Kâr arttı, ama formülü daha güçlü kılabiliriz.', 'Bir sonraki ay daha agresif retargeting deneyelim mi?'],
+      1: ['ROAS 2.8\'de kaldı 😕 Az artış var ama hedefimden uzak. Listemi kullanmadık galiba.', 'E-posta segmentasyonunu kaçırdık sanırım, gözden geçirelim.'],
+      0: ['ROAS 1.4\'e düştü 😭 Zarar ediyorum, bu sürdürülemez. Bütçeyi azaltmak zorundayım.', 'Kanal mix\'i tamamen yanlış kuruldu — soğuk kitleye fazla harcadık.']
+    }
   },
   pastane: { name: 'Hatice Hanım', role: 'Pastane Sahibi', avatar: '👵', mood: 'warm',
     quote: 'Bayrama 10 gün kaldı.',
@@ -2042,7 +2281,13 @@ const PERSONAS = {
       'Ben Hatice Anne canım 🥰 Pastanemiz 22 yıllık, baklavalar anneanne tarifi, kurabiyeleri Selma elimle yaparım.',
       'Bayrama 10 gün kaldı 🌙 Geçen sene az sipariş geldi, üzüldüm. Mahalleliyle aramız iyi ama sosyal medyada yokuz.',
       'Bilmiyorum bu işleri evladım 💕 Bütçem ₺6.000. Bayram için sipariş çoğalır mı? Senin yardımına ihtiyacım var.'
-    ]
+    ],
+    reactions: {
+      3: ['Allah razı olsun evladım 🥹 Sipariş defterim üst üste doldu, kurabiyelere yetişemiyorum.', 'Mahallenin yeni nesli de geldi, "annemden duydum" diyorlar. Bayramda gel canım, sana baklava ayırdım.'],
+      2: ['Çok güzel sipariş geldi yavrum 🌙 Geçen seneden iyi, çok memnunum.', 'Bir dahaki bayram daha erken hazırlanırız beraber, olur mu?'],
+      1: ['Biraz sipariş geldi canım 😊 Ama beklediğim kadar değil, kurabiyelerin yarısı eldi kaldı.', 'Belki yanlış zaman seçtik? Sen daha iyi bilirsin evladım.'],
+      0: ['Çok az sipariş geldi yavrum 😞 Bütçem boşa gitti, içim eridi. Ama küstüm değilim.', 'Bir dahaki bayram daha iyi planlayalım, beraber öğrenelim canım — sana güveniyorum.']
+    }
   },
   ingilizcekurs: { name: 'Deniz Aksoy', role: 'Growth Lead', avatar: '🧑‍🏫', mood: 'cool',
     quote: 'Kayıt başına ₺80 altında kalmalı.',
@@ -2050,7 +2295,13 @@ const PERSONAS = {
       'Selam, ben Deniz 📚 SpeakNow\'un Growth Lead\'iyim. Online İngilizce kursuyuz, native speaker birebir.',
       'Free trial dersle başlıyoruz, sonra %22\'si aylık aboneliğe geçiyor 📈 Kayıt başına maliyet ₺80 altında olmalı.',
       '₺30.000 bütçem var 💸 Nereye yatırmalıyım? Sen mantıklı bir mix kur.'
-    ]
+    ],
+    reactions: {
+      3: ['Kayıt başına ₺62 oldu 🎯 Hedefin altında, üstelik free→paid dönüşüm %28\'e çıktı.', 'Stratejin Excel\'de gold standard olarak kaydedildi.'],
+      2: ['Kayıt ₺75 oldu 👍 Hedef bandında. Dönüşüm de %23\'e geldi.', 'Sonraki sprint\'te creative test\'i artıralım.'],
+      1: ['Kayıt ₺95 çıktı 😕 Hedefi geçtik. CFO suratım asık şu an.', 'Niyetli kelime stratejisi daha güçlü olmalıydı sanırım.'],
+      0: ['Kayıt başına ₺160 oldu 😱 Bu rakamla şirket batar. Bütçeyi durdurmak zorundayım.', 'Hangi kanalda hata yaptık, dökümante edelim — bir sonraki sprint için ders olsun.']
+    }
   },
   yoga: { name: 'Cansu Ergin', role: 'Stüdyo Sahibi', avatar: '🧘‍♀️', mood: 'green',
     quote: 'Instagram\'da neredeyse sıfırız.',
@@ -2058,7 +2309,13 @@ const PERSONAS = {
       'Cansu ben 🧘‍♀️ Zen Yoga\'nın sahibi. Stüdyoyu üç ay önce açtık, beğenenler tekrar geliyor.',
       'Ama Instagram\'da neredeyse sıfırız 📱 Kapasitemiz sınırlı — 80 yeni üye lazım aylık geçinmek için.',
       '₺12.000 bütçem var, 3 hafta süre 🌿 Stüdyomu mahallenin wellness mekanı yapacak şey nedir?'
-    ]
+    ],
+    reactions: {
+      3: ['85 yeni üye geldi 🙏 Hedefi geçtik, dersler dolu! Instagram\'da da geliştik.', 'Stüdyoyu büyütmeyi düşünüyorum bile — sayende.'],
+      2: ['72 yeni üye geldi 🧘 Hedef yakın. Doğru insanlar geliyor, ders kalitesi yüksek.', 'Bir sonraki dönem 100\'e iddiamız var, ne dersin?'],
+      1: ['50 üye geldi 😐 Hedefin altında. Trafik vardı ama dönüşüm zayıftı.', 'Belki kreatif tonu daha sakin olmalı — yoga = huzur.'],
+      0: ['25 üye geldi sadece 😞 Kira çıkmıyor bu rakamla. Sonraki ay stres altında olacağım.', 'Kanal seçiminde hata var sanki — yerel + sosyal kanıt eksikti.']
+    }
   },
   sigorta: { name: 'Cem Bayram', role: 'Performans Pazarlama Müdürü', avatar: '🧔', mood: 'cool',
     quote: 'Form başı maliyet ₺25 üstüne çıkmamalı.',
@@ -2066,7 +2323,13 @@ const PERSONAS = {
       'Cem\'im 📊 KolaySigorta\'nın performans pazarlama müdürüyüm. Affiliate modelle çalışıyoruz.',
       'Her dolduran form bizim için para. Ama maliyet ₺25 üstüne çıkarsa zarar ediyoruz 📉 ₺60.000 bütçem var.',
       'Quick wins lazım, sürdürülebilir kanaldan 🎯 Lead kalitesi de net olmalı — saçma trafik bizi bitirir.'
-    ]
+    ],
+    reactions: {
+      3: ['Form başı ₺18 oldu 🔥 Hedefin altında, üstelik kalifiye lead\'ler. Marjlar harika.', 'Bu stratejiyi diğer ürünlerimize de uygulayalım — ölçeklenebilir.'],
+      2: ['Form ₺23 oldu 👍 Hedef sınırında. Kâr ediyoruz ama marj küçük.', 'Bir sonraki sprint\'te biraz optimize edebiliriz.'],
+      1: ['Form ₺31 oldu 😬 Marjdan yiyoruz. Lead kalitesi de düşüktü.', 'Niyetli kelimelere daha sıkı odaklanmamız gerek.'],
+      0: ['Form başı ₺52 oldu 😡 Hesap zarar yazdı, CFO\'ya açıklamak zor olacak.', 'Hangi kanal yiyişledi, post-mortem yapalım.']
+    }
   },
   wellnesspro: { name: 'Dr. Pınar Acar', role: 'Klinik CMO', avatar: '🩺', mood: 'green',
     quote: '%38\'i 6 aydır hiç dönmedi.',
@@ -2074,7 +2337,13 @@ const PERSONAS = {
       'Dr. Pınar 🩺 Premium wellness kliniği CMO\'suyum. CRM\'de 25K müşteri var.',
       'Ama son 6 ayda %38\'i hiç dönmedi 😟 Yeni müşteri kazanmak 5 kat pahalı, mevcutları kaybediyoruz.',
       'Reaktivasyon kampanyası lazım 💌 ₺25.000 bütçem var — bu listeyle ne yapabiliriz?'
-    ]
+    ],
+    reactions: {
+      3: ['Reaktivasyon %35 🎉 9000 hastayı geri kazandık, randevu defterleri patladı.', 'Bu kampanya case study olacak — sektörde paylaşmak istiyorum.'],
+      2: ['Reaktivasyon %22 👍 İyi sayılır. Randevular arttı, ekip moralinden memnunum.', 'Email frequency biraz daha agresif olabilirdi.'],
+      1: ['Reaktivasyon %12 😕 Beklediğimden az. Email\'lerimiz spam\'e mi düştü acaba?', 'Segmentasyon yeniden gözden geçirilmeli.'],
+      0: ['Reaktivasyon %5 altında 😞 Bütçeyi heba ettik. Kanal seçimi yanlıştı.', 'E-posta dururken neden ağırlık başka yerdeydi?']
+    }
   },
   tutorialhub: { name: 'Ege Toprak', role: 'CEO, TutorialHub', avatar: '🧑‍💻', mood: 'cool',
     quote: 'Ücretli reklam artık sürdürülebilir değil.',
@@ -2082,7 +2351,13 @@ const PERSONAS = {
       'Ege Toprak 💻 TutorialHub\'un CEO\'suyum. Yazılım eğitim platformuyuz, video kursları sunuyoruz.',
       'Ücretli reklam sürdürülebilir değil — CPM uçtu, marjlar daraldı 📉 Organic trafik istiyoruz.',
       '₺40.000 bütçeli 3 aylık SEO+içerik planı kurmamız lazım 🌱 Ayda 10K ziyaretçi + %3 kayıt dönüşümü.'
-    ]
+    ],
+    reactions: {
+      3: ['12K organik ziyaretçi 🚀 SEO planı tuttu! Kayıt dönüşümü %3.4. CAC tarihte en düşük.', 'Yatırım uzun vadede meyvesini verdi, board mutlu.'],
+      2: ['9K ziyaretçi geldi 👌 Hedefe yakın. Trend yükseliyor, devam ettirelim.', 'Topic cluster\'ı genişletmeyi düşünelim.'],
+      1: ['5K ziyaretçi 😐 Hedefin yarısı. SEO yavaş ilerliyor — sabır istiyor.', 'Backlink stratejisi eksik kaldı sanırım.'],
+      0: ['2K ziyaretçi 😞 3 ayda neredeyse hiç bir şey olmadı. SEO yatırımım boşa gitti gibi.', 'İçerik mi anahtar kelime mi yanlıştı — analiz edelim.']
+    }
   }
 };
 
@@ -2455,7 +2730,8 @@ function render() {
     lab: renderLab,
     admin: renderAdmin,
     certificate: renderCertificate,
-    'lesson-feedback': renderLessonFeedback
+    'lesson-feedback': renderLessonFeedback,
+    'customer-reaction': renderCustomerReaction
   };
   app.innerHTML = (screens[state.screen] || renderWelcome)();
   if (state.screen === 'dashboard' && !state.player.tutorialDone && state.player.completedBriefs.length === 0) {
@@ -3742,6 +4018,112 @@ function renderCheckpoint() {
   `;
 }
 
+function renderCustomerReaction() {
+  const r = state.lastResult;
+  const b = state.currentBrief;
+  const p = PERSONAS[b?.id];
+  if (!r || !b || !p?.reactions) {
+    state.screen = 'results';
+    return renderResults();
+  }
+  const stars = r.stars;
+  const reactionLines = p.reactions[stars] || p.reactions[2] || ['Sonuçlar geldi.'];
+
+  const cr = state.reactionScene || { step: 0, typed: '', typing: true };
+  if (!state.reactionScene) state.reactionScene = cr;
+
+  const currentLine = reactionLines[cr.step] || '';
+  const lastStep = cr.step >= reactionLines.length - 1;
+
+  const expression = stars === 3 ? '🤩' : stars === 2 ? '😊' : stars === 1 ? '😐' : '😞';
+  const animClass = stars >= 2 ? 'happy' : 'sad';
+
+  const starsHtml = '★★★'.split('').map((s, i) => `<span class="star-icon ${i < stars ? 'text-amber-400' : 'text-slate-700'}">${i < stars ? '★' : '☆'}</span>`).join('');
+
+  // Star burst particles for 3-star
+  const burst = stars === 3 ? Array.from({length: 12}, (_, i) => {
+    const angle = (i / 12) * 360;
+    const dist = 200 + Math.random() * 100;
+    const tx = Math.cos(angle * Math.PI / 180) * dist;
+    const ty = Math.sin(angle * Math.PI / 180) * dist;
+    const emoji = ['⭐','✨','💫','🌟'][i % 4];
+    return `<div class="star-particle" style="--tx:${tx}px; --ty:${ty}px; animation-delay:${0.3 + i*0.05}s;">${emoji}</div>`;
+  }).join('') : '';
+
+  return `
+    <div class="reaction-scene">
+      <div class="reaction-bg stars-${stars}"></div>
+
+      <div class="reaction-stars" style="position: relative; z-index: 1;">
+        ${starsHtml}
+      </div>
+
+      <div class="reaction-stage">
+        ${burst ? `<div class="star-burst">${burst}</div>` : ''}
+        <div class="reaction-character ${animClass}">
+          ${p.avatar}
+          <div class="reaction-expression">${expression}</div>
+        </div>
+      </div>
+
+      <div>
+        <div class="speech-bubble-comic">
+          <div class="bubble-name-row">
+            <div class="bubble-name-avatar">${p.avatar}</div>
+            <div>
+              <div class="bubble-name">${p.name}</div>
+              <div class="bubble-role">${p.role} · Müşteri</div>
+            </div>
+          </div>
+          <div class="bubble-text" id="reaction-text">${cr.typed}${cr.typing ? '<span class="typewriter-cursor"></span>' : ''}</div>
+          <div class="speech-progress">
+            ${reactionLines.map((_, i) => `<div class="speech-dot ${i <= cr.step ? 'active' : ''}"></div>`).join('')}
+          </div>
+        </div>
+
+        <div class="flex gap-2 items-center">
+          ${cr.typing ? `
+            <button class="btn-ghost text-sm flex-1" data-action="reaction-skip">⏩ ATLA</button>
+          ` : !lastStep ? `
+            <button class="btn-primary flex-1" data-action="reaction-next" style="font-family: 'Courier New', monospace; letter-spacing: 0.15em; padding: 14px;">DEVAM ▸</button>
+          ` : `
+            <button class="btn-primary flex-1" data-action="reaction-done" style="font-family: 'Courier New', monospace; letter-spacing: 0.15em; padding: 14px;">📊 RAPORU GÖR ▸</button>
+          `}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function startReactionTypewriter() {
+  if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+  const cr = state.reactionScene;
+  if (!cr || !cr.typing) return;
+  const r = state.lastResult;
+  const p = PERSONAS[state.currentBrief?.id];
+  const lines = p?.reactions?.[r?.stars] || [];
+  const fullText = lines[cr.step] || '';
+  let idx = cr.typed.length;
+  typewriterTimer = setInterval(() => {
+    if (!state.reactionScene || state.screen !== 'customer-reaction') {
+      clearInterval(typewriterTimer); typewriterTimer = null; return;
+    }
+    if (idx >= fullText.length) {
+      cr.typing = false;
+      clearInterval(typewriterTimer); typewriterTimer = null;
+      const el = document.getElementById('reaction-text');
+      if (el) el.innerHTML = fullText;
+      render();
+      return;
+    }
+    idx++;
+    cr.typed = fullText.slice(0, idx);
+    if (idx % 3 === 0 && fullText[idx-1] && /\w/.test(fullText[idx-1])) audio.type();
+    const el = document.getElementById('reaction-text');
+    if (el) el.innerHTML = cr.typed + '<span class="typewriter-cursor"></span>';
+  }, 32);
+}
+
 function renderLessonFeedback() {
   const l = LESSONS.find(x => x.id === state.currentLesson);
   if (!l) { state.screen = 'academy'; return renderAcademy(); }
@@ -4764,6 +5146,34 @@ async function handleAction(action, id, el) {
       setTimeout(startTypewriter, 50);
       break;
     }
+    case 'reaction-skip': {
+      const cr = state.reactionScene;
+      const p = PERSONAS[state.currentBrief?.id];
+      const lines = p?.reactions?.[state.lastResult?.stars] || [];
+      if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+      cr.typed = lines[cr.step] || '';
+      cr.typing = false;
+      render();
+      break;
+    }
+    case 'reaction-next': {
+      const cr = state.reactionScene;
+      const p = PERSONAS[state.currentBrief?.id];
+      const lines = p?.reactions?.[state.lastResult?.stars] || [];
+      if (cr.step < lines.length - 1) {
+        cr.step++;
+        cr.typed = '';
+        cr.typing = true;
+        render();
+        setTimeout(startReactionTypewriter, 80);
+      }
+      break;
+    }
+    case 'reaction-done':
+      state.reactionScene = null;
+      state.screen = 'results';
+      render();
+      break;
     case 'back':
       state.screen = 'dashboard';
       state.currentBrief = null;
@@ -5390,11 +5800,20 @@ function launchCampaign() {
     if (result.stars >= 2) audio.success();
     else audio.fail();
     showMissionComplete(result);
-    state.screen = 'results';
     saveGame();
-    render();
+    // Müşteri reaksiyonu varsa onu göster, yoksa direkt results
+    const hasReaction = PERSONAS[state.currentBrief?.id]?.reactions;
+    if (hasReaction && !state.currentBrief?.isLab) {
+      state.reactionScene = { step: 0, typed: '', typing: true };
+      state.screen = 'customer-reaction';
+      render();
+      setTimeout(startReactionTypewriter, 2400);
+    } else {
+      state.screen = 'results';
+      render();
+    }
     if (newLevel > prevLevel) {
-      setTimeout(() => { audio.levelUp(); toast(`⭐ LEVEL UP! Rütben yükseldi — Sv. ${newLevel}`); }, 1200);
+      setTimeout(() => { audio.levelUp(); toast(`⭐ LEVEL UP! Rütben yükseldi — Sv. ${newLevel}`); }, 1500);
     }
     if (result.stars === 3) setTimeout(fireConfetti, 400);
     if (newAch.length) setTimeout(() => newAch.forEach((a, i) => setTimeout(() => { audio.achievement(); toast(`🏆 ${a.icon} Yeni Rozet: ${a.name}`); }, i * 700)), 800);
