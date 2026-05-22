@@ -858,6 +858,136 @@
     50% { opacity: 1; }
   }
 
+  /* Scene fade transition */
+  #scene-fade {
+    position: fixed; inset: 0;
+    background: #050510;
+    z-index: 999;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.25s ease;
+  }
+  #scene-fade.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Title screen */
+  .title-screen {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .title-logo {
+    font-size: clamp(72px, 18vw, 180px);
+    font-weight: 900;
+    line-height: 0.9;
+    letter-spacing: -0.04em;
+    background: linear-gradient(180deg, #fbbf24 0%, #ec4899 50%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: 0 0 80px rgba(236, 72, 153, 0.4);
+    animation: titleEntry 1s cubic-bezier(0.16, 1, 0.3, 1);
+    filter: drop-shadow(0 8px 20px rgba(139, 92, 246, 0.5));
+  }
+  @keyframes titleEntry {
+    0% { transform: scale(0.3) translateY(40px); opacity: 0; filter: blur(20px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; filter: blur(0); }
+  }
+  .title-tagline {
+    color: #cbd5e1;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    font-size: clamp(11px, 1.8vw, 14px);
+    animation: fadeIn 1s ease 0.6s both;
+  }
+  .title-version {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'Courier New', monospace;
+    color: #475569;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+  }
+
+  .press-start {
+    margin-top: 32px;
+    animation: pressPulse 1.6s ease-in-out infinite, fadeIn 1s ease 1.2s both;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.3em;
+    font-weight: 700;
+    color: #fbbf24;
+    text-transform: uppercase;
+    font-size: 13px;
+  }
+  @keyframes pressPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  .title-buttons {
+    display: flex;
+    gap: 12px;
+    margin-top: 32px;
+    animation: fadeIn 1s ease 1.4s both;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .title-btn {
+    padding: 16px 36px;
+    background: rgba(15, 15, 30, 0.7);
+    border: 2px solid rgba(139, 92, 246, 0.5);
+    border-radius: 8px;
+    color: #f5f5f5;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+    overflow: hidden;
+    backdrop-filter: blur(10px);
+  }
+  .title-btn:hover {
+    border-color: #fbbf24;
+    color: #fbbf24;
+    box-shadow: 0 0 30px rgba(245, 158, 11, 0.4);
+    transform: translateY(-2px);
+  }
+  .title-btn.primary {
+    background: linear-gradient(135deg, #f59e0b, #ec4899);
+    border-color: transparent;
+    color: white;
+  }
+
+  /* Audio toggle button */
+  .audio-toggle {
+    position: fixed;
+    top: 16px; right: 16px;
+    width: 40px; height: 40px;
+    background: rgba(15, 15, 30, 0.8);
+    border: 1px solid rgba(139, 92, 246, 0.4);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    transition: all 0.2s;
+  }
+  .audio-toggle:hover { border-color: #fbbf24; }
+
   /* Cinematic letterbox for important screens */
   .cinematic::before, .cinematic::after {
     content: '';
@@ -940,8 +1070,68 @@
 <body>
   <canvas id="particles"></canvas>
   <div class="scanlines"></div>
+  <div id="scene-fade"></div>
   <div id="app" class="relative" style="z-index: 1;"></div>
 <script>
+// ============== AUDIO SYSTEM (Web Audio synthesized) ==============
+window.audio = (function() {
+  let ctx = null;
+  let enabled = (localStorage.getItem('dijip_audio') !== '0');
+  function init() {
+    if (!ctx) {
+      try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
+    }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  }
+  function beep(freq, dur, type = 'sine', vol = 0.05, attack = 0.005) {
+    if (!enabled) return;
+    init();
+    if (!ctx) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, t);
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + attack);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t); osc.stop(t + dur);
+  }
+  function chord(freqs, dur, type = 'sine', vol = 0.04) {
+    freqs.forEach(f => beep(f, dur, type, vol));
+  }
+  function sweep(from, to, dur, type = 'sawtooth', vol = 0.04) {
+    if (!enabled) return;
+    init(); if (!ctx) return;
+    const t = ctx.currentTime;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(from, t);
+    osc.frequency.exponentialRampToValueAtTime(to, t + dur);
+    gain.gain.setValueAtTime(vol, t);
+    gain.gain.exponentialRampToValueAtTime(0.001, t + dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(t); osc.stop(t + dur);
+  }
+  return {
+    tap:     () => beep(800, 0.04, 'square', 0.025),
+    hover:   () => beep(1100, 0.025, 'sine', 0.012),
+    confirm: () => { beep(700, 0.06, 'square', 0.035); setTimeout(() => beep(1050, 0.08, 'square', 0.035), 50); },
+    cancel:  () => beep(300, 0.1, 'sawtooth', 0.03),
+    success: () => { beep(523, 0.08, 'square', 0.04); setTimeout(() => beep(659, 0.08, 'square', 0.04), 80); setTimeout(() => beep(784, 0.15, 'square', 0.05), 160); setTimeout(() => beep(1047, 0.2, 'square', 0.06), 240); },
+    fail:    () => { beep(440, 0.12, 'sawtooth', 0.04); setTimeout(() => beep(330, 0.15, 'sawtooth', 0.04), 130); setTimeout(() => beep(220, 0.25, 'sawtooth', 0.05), 280); },
+    levelUp: () => { [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.1, 'square', 0.05), i * 60)); },
+    type:    () => beep(2000 + Math.random() * 400, 0.012, 'square', 0.006),
+    open:    () => sweep(200, 800, 0.15, 'square', 0.03),
+    achievement: () => { [659, 784, 988, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.12, 'square', 0.06), i * 80)); setTimeout(() => beep(1568, 0.3, 'square', 0.07), 350); },
+    toggle: () => beep(900, 0.05, 'square', 0.03),
+    setEnabled: (v) => { enabled = v; localStorage.setItem('dijip_audio', v ? '1' : '0'); },
+    isEnabled: () => enabled
+  };
+})();
+
 // Particle field
 (function() {
   const canvas = document.getElementById('particles');
@@ -1994,6 +2184,17 @@ const TUTORIAL_STEPS = [
   { icon: '🏢', title: 'Ajansını Kur', desc: 'Seviye yükseldikçe uzman işe alabilirsin. Her uzman bir kanalda bonus verir ama maaşı kampanyadan kesilir. Stratejik kadro = kârlı ajans.' }
 ];
 
+// ============== SCENE TRANSITIONS ==============
+function sceneTransition(callback) {
+  const fade = document.getElementById('scene-fade');
+  if (!fade) { callback(); return; }
+  fade.classList.add('active');
+  setTimeout(() => {
+    callback();
+    setTimeout(() => fade.classList.remove('active'), 30);
+  }, 220);
+}
+
 // ============== AUTH + SYNC ==============
 const TOKEN_KEY = 'dijip_token';
 function getToken() { try { return localStorage.getItem(TOKEN_KEY); } catch { return null; } }
@@ -2349,23 +2550,37 @@ function topBar() {
 
 function renderAuth() {
   const tab = state.authTab;
+  const showTitle = !state.authStarted;
+  if (showTitle) {
+    return `
+      <div class="title-screen">
+        <div class="text-center" style="position: relative; z-index: 2;">
+          <div class="text-[10px] font-mono tracking-[0.4em] text-cyan-400 mb-3">▸ DİJİTAL PAZARLAMA SİMÜLASYONU ◂</div>
+          <div class="title-logo">DijiP</div>
+          <div class="title-tagline mt-4">JUNIOR'DAN AJANS KURUCUSUNA</div>
+          <div class="press-start">▸ DOKUN BAŞLA ◂</div>
+          <div class="title-buttons">
+            <button class="title-btn primary" data-action="title-start" data-tab="login">▸ GİRİŞ YAP</button>
+            <button class="title-btn" data-action="title-start" data-tab="register">+ YENİ AJAN</button>
+            <button class="title-btn" data-action="leaderboard-public">🏆 SIRALAMA</button>
+          </div>
+        </div>
+        <div class="title-version">v1.0 — DJP_CORE</div>
+      </div>
+    `;
+  }
   return `
     <div class="min-h-screen flex items-center justify-center p-6 lg:p-10">
-      <div class="max-w-5xl w-full fade-in">
-        <div class="grid lg:grid-cols-2 gap-12 items-center">
-          <div class="text-center lg:text-left">
-            <div class="text-7xl lg:text-8xl mb-6">📱✨📊</div>
-            <h1 class="text-6xl md:text-7xl lg:text-8xl font-black mb-4 gradient-text leading-none">DijiP</h1>
-            <p class="text-xl lg:text-2xl text-slate-300 mb-3">Dijital Pazarlama Simülasyon Oyunu</p>
-            <p class="text-slate-400 mb-8 lg:max-w-md leading-relaxed">Hesabını oluştur, brieflerle çalış, sonuçlarını takip et. İlerlemen tüm cihazlarda senkron — bilgisayardan başlayıp telefondan devam edebilirsin.</p>
-            <div class="grid grid-cols-3 gap-3 max-w-md mx-auto lg:mx-0">
-              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🎯</div><div class="text-xs text-slate-400">12 Brief</div></div>
-              <div class="glass p-4 text-center"><div class="text-3xl mb-1">📈</div><div class="text-xs text-slate-400">CTR · ROI</div></div>
-              <div class="glass p-4 text-center"><div class="text-3xl mb-1">🏆</div><div class="text-xs text-slate-400">Lider Tablosu</div></div>
-            </div>
-          </div>
+      <div class="max-w-md w-full fade-in">
+        <div class="text-center mb-6">
+          <button class="text-xs text-slate-500 hover:text-cyan-300 font-mono tracking-widest" data-action="title-back">◂ ANA EKRAN</button>
+        </div>
 
-          <div class="glass-strong p-8 lg:p-10 w-full max-w-md mx-auto lg:max-w-none">
+        <div class="glass-strong p-8 lg:p-10 w-full">
+            <div class="text-center mb-6">
+              <div class="text-3xl font-black gradient-text">DijiP</div>
+              <div class="text-[10px] font-mono tracking-[0.3em] text-slate-500 mt-1">${tab === 'login' ? 'AJAN GİRİŞİ' : 'YENİ AJAN KAYIT'}</div>
+            </div>
             <div class="flex gap-1 mb-6 p-1 rounded-xl bg-white/5">
               <button data-action="auth-tab" data-tab="login" class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab==='login' ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}">Giriş Yap</button>
               <button data-action="auth-tab" data-tab="register" class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab==='register' ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}">Hesap Oluştur</button>
@@ -2406,11 +2621,7 @@ function renderAuth() {
               <button class="btn-primary w-full text-lg mt-5 ${state.authLoading ? 'opacity-60' : ''}" data-action="login" ${state.authLoading ? 'disabled' : ''}>
                 ${state.authLoading ? 'Giriş yapılıyor...' : 'Giriş Yap →'}
               </button>
-              <div class="text-center mt-5">
-                <button class="btn-ghost text-xs" data-action="leaderboard-public">🏆 Lider Tablosunu Gör</button>
-              </div>
             `}
-          </div>
         </div>
       </div>
     </div>
@@ -2589,7 +2800,7 @@ function renderDashboard() {
         </div>
       ` : ''}
 
-      ${done > 0 && available.length > 0 ? `<div class="mb-5">${characterDialog('defne', 'welcome_returning', { name: state.player.name })}</div>` : ''}
+      <div class="mb-5">${characterDialog('defne', done > 0 ? 'welcome_returning' : 'welcome_new', { name: state.player.name })}</div>
 
       ${available.length === 0 && lockedByLesson.length > 0 ? `
         <div class="glass-strong p-8 mb-6 text-center" style="background: linear-gradient(135deg, rgba(245,158,11,0.08), rgba(139,92,246,0.08)); border-color: rgba(245,158,11,0.3);">
@@ -2813,6 +3024,7 @@ function startTypewriter() {
     }
     idx++;
     sc.typed = fullText.slice(0, idx);
+    if (idx % 3 === 0 && fullText[idx-1] && /\w/.test(fullText[idx-1])) audio.type();
     const el = document.getElementById('speech-text');
     if (el) el.innerHTML = sc.typed + '<span class="typewriter-cursor"></span>';
   }, 28);
@@ -2824,10 +3036,11 @@ function renderWizard() {
   const step = state.wizardStep;
 
   let content = '';
-  if (step === 0) content = renderAudienceStep();
-  else if (step === 1) content = renderChannelStep();
-  else if (step === 2) content = renderCreativeStep();
-  else if (step === 3) content = renderReviewStep();
+  let defneTip = '';
+  if (step === 0) { content = renderAudienceStep(); defneTip = 'Brief\'i hatırla: müşterinin müşterisi <strong>kim</strong>? Yaş, davranış, niyet — bu üçü kritik. <strong>Geniş kitle</strong> küçük bütçede tuzaktır.'; }
+  else if (step === 1) { content = renderChannelStep(); defneTip = '<strong>Niyet kanalı</strong> (Google/SEO) zaten arayan kişiyi yakalar. <strong>Keşif kanalı</strong> (Meta) ilgi uyandırır. E-posta sadece liste varsa anlamlı.'; }
+  else if (step === 2) { content = renderCreativeStep(); defneTip = 'Kreatif tonu hedef kitleye göre. B2B = özellik, lüks = sosyal kanıt, yerel = duygu, ucuz pazar = fiyat. Yanlış ton = boşa para.'; }
+  else if (step === 3) { content = renderReviewStep(); defneTip = 'Yayına almadan önce kendine sor: "Bu üç karar birbiriyle uyumlu mu?" Bir hata düzeltebilirsin, üç hata bütçeyi yer.'; }
 
   return `
     <div class="max-w-5xl mx-auto px-5 lg:px-8 py-8 lg:py-10">
@@ -2847,6 +3060,19 @@ function renderWizard() {
           </div>
         `).join('')}
       </div>
+
+      ${defneTip ? `
+        <div class="dialog-row fade-in mb-5">
+          <div class="char-avatar">👩‍💼</div>
+          <div class="char-meta">
+            <div class="char-tag">
+              <span class="char-name">Defne</span>
+              <span class="char-role">İpucu</span>
+            </div>
+            <div class="char-line">${defneTip}</div>
+          </div>
+        </div>
+      ` : ''}
 
       <div class="fade-in">${content}</div>
 
@@ -4429,7 +4655,26 @@ function renderReport() {
 
 // ============== EVENTS ==============
 
+function refreshAudioToggle() {
+  let tog = document.getElementById('audio-toggle');
+  if (!tog) {
+    tog = document.createElement('button');
+    tog.id = 'audio-toggle';
+    tog.className = 'audio-toggle';
+    tog.title = 'Ses Aç/Kapat';
+    tog.addEventListener('click', () => {
+      const newState = !audio.isEnabled();
+      audio.setEnabled(newState);
+      if (newState) audio.toggle();
+      refreshAudioToggle();
+    });
+    document.body.appendChild(tog);
+  }
+  tog.innerHTML = audio.isEnabled() ? '🔊' : '🔇';
+}
+
 function attachListeners() {
+  refreshAudioToggle();
   const startBtn = document.getElementById('start-btn');
   if (startBtn) {
     const input = document.getElementById('name-input');
@@ -4450,6 +4695,13 @@ function attachListeners() {
     el.addEventListener('click', e => {
       const action = el.dataset.action;
       const id = el.dataset.id;
+      // SFX based on action type
+      if (['back','back-dashboard','back-academy','back-auth','back-lesson','cp-skip','lf-skip','survey-skip','onboard-prev','wiz-prev'].includes(action)) audio.cancel();
+      else if (['onboard-next','wiz-next','speech-next','cp-next','quiz-next','survey-next','lab-continue','start-wizard','start-quiz','confirm-mg','lab-analyze','login','register'].includes(action)) audio.confirm();
+      else if (['open-brief','open-lesson','academy','agency','admin','lab','certificate','leaderboard','report'].includes(action)) audio.open();
+      else if (['select-audience','select-creative','toggle-mg','quiz-answer','cp-answer','lab-select','lf-useful','lf-confidence','survey-nps','survey-choice'].includes(action)) audio.tap();
+      else if (['hire','start-survey','retry-quiz','speech-skip','speech-replay'].includes(action)) audio.tap();
+      else audio.tap();
       handleAction(action, id, el);
     });
   });
@@ -4681,6 +4933,16 @@ async function handleAction(action, id, el) {
     case 'auth-tab':
       state.authTab = el.dataset.tab;
       state.authError = '';
+      render();
+      break;
+    case 'title-start':
+      state.authStarted = true;
+      state.authTab = el.dataset.tab || 'login';
+      state.authError = '';
+      render();
+      break;
+    case 'title-back':
+      state.authStarted = false;
       render();
       break;
     case 'login': {
@@ -5123,12 +5385,19 @@ function launchCampaign() {
     });
     const newAch = checkNewAchievements();
     state.lastResult.newAchievements = newAch;
+    const prevLevel = levelFromXP(state.player.xp - result.xpEarned);
+    const newLevel = levelFromXP(state.player.xp);
+    if (result.stars >= 2) audio.success();
+    else audio.fail();
     showMissionComplete(result);
     state.screen = 'results';
     saveGame();
     render();
+    if (newLevel > prevLevel) {
+      setTimeout(() => { audio.levelUp(); toast(`⭐ LEVEL UP! Rütben yükseldi — Sv. ${newLevel}`); }, 1200);
+    }
     if (result.stars === 3) setTimeout(fireConfetti, 400);
-    if (newAch.length) setTimeout(() => newAch.forEach((a, i) => setTimeout(() => toast(`🏆 ${a.icon} Yeni Rozet: ${a.name}`), i * 700)), 800);
+    if (newAch.length) setTimeout(() => newAch.forEach((a, i) => setTimeout(() => { audio.achievement(); toast(`🏆 ${a.icon} Yeni Rozet: ${a.name}`); }, i * 700)), 800);
 
     // Lab brief ise AI'dan kişisel geri bildirim al
     if (state.currentBrief?.isLab) {
