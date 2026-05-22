@@ -970,6 +970,36 @@
     color: white;
   }
 
+  /* TTS speaking visual feedback */
+  body.tts-speaking .character-figure,
+  body.tts-speaking .reaction-character {
+    animation: idleBob 0.4s ease-in-out infinite alternate, mouthMove 0.18s ease-in-out infinite !important;
+  }
+  @keyframes mouthMove {
+    0% { transform: translateY(0) scale(1); }
+    100% { transform: translateY(-2px) scale(1.04); }
+  }
+  /* Sound wave indicator */
+  .voice-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 6px;
+  }
+  .voice-indicator span {
+    width: 3px; height: 12px;
+    background: #10b981;
+    border-radius: 2px;
+    animation: voiceWave 0.8s ease-in-out infinite;
+  }
+  .voice-indicator span:nth-child(2) { animation-delay: 0.12s; }
+  .voice-indicator span:nth-child(3) { animation-delay: 0.24s; }
+  .voice-indicator span:nth-child(4) { animation-delay: 0.36s; }
+  @keyframes voiceWave {
+    0%, 100% { height: 6px; }
+    50% { height: 16px; }
+  }
+
   /* Audio toggle buttons */
   .audio-toggle-group {
     position: fixed;
@@ -1371,34 +1401,49 @@ window.audio = (function() {
 window.tts = (function() {
   let enabled = (localStorage.getItem('dijip_tts') !== '0');
   let voices = [];
-  let currentUtter = null;
+  let voicesReady = false;
+  let speaking = false;
+
   function loadVoices() {
-    if (!('speechSynthesis' in window)) return;
-    voices = speechSynthesis.getVoices();
+    if (!('speechSynthesis' in window)) return [];
+    voices = speechSynthesis.getVoices() || [];
+    if (voices.length > 0) voicesReady = true;
+    return voices;
+  }
+  function ensureVoices() {
+    if (voicesReady) return Promise.resolve(voices);
+    return new Promise(resolve => {
+      let attempts = 0;
+      const tryLoad = () => {
+        loadVoices();
+        if (voicesReady || attempts++ > 30) { resolve(voices); return; }
+        setTimeout(tryLoad, 100);
+      };
+      tryLoad();
+    });
   }
   if ('speechSynthesis' in window) {
     loadVoices();
     speechSynthesis.onvoiceschanged = loadVoices;
+    // iOS Safari: ses motorunu ısıt
+    setTimeout(() => { try { speechSynthesis.getVoices(); } catch (e) {} }, 500);
   }
   function pickVoice(gender) {
     if (!voices.length) loadVoices();
-    // Önce Türkçe ses ara
-    const tr = voices.filter(v => v.lang === 'tr-TR' || v.lang.startsWith('tr'));
+    const tr = voices.filter(v => /^tr/i.test(v.lang));
     if (tr.length) {
-      // Cinsiyete göre seç (isim heuristic)
-      const fem = tr.find(v => /female|kadın|yelda|filiz|tülay/i.test(v.name));
-      const male = tr.find(v => /male|erkek|tolga|cem|ali/i.test(v.name));
+      const fem = tr.find(v => /female|kadın|yelda|filiz|tülay|aysu|seda|emel/i.test(v.name));
+      const male = tr.find(v => /male|erkek|tolga|cem|ali|ahmet|murat/i.test(v.name));
       if (gender === 'female' && fem) return fem;
       if (gender === 'male' && male) return male;
       return tr[0];
     }
-    // Türkçe yoksa default
+    // Türkçe yoksa — varsayılan
     return voices.find(v => v.default) || voices[0] || null;
   }
   function stripEmoji(text) {
-    // Emoji ve süs karakterleri kaldır
-    return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, '')
-               .replace(/[👨‍🍳👩‍🎨🧑‍💼👩‍💼🧑‍💻💁‍♀️👵🧑‍🏫🧘‍♀️🧔🩺💕]/g, '')
+    return text.replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27FF}]/gu, '')
+               .replace(/[‍♀️‍♂️‍🍳‍🎨‍💼‍💻‍🏫]/g, '')
                .replace(/<[^>]+>/g, ' ')
                .replace(/&[a-z]+;/g, ' ')
                .replace(/\s+/g, ' ')
@@ -1408,23 +1453,42 @@ window.tts = (function() {
     if ('speechSynthesis' in window) {
       try { speechSynthesis.cancel(); } catch (e) {}
     }
-    currentUtter = null;
+    speaking = false;
+    document.body.classList.remove('tts-speaking');
   }
   function speak(text, opts = {}) {
     if (!enabled) return;
-    if (!('speechSynthesis' in window)) return;
+    if (!('speechSynthesis' in window)) {
+      console.warn('SpeechSynthesis not available');
+      return;
+    }
     const clean = stripEmoji(text);
     if (!clean) return;
-    stop();
-    const u = new SpeechSynthesisUtterance(clean);
-    u.lang = 'tr-TR';
-    u.rate = opts.rate || 1.0;
-    u.pitch = opts.pitch || 1.0;
-    u.volume = opts.volume || 1.0;
-    const v = pickVoice(opts.gender);
-    if (v) u.voice = v;
-    currentUtter = u;
-    speechSynthesis.speak(u);
+    speechSynthesis.cancel();
+    // Chrome cancel bug — küçük gecikme
+    setTimeout(() => {
+      ensureVoices().then(() => {
+        const u = new SpeechSynthesisUtterance(clean);
+        u.lang = 'tr-TR';
+        u.rate = opts.rate || 1.0;
+        u.pitch = opts.pitch || 1.0;
+        u.volume = 1.0;
+        const v = pickVoice(opts.gender);
+        if (v) u.voice = v;
+        u.onstart = () => { speaking = true; document.body.classList.add('tts-speaking'); };
+        u.onend = () => { speaking = false; document.body.classList.remove('tts-speaking'); };
+        u.onerror = () => { speaking = false; document.body.classList.remove('tts-speaking'); };
+        try { speechSynthesis.speak(u); } catch (e) { console.error('TTS error:', e); }
+      });
+    }, 120);
+  }
+  function debug() {
+    return {
+      available: ('speechSynthesis' in window),
+      voicesCount: voices.length,
+      turkishVoices: voices.filter(v => /^tr/i.test(v.lang)).map(v => v.name),
+      enabled
+    };
   }
   // Karakterlere göre ses ayarları (pitch + rate)
   const VOICE_PROFILES = {
@@ -1446,13 +1510,15 @@ window.tts = (function() {
   return {
     speak,
     stop,
+    debug,
     speakAs: (personaId, text) => {
       const profile = VOICE_PROFILES[personaId] || {};
       speak(text, profile);
     },
     available: () => ('speechSynthesis' in window),
     setEnabled: (v) => { enabled = v; localStorage.setItem('dijip_tts', v ? '1' : '0'); if (!v) stop(); },
-    isEnabled: () => enabled
+    isEnabled: () => enabled,
+    isSpeaking: () => speaking
   };
 })();
 
@@ -3343,10 +3409,16 @@ function renderBriefDetail() {
           <div>
             <div class="speech-name-row">
               <div class="speech-name-avatar">${p?.avatar || b.icon}</div>
-              <div>
-                <div class="speech-name">${p?.name || b.client}</div>
+              <div class="flex-1">
+                <div class="speech-name flex items-center">
+                  <span>${p?.name || b.client}</span>
+                  <span class="voice-indicator" style="display: ${sc.typing ? 'inline-flex' : 'none'};">
+                    <span></span><span></span><span></span><span></span>
+                  </span>
+                </div>
                 <div class="speech-role">${p?.role || b.industry}</div>
               </div>
+              <button class="text-lg opacity-60 hover:opacity-100" data-action="speech-replay-current" title="Tekrar dinle" style="background: none; border: none; cursor: pointer;">🔊</button>
             </div>
 
             <div class="speech-progress">
@@ -3409,8 +3481,7 @@ function startTypewriter() {
   const p = PERSONAS[b?.id];
   const dialog = p?.dialog || [b?.description || ''];
   const fullText = dialog[sc.step] || '';
-  // TTS başlat
-  if (b?.id && fullText) tts.speakAs(b.id, fullText);
+  // TTS action handler tarafından başlatılır (iOS user gesture)
   let idx = sc.typed.length;
   typewriterTimer = setInterval(() => {
     if (!state.customerScene || state.screen !== 'brief') {
@@ -4230,8 +4301,7 @@ function startReactionTypewriter() {
   const p = PERSONAS[b?.id];
   const lines = p?.reactions?.[r?.stars] || [];
   const fullText = lines[cr.step] || '';
-  // TTS — müşteri konuşur
-  if (b?.id && fullText) tts.speakAs(b.id, fullText);
+  // TTS action handler veya launchCampaign tarafından başlatılır
   let idx = cr.typed.length;
   typewriterTimer = setInterval(() => {
     if (!state.reactionScene || state.screen !== 'customer-reaction') {
@@ -5263,13 +5333,19 @@ function attachListeners() {
 
 async function handleAction(action, id, el) {
   switch (action) {
-    case 'open-brief':
-      state.currentBrief = BRIEFS.find(b => b.id === id);
+    case 'open-brief': {
+      const brief = BRIEFS.find(b => b.id === id);
+      state.currentBrief = brief;
       state.customerScene = null;
       state.screen = 'brief';
+      // iOS için TTS user gesture içinde başlasın
+      const p = PERSONAS[brief?.id];
+      const firstLine = p?.dialog?.[0] || brief?.description || '';
+      if (firstLine && brief?.id) tts.speakAs(brief.id, firstLine);
       render();
       setTimeout(startTypewriter, 100);
       break;
+    }
     case 'speech-skip': {
       const sc = state.customerScene;
       const p = PERSONAS[state.currentBrief?.id];
@@ -5289,16 +5365,30 @@ async function handleAction(action, id, el) {
         sc.step++;
         sc.typed = '';
         sc.typing = true;
+        // iOS: TTS user gesture içinde
+        const nextLine = dialog[sc.step];
+        if (nextLine && state.currentBrief?.id) tts.speakAs(state.currentBrief.id, nextLine);
         render();
         setTimeout(startTypewriter, 50);
       }
       break;
     }
+    case 'speech-replay-current': {
+      const sc = state.customerScene;
+      const p = PERSONAS[state.currentBrief?.id];
+      const dialog = p?.dialog || [];
+      const line = dialog[sc?.step] || '';
+      if (line && state.currentBrief?.id) tts.speakAs(state.currentBrief.id, line);
+      break;
+    }
     case 'speech-replay': {
       const sc = state.customerScene;
+      const p = PERSONAS[state.currentBrief?.id];
+      const dialog = p?.dialog || [];
       sc.step = 0;
       sc.typed = '';
       sc.typing = true;
+      if (dialog[0] && state.currentBrief?.id) tts.speakAs(state.currentBrief.id, dialog[0]);
       render();
       setTimeout(startTypewriter, 50);
       break;
@@ -5322,6 +5412,8 @@ async function handleAction(action, id, el) {
         cr.step++;
         cr.typed = '';
         cr.typing = true;
+        const nextLine = lines[cr.step];
+        if (nextLine && state.currentBrief?.id) tts.speakAs(state.currentBrief.id, nextLine);
         render();
         setTimeout(startReactionTypewriter, 80);
       }
@@ -5508,6 +5600,10 @@ async function handleAction(action, id, el) {
       state.authStarted = true;
       state.authTab = el.dataset.tab || 'login';
       state.authError = '';
+      // İlk user gesture içinde TTS'i ısıt - mobile için kritik
+      if (tts.available() && tts.isEnabled()) {
+        tts.speak('DijiP\'e hoş geldin. Ajan oluyorsun.', { rate: 1.05 });
+      }
       render();
       break;
     case 'title-back':
@@ -5972,6 +6068,9 @@ function launchCampaign() {
     if (hasReaction && !state.currentBrief?.isLab) {
       state.reactionScene = { step: 0, typed: '', typing: true };
       state.screen = 'customer-reaction';
+      // TTS başlat - mission complete sonrası
+      const reactionLines = PERSONAS[state.currentBrief.id].reactions[result.stars] || [];
+      if (reactionLines[0]) tts.speakAs(state.currentBrief.id, reactionLines[0]);
       render();
       setTimeout(startReactionTypewriter, 2400);
     } else {
