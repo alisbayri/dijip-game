@@ -970,14 +970,73 @@
     color: white;
   }
 
-  /* TTS speaking visual feedback */
+  /* TTS speaking — gerçek konuşma hissi (syllable pulse + jaw drop) */
   body.tts-speaking .character-figure,
   body.tts-speaking .reaction-character {
-    animation: idleBob 0.4s ease-in-out infinite alternate, mouthMove 0.18s ease-in-out infinite !important;
+    animation: speakingBob 0.6s ease-in-out infinite alternate !important;
+    filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5)) drop-shadow(0 0 30px var(--speaking-glow, rgba(245, 158, 11, 0.4))) !important;
   }
-  @keyframes mouthMove {
-    0% { transform: translateY(0) scale(1); }
-    100% { transform: translateY(-2px) scale(1.04); }
+  @keyframes speakingBob {
+    0% { transform: translateY(0) rotate(-0.5deg); }
+    100% { transform: translateY(-4px) rotate(0.5deg); }
+  }
+
+  /* Hece pulse — random aralıklarla jaw drop */
+  .character-figure.syllable,
+  .reaction-character.syllable {
+    transform: scaleY(0.94) scaleX(1.03) translateY(2px) !important;
+    transition: transform 0.05s ease-out;
+  }
+
+  /* Konuşma sırasında "mouth" overlay — küçük açılır kapanır ağız */
+  .speaking-mouth {
+    position: absolute;
+    bottom: 28%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 22px;
+    height: 6px;
+    background: #1a0a0a;
+    border-radius: 50%;
+    opacity: 0;
+    z-index: 2;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.6);
+  }
+  body.tts-speaking .speaking-mouth {
+    opacity: 0.85;
+    animation: mouthOpen 0.18s ease-in-out infinite alternate;
+  }
+  @keyframes mouthOpen {
+    0% { height: 4px; width: 18px; }
+    100% { height: 14px; width: 24px; border-radius: 40%; }
+  }
+
+  /* "Konuşuyor..." indicator (3 nokta) */
+  .speaking-dots {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 4px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  body.tts-speaking .speaking-dots {
+    opacity: 1;
+  }
+  .speaking-dots span {
+    width: 8px; height: 8px;
+    background: #fbbf24;
+    border-radius: 50%;
+    box-shadow: 0 0 12px rgba(245, 158, 11, 0.8);
+    animation: dotPulse 0.9s ease-in-out infinite;
+  }
+  .speaking-dots span:nth-child(2) { animation-delay: 0.15s; }
+  .speaking-dots span:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes dotPulse {
+    0%, 100% { transform: scale(0.6); opacity: 0.4; }
+    50% { transform: scale(1.2); opacity: 1; }
   }
   /* Sound wave indicator */
   .voice-indicator {
@@ -1432,13 +1491,16 @@ window.tts = (function() {
     if (!voices.length) loadVoices();
     const tr = voices.filter(v => /^tr/i.test(v.lang));
     if (tr.length) {
-      const fem = tr.find(v => /female|kadın|yelda|filiz|tülay|aysu|seda|emel/i.test(v.name));
-      const male = tr.find(v => /male|erkek|tolga|cem|ali|ahmet|murat/i.test(v.name));
+      // Cinsiyet bazlı isim eşleşmesi
+      const femalePat = /female|kadın|yelda|filiz|tülay|aysu|seda|emel|defne|elif|zehra|google.*female|chrome.*female/i;
+      const malePat   = /male|erkek|tolga|cem|ali|ahmet|murat|google.*male|chrome.*male/i;
+      const fem = tr.find(v => femalePat.test(v.name) && !malePat.test(v.name));
+      const male = tr.find(v => malePat.test(v.name) && !femalePat.test(v.name));
       if (gender === 'female' && fem) return fem;
       if (gender === 'male' && male) return male;
+      // Eşleşme bulunamazsa ilk Türkçe sesi kullan (pitch farkı cinsiyet hissi yaratır)
       return tr[0];
     }
-    // Türkçe yoksa — varsayılan
     return voices.find(v => v.default) || voices[0] || null;
   }
   function stripEmoji(text) {
@@ -1475,9 +1537,21 @@ window.tts = (function() {
         u.volume = 1.0;
         const v = pickVoice(opts.gender);
         if (v) u.voice = v;
-        u.onstart = () => { speaking = true; document.body.classList.add('tts-speaking'); };
-        u.onend = () => { speaking = false; document.body.classList.remove('tts-speaking'); };
-        u.onerror = () => { speaking = false; document.body.classList.remove('tts-speaking'); };
+        u.onstart = () => {
+          speaking = true;
+          document.body.classList.add('tts-speaking');
+          startSyllablePulse();
+        };
+        u.onend = () => {
+          speaking = false;
+          document.body.classList.remove('tts-speaking');
+          stopSyllablePulse();
+        };
+        u.onerror = () => {
+          speaking = false;
+          document.body.classList.remove('tts-speaking');
+          stopSyllablePulse();
+        };
         try { speechSynthesis.speak(u); } catch (e) { console.error('TTS error:', e); }
       });
     }, 120);
@@ -1490,30 +1564,33 @@ window.tts = (function() {
       enabled
     };
   }
-  // Karakterlere göre ses ayarları (pitch + rate)
+  // Karakterlere göre ses ayarları — kadın/erkek belirgin pitch farkı
+  // Sistem'de tek Türkçe ses olsa bile pitch ile cinsiyet hissi
   const VOICE_PROFILES = {
-    kahveci:       { gender: 'male',   pitch: 1.0, rate: 1.05 },  // Mehmet
-    taki:          { gender: 'female', pitch: 1.15, rate: 1.0 },  // Selin
-    fitapp:        { gender: 'male',   pitch: 1.0, rate: 1.15 },  // Burak (enerjik)
-    butikotel:     { gender: 'female', pitch: 1.1, rate: 0.95 },  // Fatma (sıcak)
-    saascrm:       { gender: 'male',   pitch: 0.95, rate: 1.05 }, // Onur (corporate)
-    kozmetik:      { gender: 'female', pitch: 1.2, rate: 1.05 },  // İrem
-    pastane:       { gender: 'female', pitch: 1.05, rate: 0.9 },  // Hatice Anne (yavaş, sıcak)
-    ingilizcekurs: { gender: 'male',   pitch: 1.0, rate: 1.1 },   // Deniz
-    yoga:          { gender: 'female', pitch: 1.1, rate: 0.92 },  // Cansu (sakin)
-    sigorta:       { gender: 'male',   pitch: 0.9, rate: 1.05 },  // Cem (ciddi)
-    wellnesspro:   { gender: 'female', pitch: 1.0, rate: 1.0 },   // Dr. Pınar
-    tutorialhub:   { gender: 'male',   pitch: 1.0, rate: 1.1 },   // Ege
-    defne:         { gender: 'female', pitch: 1.0, rate: 1.0 },
-    ada:           { gender: 'female', pitch: 0.85, rate: 1.05 }  // Ada (robot tonlu)
+    kahveci:       { gender: 'male',   pitch: 0.75, rate: 1.05 }, // Mehmet (kalın erkek)
+    taki:          { gender: 'female', pitch: 1.35, rate: 1.0 },  // Selin (tatlı kadın)
+    fitapp:        { gender: 'male',   pitch: 0.85, rate: 1.18 }, // Burak (genç, enerjik)
+    butikotel:     { gender: 'female', pitch: 1.25, rate: 0.95 },// Fatma (sıcak, anne)
+    saascrm:       { gender: 'male',   pitch: 0.7, rate: 1.0 },  // Onur (corporate, derin)
+    kozmetik:      { gender: 'female', pitch: 1.45, rate: 1.08 },// İrem (genç, parlak)
+    pastane:       { gender: 'female', pitch: 1.2, rate: 0.85 }, // Hatice Anne (yavaş, sıcak)
+    ingilizcekurs: { gender: 'male',   pitch: 0.85, rate: 1.12 },// Deniz
+    yoga:          { gender: 'female', pitch: 1.25, rate: 0.9 }, // Cansu (sakin)
+    sigorta:       { gender: 'male',   pitch: 0.7, rate: 1.05 }, // Cem (ciddi, kalın)
+    wellnesspro:   { gender: 'female', pitch: 1.2, rate: 1.0 },  // Dr. Pınar
+    tutorialhub:   { gender: 'male',   pitch: 0.85, rate: 1.1 }, // Ege
+    defne:         { gender: 'female', pitch: 1.15, rate: 1.0 },
+    ada:           { gender: 'female', pitch: 1.4, rate: 1.05 } // Ada (robot tonlu yüksek)
   };
   return {
     speak,
     stop,
     debug,
     speakAs: (personaId, text) => {
-      const profile = VOICE_PROFILES[personaId] || {};
-      speak(text, profile);
+      try {
+        const profile = VOICE_PROFILES[personaId] || {};
+        speak(text, profile);
+      } catch (e) { console.warn('TTS speakAs error:', e); }
     },
     available: () => ('speechSynthesis' in window),
     setEnabled: (v) => { enabled = v; localStorage.setItem('dijip_tts', v ? '1' : '0'); if (!v) stop(); },
@@ -2649,6 +2726,25 @@ const TUTORIAL_STEPS = [
   { icon: '🏢', title: 'Ajansını Kur', desc: 'Seviye yükseldikçe uzman işe alabilirsin. Her uzman bir kanalda bonus verir ama maaşı kampanyadan kesilir. Stratejik kadro = kârlı ajans.' }
 ];
 
+// ============== SYLLABLE PULSE (konuşma ritmi) ==============
+let syllablePulseTimer = null;
+function startSyllablePulse() {
+  stopSyllablePulse();
+  const tick = () => {
+    const targets = document.querySelectorAll('.character-figure, .reaction-character');
+    targets.forEach(el => {
+      el.classList.add('syllable');
+      setTimeout(() => el.classList.remove('syllable'), 70 + Math.random() * 40);
+    });
+    syllablePulseTimer = setTimeout(tick, 140 + Math.random() * 100);
+  };
+  tick();
+}
+function stopSyllablePulse() {
+  if (syllablePulseTimer) { clearTimeout(syllablePulseTimer); syllablePulseTimer = null; }
+  document.querySelectorAll('.character-figure, .reaction-character').forEach(el => el.classList.remove('syllable'));
+}
+
 // ============== SCENE TRANSITIONS ==============
 function sceneTransition(callback) {
   const fade = document.getElementById('scene-fade');
@@ -2899,6 +2995,10 @@ function animateCounters() {
 }
 
 function render() {
+  // Donma önlemi: eski mission-complete overlay varsa temizle (sahne dışına çıkıldıysa)
+  if (state.screen !== 'simulating' && state.screen !== 'customer-reaction') {
+    document.querySelectorAll('.mission-complete-overlay').forEach(el => { el.remove(); });
+  }
   const screens = {
     auth: renderAuth,
     welcome: renderWelcome,
@@ -3448,7 +3548,11 @@ function renderBriefDetail() {
         <div class="character-stage">
           <div class="character-aura" style="--aura-color: ${mood === 'warm' ? 'rgba(245,158,11,0.3)' : mood === 'pink' ? 'rgba(236,72,153,0.3)' : mood === 'green' ? 'rgba(16,185,129,0.3)' : 'rgba(6,182,212,0.3)'};"></div>
           <div class="character-shadow"></div>
-          <div class="character-figure ${sc.typing ? 'talking' : ''}">${p?.avatar || b.icon}</div>
+          <div style="position: relative; display: inline-block;">
+            <div class="speaking-dots"><span></span><span></span><span></span></div>
+            <div class="character-figure ${sc.typing ? 'talking' : ''}">${p?.avatar || b.icon}</div>
+            <div class="speaking-mouth"></div>
+          </div>
           ${sc.typing ? `<div class="mood-emoji">💬</div>` : `<div class="mood-emoji">${moodEmojis[mood]}</div>`}
         </div>
       </div>
@@ -4257,9 +4361,13 @@ function renderCustomerReaction() {
 
       <div class="reaction-stage">
         ${burst ? `<div class="star-burst">${burst}</div>` : ''}
-        <div class="reaction-character ${animClass}">
-          ${p.avatar}
-          <div class="reaction-expression">${expression}</div>
+        <div style="position: relative; display: inline-block;">
+          <div class="speaking-dots"><span></span><span></span><span></span></div>
+          <div class="reaction-character ${animClass}">
+            ${p.avatar}
+            <div class="reaction-expression">${expression}</div>
+          </div>
+          <div class="speaking-mouth"></div>
         </div>
       </div>
 
@@ -5303,14 +5411,19 @@ function attachListeners() {
     el.addEventListener('click', e => {
       const action = el.dataset.action;
       const id = el.dataset.id;
-      // SFX based on action type
-      if (['back','back-dashboard','back-academy','back-auth','back-lesson','cp-skip','lf-skip','survey-skip','onboard-prev','wiz-prev'].includes(action)) audio.cancel();
-      else if (['onboard-next','wiz-next','speech-next','cp-next','quiz-next','survey-next','lab-continue','start-wizard','start-quiz','confirm-mg','lab-analyze','login','register'].includes(action)) audio.confirm();
-      else if (['open-brief','open-lesson','academy','agency','admin','lab','certificate','leaderboard','report'].includes(action)) audio.open();
-      else if (['select-audience','select-creative','toggle-mg','quiz-answer','cp-answer','lab-select','lf-useful','lf-confidence','survey-nps','survey-choice'].includes(action)) audio.tap();
-      else if (['hire','start-survey','retry-quiz','speech-skip','speech-replay'].includes(action)) audio.tap();
-      else audio.tap();
-      handleAction(action, id, el);
+      try {
+        if (['back','back-dashboard','back-academy','back-auth','back-lesson','cp-skip','lf-skip','survey-skip','onboard-prev','wiz-prev'].includes(action)) audio.cancel();
+        else if (['onboard-next','wiz-next','speech-next','cp-next','quiz-next','survey-next','lab-continue','start-wizard','start-quiz','confirm-mg','lab-analyze','login','register'].includes(action)) audio.confirm();
+        else if (['open-brief','open-lesson','academy','agency','admin','lab','certificate','leaderboard','report'].includes(action)) audio.open();
+        else if (['select-audience','select-creative','toggle-mg','quiz-answer','cp-answer','lab-select','lf-useful','lf-confidence','survey-nps','survey-choice'].includes(action)) audio.tap();
+        else audio.tap();
+      } catch (e) { console.warn('SFX error:', e); }
+      try {
+        handleAction(action, id, el);
+      } catch (e) {
+        console.error('Action error:', action, e);
+        toast('Bir sorun oluştu — devam etmek için tekrar dene');
+      }
     });
   });
 
