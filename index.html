@@ -970,10 +970,15 @@
     color: white;
   }
 
-  /* Audio toggle button */
-  .audio-toggle {
+  /* Audio toggle buttons */
+  .audio-toggle-group {
     position: fixed;
     top: 16px; right: 16px;
+    display: flex;
+    gap: 6px;
+    z-index: 100;
+  }
+  .audio-toggle {
     width: 40px; height: 40px;
     background: rgba(15, 15, 30, 0.8);
     border: 1px solid rgba(139, 92, 246, 0.4);
@@ -982,11 +987,12 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    z-index: 100;
     backdrop-filter: blur(10px);
     transition: all 0.2s;
+    font-size: 18px;
   }
   .audio-toggle:hover { border-color: #fbbf24; }
+  .audio-toggle.off { opacity: 0.5; border-color: rgba(244, 63, 94, 0.4); }
 
   /* ============ CUSTOMER REACTION SCENE ============ */
   .reaction-scene {
@@ -1280,13 +1286,38 @@
 window.audio = (function() {
   let ctx = null;
   let enabled = (localStorage.getItem('dijip_audio') !== '0');
+  let unlocked = false;
   function init() {
     if (!ctx) {
       try { ctx = new (window.AudioContext || window.webkitAudioContext)(); } catch (e) {}
     }
     if (ctx && ctx.state === 'suspended') ctx.resume();
+    if (ctx && !unlocked) {
+      // Silent buffer to unlock iOS
+      try {
+        const buf = ctx.createBuffer(1, 1, 22050);
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.connect(ctx.destination);
+        src.start(0);
+        unlocked = true;
+      } catch (e) {}
+    }
   }
-  function beep(freq, dur, type = 'sine', vol = 0.05, attack = 0.005) {
+  // Unlock on first user interaction
+  function unlockHandler() {
+    init();
+    if (ctx) {
+      document.removeEventListener('click', unlockHandler);
+      document.removeEventListener('touchstart', unlockHandler);
+      document.removeEventListener('keydown', unlockHandler);
+    }
+  }
+  document.addEventListener('click', unlockHandler, { passive: true });
+  document.addEventListener('touchstart', unlockHandler, { passive: true });
+  document.addEventListener('keydown', unlockHandler, { passive: true });
+
+  function beep(freq, dur, type = 'sine', vol = 0.12, attack = 0.005) {
     if (!enabled) return;
     init();
     if (!ctx) return;
@@ -1301,10 +1332,10 @@ window.audio = (function() {
     osc.connect(gain); gain.connect(ctx.destination);
     osc.start(t); osc.stop(t + dur);
   }
-  function chord(freqs, dur, type = 'sine', vol = 0.04) {
+  function chord(freqs, dur, type = 'sine', vol = 0.1) {
     freqs.forEach(f => beep(f, dur, type, vol));
   }
-  function sweep(from, to, dur, type = 'sawtooth', vol = 0.04) {
+  function sweep(from, to, dur, type = 'sawtooth', vol = 0.1) {
     if (!enabled) return;
     init(); if (!ctx) return;
     const t = ctx.currentTime;
@@ -1319,18 +1350,108 @@ window.audio = (function() {
     osc.start(t); osc.stop(t + dur);
   }
   return {
-    tap:     () => beep(800, 0.04, 'square', 0.025),
-    hover:   () => beep(1100, 0.025, 'sine', 0.012),
-    confirm: () => { beep(700, 0.06, 'square', 0.035); setTimeout(() => beep(1050, 0.08, 'square', 0.035), 50); },
-    cancel:  () => beep(300, 0.1, 'sawtooth', 0.03),
-    success: () => { beep(523, 0.08, 'square', 0.04); setTimeout(() => beep(659, 0.08, 'square', 0.04), 80); setTimeout(() => beep(784, 0.15, 'square', 0.05), 160); setTimeout(() => beep(1047, 0.2, 'square', 0.06), 240); },
-    fail:    () => { beep(440, 0.12, 'sawtooth', 0.04); setTimeout(() => beep(330, 0.15, 'sawtooth', 0.04), 130); setTimeout(() => beep(220, 0.25, 'sawtooth', 0.05), 280); },
-    levelUp: () => { [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.1, 'square', 0.05), i * 60)); },
-    type:    () => beep(2000 + Math.random() * 400, 0.012, 'square', 0.006),
-    open:    () => sweep(200, 800, 0.15, 'square', 0.03),
-    achievement: () => { [659, 784, 988, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.12, 'square', 0.06), i * 80)); setTimeout(() => beep(1568, 0.3, 'square', 0.07), 350); },
-    toggle: () => beep(900, 0.05, 'square', 0.03),
+    tap:     () => beep(800, 0.05, 'square', 0.08),
+    hover:   () => beep(1100, 0.03, 'sine', 0.04),
+    confirm: () => { beep(700, 0.06, 'square', 0.1); setTimeout(() => beep(1050, 0.08, 'square', 0.1), 50); },
+    cancel:  () => beep(300, 0.1, 'sawtooth', 0.08),
+    success: () => { beep(523, 0.08, 'square', 0.1); setTimeout(() => beep(659, 0.08, 'square', 0.1), 80); setTimeout(() => beep(784, 0.15, 'square', 0.12), 160); setTimeout(() => beep(1047, 0.2, 'square', 0.14), 240); },
+    fail:    () => { beep(440, 0.12, 'sawtooth', 0.1); setTimeout(() => beep(330, 0.15, 'sawtooth', 0.1), 130); setTimeout(() => beep(220, 0.25, 'sawtooth', 0.12), 280); },
+    levelUp: () => { [523, 659, 784, 1047, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.12, 'square', 0.12), i * 60)); },
+    type:    () => beep(2000 + Math.random() * 400, 0.015, 'square', 0.025),
+    open:    () => sweep(200, 800, 0.15, 'square', 0.08),
+    achievement: () => { [659, 784, 988, 1319].forEach((f, i) => setTimeout(() => beep(f, 0.12, 'square', 0.14), i * 80)); setTimeout(() => beep(1568, 0.3, 'square', 0.16), 350); },
+    toggle: () => beep(900, 0.06, 'square', 0.1),
     setEnabled: (v) => { enabled = v; localStorage.setItem('dijip_audio', v ? '1' : '0'); },
+    isEnabled: () => enabled,
+    init
+  };
+})();
+
+// ============== TTS — KARAKTERLER KONUŞUYOR ==============
+window.tts = (function() {
+  let enabled = (localStorage.getItem('dijip_tts') !== '0');
+  let voices = [];
+  let currentUtter = null;
+  function loadVoices() {
+    if (!('speechSynthesis' in window)) return;
+    voices = speechSynthesis.getVoices();
+  }
+  if ('speechSynthesis' in window) {
+    loadVoices();
+    speechSynthesis.onvoiceschanged = loadVoices;
+  }
+  function pickVoice(gender) {
+    if (!voices.length) loadVoices();
+    // Önce Türkçe ses ara
+    const tr = voices.filter(v => v.lang === 'tr-TR' || v.lang.startsWith('tr'));
+    if (tr.length) {
+      // Cinsiyete göre seç (isim heuristic)
+      const fem = tr.find(v => /female|kadın|yelda|filiz|tülay/i.test(v.name));
+      const male = tr.find(v => /male|erkek|tolga|cem|ali/i.test(v.name));
+      if (gender === 'female' && fem) return fem;
+      if (gender === 'male' && male) return male;
+      return tr[0];
+    }
+    // Türkçe yoksa default
+    return voices.find(v => v.default) || voices[0] || null;
+  }
+  function stripEmoji(text) {
+    // Emoji ve süs karakterleri kaldır
+    return text.replace(/[\u{1F600}-\u{1F64F}\u{1F300}-\u{1F5FF}\u{1F680}-\u{1F6FF}\u{1F1E0}-\u{1F1FF}\u{2600}-\u{26FF}\u{2700}-\u{27BF}\u{1F900}-\u{1F9FF}\u{1FA00}-\u{1FA6F}\u{1FA70}-\u{1FAFF}]/gu, '')
+               .replace(/[👨‍🍳👩‍🎨🧑‍💼👩‍💼🧑‍💻💁‍♀️👵🧑‍🏫🧘‍♀️🧔🩺💕]/g, '')
+               .replace(/<[^>]+>/g, ' ')
+               .replace(/&[a-z]+;/g, ' ')
+               .replace(/\s+/g, ' ')
+               .trim();
+  }
+  function stop() {
+    if ('speechSynthesis' in window) {
+      try { speechSynthesis.cancel(); } catch (e) {}
+    }
+    currentUtter = null;
+  }
+  function speak(text, opts = {}) {
+    if (!enabled) return;
+    if (!('speechSynthesis' in window)) return;
+    const clean = stripEmoji(text);
+    if (!clean) return;
+    stop();
+    const u = new SpeechSynthesisUtterance(clean);
+    u.lang = 'tr-TR';
+    u.rate = opts.rate || 1.0;
+    u.pitch = opts.pitch || 1.0;
+    u.volume = opts.volume || 1.0;
+    const v = pickVoice(opts.gender);
+    if (v) u.voice = v;
+    currentUtter = u;
+    speechSynthesis.speak(u);
+  }
+  // Karakterlere göre ses ayarları (pitch + rate)
+  const VOICE_PROFILES = {
+    kahveci:       { gender: 'male',   pitch: 1.0, rate: 1.05 },  // Mehmet
+    taki:          { gender: 'female', pitch: 1.15, rate: 1.0 },  // Selin
+    fitapp:        { gender: 'male',   pitch: 1.0, rate: 1.15 },  // Burak (enerjik)
+    butikotel:     { gender: 'female', pitch: 1.1, rate: 0.95 },  // Fatma (sıcak)
+    saascrm:       { gender: 'male',   pitch: 0.95, rate: 1.05 }, // Onur (corporate)
+    kozmetik:      { gender: 'female', pitch: 1.2, rate: 1.05 },  // İrem
+    pastane:       { gender: 'female', pitch: 1.05, rate: 0.9 },  // Hatice Anne (yavaş, sıcak)
+    ingilizcekurs: { gender: 'male',   pitch: 1.0, rate: 1.1 },   // Deniz
+    yoga:          { gender: 'female', pitch: 1.1, rate: 0.92 },  // Cansu (sakin)
+    sigorta:       { gender: 'male',   pitch: 0.9, rate: 1.05 },  // Cem (ciddi)
+    wellnesspro:   { gender: 'female', pitch: 1.0, rate: 1.0 },   // Dr. Pınar
+    tutorialhub:   { gender: 'male',   pitch: 1.0, rate: 1.1 },   // Ege
+    defne:         { gender: 'female', pitch: 1.0, rate: 1.0 },
+    ada:           { gender: 'female', pitch: 0.85, rate: 1.05 }  // Ada (robot tonlu)
+  };
+  return {
+    speak,
+    stop,
+    speakAs: (personaId, text) => {
+      const profile = VOICE_PROFILES[personaId] || {};
+      speak(text, profile);
+    },
+    available: () => ('speechSynthesis' in window),
+    setEnabled: (v) => { enabled = v; localStorage.setItem('dijip_tts', v ? '1' : '0'); if (!v) stop(); },
     isEnabled: () => enabled
   };
 })();
@@ -1780,13 +1901,16 @@ function characterDialog(charId, key, vars = {}) {
   if (!c) return '';
   const line = dialog(charId, key, vars);
   if (!line) return '';
+  // Hidden text for TTS to read on play button
+  const speakAttr = ` data-speak-char="${charId}" data-speak-text="${line.replace(/"/g, '&quot;').replace(/<[^>]+>/g, '')}"`;
   return `
-    <div class="dialog-row ${c.cls} fade-in">
+    <div class="dialog-row ${c.cls} fade-in"${speakAttr}>
       <div class="char-avatar ${c.cls}">${c.avatar}</div>
       <div class="char-meta">
         <div class="char-tag">
           <span class="char-name ${c.cls}">${c.name}</span>
           <span class="char-role">${c.role}</span>
+          <button class="ml-auto text-xs opacity-60 hover:opacity-100" data-action="speak-dialog" data-char-id="${charId}" title="Sesli oku" style="background: none; border: none; cursor: pointer;">🔊</button>
         </div>
         <div class="char-line">${line}</div>
       </div>
@@ -3285,6 +3409,8 @@ function startTypewriter() {
   const p = PERSONAS[b?.id];
   const dialog = p?.dialog || [b?.description || ''];
   const fullText = dialog[sc.step] || '';
+  // TTS başlat
+  if (b?.id && fullText) tts.speakAs(b.id, fullText);
   let idx = sc.typed.length;
   typewriterTimer = setInterval(() => {
     if (!state.customerScene || state.screen !== 'brief') {
@@ -4100,9 +4226,12 @@ function startReactionTypewriter() {
   const cr = state.reactionScene;
   if (!cr || !cr.typing) return;
   const r = state.lastResult;
-  const p = PERSONAS[state.currentBrief?.id];
+  const b = state.currentBrief;
+  const p = PERSONAS[b?.id];
   const lines = p?.reactions?.[r?.stars] || [];
   const fullText = lines[cr.step] || '';
+  // TTS — müşteri konuşur
+  if (b?.id && fullText) tts.speakAs(b.id, fullText);
   let idx = cr.typed.length;
   typewriterTimer = setInterval(() => {
     if (!state.reactionScene || state.screen !== 'customer-reaction') {
@@ -5038,21 +5167,48 @@ function renderReport() {
 // ============== EVENTS ==============
 
 function refreshAudioToggle() {
-  let tog = document.getElementById('audio-toggle');
-  if (!tog) {
-    tog = document.createElement('button');
-    tog.id = 'audio-toggle';
-    tog.className = 'audio-toggle';
-    tog.title = 'Ses Aç/Kapat';
-    tog.addEventListener('click', () => {
+  let group = document.getElementById('audio-toggle-group');
+  if (!group) {
+    group = document.createElement('div');
+    group.id = 'audio-toggle-group';
+    group.className = 'audio-toggle-group';
+    document.body.appendChild(group);
+  }
+  let sfxBtn = document.getElementById('audio-toggle');
+  if (!sfxBtn) {
+    sfxBtn = document.createElement('button');
+    sfxBtn.id = 'audio-toggle';
+    sfxBtn.className = 'audio-toggle';
+    sfxBtn.title = 'Ses Efektleri';
+    sfxBtn.addEventListener('click', () => {
       const newState = !audio.isEnabled();
       audio.setEnabled(newState);
-      if (newState) audio.toggle();
+      if (newState) { audio.init && audio.init(); audio.toggle(); }
       refreshAudioToggle();
     });
-    document.body.appendChild(tog);
+    group.appendChild(sfxBtn);
   }
-  tog.innerHTML = audio.isEnabled() ? '🔊' : '🔇';
+  let ttsBtn = document.getElementById('tts-toggle');
+  if (!ttsBtn && tts.available()) {
+    ttsBtn = document.createElement('button');
+    ttsBtn.id = 'tts-toggle';
+    ttsBtn.className = 'audio-toggle';
+    ttsBtn.title = 'Karakter Sesli Anlatım';
+    ttsBtn.addEventListener('click', () => {
+      const newState = !tts.isEnabled();
+      tts.setEnabled(newState);
+      if (newState) { tts.speak('Sesli anlatım açıldı', {}); audio.toggle(); }
+      else { tts.stop(); audio.toggle(); }
+      refreshAudioToggle();
+    });
+    group.appendChild(ttsBtn);
+  }
+  sfxBtn.innerHTML = audio.isEnabled() ? '🔊' : '🔇';
+  sfxBtn.classList.toggle('off', !audio.isEnabled());
+  if (ttsBtn) {
+    ttsBtn.innerHTML = tts.isEnabled() ? '🗣️' : '🤐';
+    ttsBtn.classList.toggle('off', !tts.isEnabled());
+  }
 }
 
 function attachListeners() {
@@ -5119,6 +5275,7 @@ async function handleAction(action, id, el) {
       const p = PERSONAS[state.currentBrief?.id];
       const dialog = p?.dialog || [state.currentBrief?.description || ''];
       if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+      tts.stop();
       sc.typed = dialog[sc.step] || '';
       sc.typing = false;
       render();
@@ -5151,6 +5308,7 @@ async function handleAction(action, id, el) {
       const p = PERSONAS[state.currentBrief?.id];
       const lines = p?.reactions?.[state.lastResult?.stars] || [];
       if (typewriterTimer) { clearInterval(typewriterTimer); typewriterTimer = null; }
+      tts.stop();
       cr.typed = lines[cr.step] || '';
       cr.typing = false;
       render();
@@ -5170,6 +5328,7 @@ async function handleAction(action, id, el) {
       break;
     }
     case 'reaction-done':
+      tts.stop();
       state.reactionScene = null;
       state.screen = 'results';
       render();
@@ -5355,6 +5514,13 @@ async function handleAction(action, id, el) {
       state.authStarted = false;
       render();
       break;
+    case 'speak-dialog': {
+      const charId = el.dataset.charId;
+      const wrap = el.closest('.dialog-row');
+      const text = wrap?.dataset?.speakText || wrap?.querySelector('.char-line')?.textContent || '';
+      if (text) tts.speakAs(charId, text);
+      break;
+    }
     case 'login': {
       const email = document.getElementById('auth-email')?.value?.trim();
       const password = document.getElementById('auth-password')?.value;
