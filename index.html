@@ -287,6 +287,12 @@
     flex-shrink: 0;
     box-shadow: 0 4px 20px rgba(139, 92, 246, 0.4);
     position: relative;
+    overflow: hidden;
+  }
+  .char-avatar img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
   }
   .char-avatar.ada {
     background: linear-gradient(135deg, #06b6d4, #10b981);
@@ -699,6 +705,42 @@
     animation: idleBob 3.2s ease-in-out infinite;
     filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5));
     transform-origin: 50% 100%;
+  }
+  /* Yeni: gerçek SVG karakter portresi (DiceBear) */
+  .character-portrait {
+    position: relative;
+    width: clamp(180px, 30vw, 320px);
+    height: clamp(180px, 30vw, 320px);
+    border-radius: 50%;
+    overflow: hidden;
+    background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(139,92,246,0.05));
+    border: 4px solid rgba(255,255,255,0.15);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 60px rgba(139, 92, 246, 0.25);
+    animation: idleBob 3.2s ease-in-out infinite;
+    transform-origin: 50% 100%;
+  }
+  .character-portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+  }
+  .character-portrait.reaction-character {
+    width: clamp(220px, 38vw, 380px);
+    height: clamp(220px, 38vw, 380px);
+  }
+  body.tts-speaking .character-portrait {
+    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 80px rgba(245, 158, 11, 0.5);
+    border-color: rgba(251, 191, 36, 0.6);
+  }
+  /* Ağız overlay'ini portre üzerine yerleştir */
+  .character-portrait + .speaking-mouth,
+  .character-portrait .speaking-mouth {
+    position: absolute;
+    bottom: 26%;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
   }
   @keyframes idleBob {
     0%, 100% { transform: translateY(0) rotate(-1.5deg); }
@@ -1955,10 +1997,36 @@ const BRIEFS = [
 ];
 
 // ============== KARAKTERLER ==============
+// DiceBear ile gerçek SVG illüstrasyon avatarları
+const DICEBEAR_BASE = 'https://api.dicebear.com/9.x';
 const CHARACTERS = {
-  defne: { id: 'defne', name: 'Defne', role: 'Ajans Direktörü', avatar: '👩‍💼', cls: '' },
-  ada:   { id: 'ada',   name: 'Ada',   role: 'AI Veri Asistanı', avatar: '🤖',    cls: 'ada' }
+  defne: { id: 'defne', name: 'Defne', role: 'Ajans Direktörü', avatar: '👩‍💼',
+    portrait: `${DICEBEAR_BASE}/personas/svg?seed=DefneMentorBoss&backgroundColor=fbbf24&size=300`,
+    cls: '' },
+  ada:   { id: 'ada',   name: 'Ada',   role: 'AI Veri Asistanı', avatar: '🤖',
+    portrait: `${DICEBEAR_BASE}/bottts-neutral/svg?seed=AdaAICore&backgroundColor=06b6d4&size=300`,
+    cls: 'ada' }
 };
+
+// Müşteri karakterleri için portre URL'leri (PERSONAS'ı genişletmek için harici tablo)
+const CHAR_PORTRAITS = {
+  kahveci:       `${DICEBEAR_BASE}/personas/svg?seed=MehmetCafeOwner3&backgroundColor=ffd5a3&size=300`,
+  taki:          `${DICEBEAR_BASE}/personas/svg?seed=SelinCraftArt7&backgroundColor=fbcfe8&size=300`,
+  fitapp:        `${DICEBEAR_BASE}/personas/svg?seed=BurakFitFounder5&backgroundColor=a5f3fc&size=300`,
+  butikotel:     `${DICEBEAR_BASE}/personas/svg?seed=FatmaHotelMatriarch2&backgroundColor=fde68a&size=300`,
+  saascrm:       `${DICEBEAR_BASE}/personas/svg?seed=OnurCMOExec4&backgroundColor=ddd6fe&size=300`,
+  kozmetik:      `${DICEBEAR_BASE}/personas/svg?seed=IremGlowFounder9&backgroundColor=fce7f3&size=300`,
+  pastane:       `${DICEBEAR_BASE}/personas/svg?seed=HaticeAnnenneTraditional&backgroundColor=fed7aa&size=300`,
+  ingilizcekurs: `${DICEBEAR_BASE}/personas/svg?seed=DenizGrowthLead6&backgroundColor=bbf7d0&size=300`,
+  yoga:          `${DICEBEAR_BASE}/personas/svg?seed=CansuYogaStudio8&backgroundColor=bbf7d0&size=300`,
+  sigorta:       `${DICEBEAR_BASE}/personas/svg?seed=CemInsuranceManager3&backgroundColor=dbeafe&size=300`,
+  wellnesspro:   `${DICEBEAR_BASE}/personas/svg?seed=DrPinarWellnessClinic&backgroundColor=fce7f3&size=300`,
+  tutorialhub:   `${DICEBEAR_BASE}/personas/svg?seed=EgeStartupCEOTech2&backgroundColor=cffafe&size=300`
+};
+
+function portraitOf(personaId) {
+  return CHAR_PORTRAITS[personaId] || null;
+}
 
 const DIALOGS = {
   defne: {
@@ -2044,11 +2112,13 @@ function characterDialog(charId, key, vars = {}) {
   if (!c) return '';
   const line = dialog(charId, key, vars);
   if (!line) return '';
-  // Hidden text for TTS to read on play button
   const speakAttr = ` data-speak-char="${charId}" data-speak-text="${line.replace(/"/g, '&quot;').replace(/<[^>]+>/g, '')}"`;
+  const avatarHtml = c.portrait
+    ? `<img src="${c.portrait}" alt="${c.name}" onerror="this.style.display='none';this.parentElement.innerHTML='${c.avatar}';">`
+    : c.avatar;
   return `
     <div class="dialog-row ${c.cls} fade-in"${speakAttr}>
-      <div class="char-avatar ${c.cls}">${c.avatar}</div>
+      <div class="char-avatar ${c.cls}">${avatarHtml}</div>
       <div class="char-meta">
         <div class="char-tag">
           <span class="char-name ${c.cls}">${c.name}</span>
@@ -3508,7 +3578,7 @@ function renderBriefDetail() {
         <div class="speech-area">
           <div>
             <div class="speech-name-row">
-              <div class="speech-name-avatar">${p?.avatar || b.icon}</div>
+              <div class="speech-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p?.name || b.client}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p?.avatar || b.icon}';">` : (p?.avatar || b.icon)}</div>
               <div class="flex-1">
                 <div class="speech-name flex items-center">
                   <span>${p?.name || b.client}</span>
@@ -3550,7 +3620,11 @@ function renderBriefDetail() {
           <div class="character-shadow"></div>
           <div style="position: relative; display: inline-block;">
             <div class="speaking-dots"><span></span><span></span><span></span></div>
-            <div class="character-figure ${sc.typing ? 'talking' : ''}">${p?.avatar || b.icon}</div>
+            ${portraitOf(b.id) ? `
+              <div class="character-portrait character-figure ${sc.typing ? 'talking' : ''}">
+                <img src="${portraitOf(b.id)}" alt="${p?.name || b.client}" onerror="this.style.display='none';this.parentElement.innerHTML += '<div style=\\'font-size: 120px; display:flex; align-items:center; justify-content:center; height:100%;\\'>${p?.avatar || b.icon}</div>';">
+              </div>
+            ` : `<div class="character-figure ${sc.typing ? 'talking' : ''}">${p?.avatar || b.icon}</div>`}
             <div class="speaking-mouth"></div>
           </div>
           ${sc.typing ? `<div class="mood-emoji">💬</div>` : `<div class="mood-emoji">${moodEmojis[mood]}</div>`}
@@ -4363,10 +4437,16 @@ function renderCustomerReaction() {
         ${burst ? `<div class="star-burst">${burst}</div>` : ''}
         <div style="position: relative; display: inline-block;">
           <div class="speaking-dots"><span></span><span></span><span></span></div>
-          <div class="reaction-character ${animClass}">
-            ${p.avatar}
-            <div class="reaction-expression">${expression}</div>
-          </div>
+          ${portraitOf(b.id) ? `
+            <div class="character-portrait reaction-character ${animClass}">
+              <img src="${portraitOf(b.id)}" alt="${p.name}" onerror="this.style.display='none';this.parentElement.innerHTML += '<div style=\\'font-size: 180px; display:flex; align-items:center; justify-content:center; height:100%;\\'>${p.avatar}</div>';">
+            </div>
+          ` : `
+            <div class="reaction-character ${animClass}">
+              ${p.avatar}
+            </div>
+          `}
+          <div class="reaction-expression">${expression}</div>
           <div class="speaking-mouth"></div>
         </div>
       </div>
@@ -4374,7 +4454,7 @@ function renderCustomerReaction() {
       <div>
         <div class="speech-bubble-comic">
           <div class="bubble-name-row">
-            <div class="bubble-name-avatar">${p.avatar}</div>
+            <div class="bubble-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p.avatar}';">` : p.avatar}</div>
             <div>
               <div class="bubble-name">${p.name}</div>
               <div class="bubble-role">${p.role} · Müşteri</div>
