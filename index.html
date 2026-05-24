@@ -706,41 +706,47 @@
     filter: drop-shadow(0 16px 24px rgba(0,0,0,0.5));
     transform-origin: 50% 100%;
   }
-  /* Yeni: gerçek SVG karakter portresi (DiceBear) */
+  /* Karakter portresi — Canva PNG zaten yuvarlak arka plana sahip
+     dış çerçeve yok, sadece drop-shadow ile derinlik */
   .character-portrait {
     position: relative;
-    width: clamp(180px, 30vw, 320px);
-    height: clamp(180px, 30vw, 320px);
-    border-radius: 50%;
-    overflow: hidden;
-    background: radial-gradient(circle, rgba(255,255,255,0.1), rgba(139,92,246,0.05));
-    border: 4px solid rgba(255,255,255,0.15);
-    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 60px rgba(139, 92, 246, 0.25);
+    width: clamp(240px, 42vw, 420px);
+    height: clamp(240px, 42vw, 420px);
+    background: transparent;
+    border: none;
+    border-radius: 0;
+    overflow: visible;
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)) drop-shadow(0 0 40px rgba(139, 92, 246, 0.25));
     animation: idleBob 3.2s ease-in-out infinite;
     transform-origin: 50% 100%;
   }
   .character-portrait img {
     width: 100%;
     height: 100%;
-    object-fit: cover;
+    object-fit: contain;
     display: block;
   }
   .character-portrait.reaction-character {
-    width: clamp(220px, 38vw, 380px);
-    height: clamp(220px, 38vw, 380px);
+    width: clamp(280px, 50vw, 480px);
+    height: clamp(280px, 50vw, 480px);
   }
   body.tts-speaking .character-portrait {
-    box-shadow: 0 24px 60px rgba(0,0,0,0.6), 0 0 80px rgba(245, 158, 11, 0.5);
-    border-color: rgba(251, 191, 36, 0.6);
+    filter: drop-shadow(0 20px 30px rgba(0,0,0,0.5)) drop-shadow(0 0 50px rgba(245, 158, 11, 0.6));
   }
-  /* Ağız overlay'ini portre üzerine yerleştir */
-  .character-portrait + .speaking-mouth,
-  .character-portrait .speaking-mouth {
+  /* Konuşma sırasında karakter etrafında altın aura */
+  body.tts-speaking .character-portrait::after {
+    content: '';
     position: absolute;
-    bottom: 26%;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 3;
+    inset: 8%;
+    border-radius: 50%;
+    background: radial-gradient(circle, transparent 55%, rgba(251, 191, 36, 0.25) 70%, transparent 85%);
+    z-index: -1;
+    animation: glowPulse 0.6s ease-in-out infinite alternate;
+    pointer-events: none;
+  }
+  @keyframes glowPulse {
+    0% { opacity: 0.4; transform: scale(0.98); }
+    100% { opacity: 0.9; transform: scale(1.04); }
   }
   @keyframes idleBob {
     0%, 100% { transform: translateY(0) rotate(-1.5deg); }
@@ -3577,7 +3583,7 @@ function renderBriefDetail() {
         <div class="speech-area">
           <div>
             <div class="speech-name-row">
-              <div class="speech-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p?.name || b.client}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p?.avatar || b.icon}';">` : (p?.avatar || b.icon)}</div>
+              <div class="speech-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p?.name || b.client}" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p?.avatar || b.icon}';">` : (p?.avatar || b.icon)}</div>
               <div class="flex-1">
                 <div class="speech-name flex items-center">
                   <span>${p?.name || b.client}</span>
@@ -4453,7 +4459,7 @@ function renderCustomerReaction() {
       <div>
         <div class="speech-bubble-comic">
           <div class="bubble-name-row">
-            <div class="bubble-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p.name}" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p.avatar}';">` : p.avatar}</div>
+            <div class="bubble-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p.name}" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p.avatar}';">` : p.avatar}</div>
             <div>
               <div class="bubble-name">${p.name}</div>
               <div class="bubble-role">${p.role} · Müşteri</div>
