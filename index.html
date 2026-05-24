@@ -4598,8 +4598,8 @@ function renderAudienceStep() {
   const list = NEW_IDS.map(id => AUDIENCES[id]);
   return `
     <div>
-      <div class="font-hud text-[10px] text-cyan-400 mb-2">▸ STEP 01 // HEDEF_KİTLE_SEÇİMİ</div>
-      <h3 class="text-xl lg:text-2xl font-bold mb-2">Hedef kitleyi kim olsun?</h3>
+      <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ STEP 01 // HEDEF_KİTLE_SEÇİMİ</div>
+      <h3 class="text-xl lg:text-2xl font-bold mb-1">HEDEF KİTLE TANIMLAMA</h3>
       <p class="text-slate-400 text-sm mb-5 italic">"${state.currentBrief.description}"</p>
       <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
         ${list.map(a => {
