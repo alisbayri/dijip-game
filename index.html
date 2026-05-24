@@ -5,19 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>DijiP — Dijital Pazarlama Simülasyonu</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Courier+Prime:wght@400;700&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
 <style>
   :root {
+    /* Stitch DESIGN.md tokens — Hyperlink Command */
+    --surface: #12121f;
+    --surface-dim: #12121f;
+    --surface-bright: #383846;
+    --surface-container-lowest: #0d0d19;
+    --surface-container-low: #1a1a27;
+    --surface-container: #1f1e2b;
+    --surface-container-high: #292936;
+    --surface-container-highest: #343341;
+    --on-surface: #e3e0f3;
+    --on-surface-variant: #bcc9cd;
+    --outline: #869397;
+    --outline-variant: #3d494c;
+    --primary: #4cd7f6;          /* Stitch Neon Cyan */
+    --primary-container: #06b6d4;
+    --on-primary: #003640;
+    --secondary: #d0bcff;         /* Stitch Light Purple */
+    --secondary-container: #571bc1;
+    --tertiary: #ffb95f;          /* Stitch Gold */
+    --tertiary-container: #e79400;
+    --error: #ffb4ab;
+    --bg-deep: #050510;
+    /* Legacy aliases for existing code */
     --bg-1: #0a0a1f;
     --bg-2: #1a1033;
     --bg-3: #0f1e3d;
-    --accent: #06b6d4;
+    --accent: var(--primary);
     --accent-2: #8b5cf6;
-    --gold: #f59e0b;
+    --gold: var(--tertiary);
     --success: #10b981;
-    --warn: #f59e0b;
+    --warn: var(--tertiary);
     --danger: #f43f5e;
   }
+  .font-hud { font-family: 'Courier Prime', 'Courier New', monospace; letter-spacing: 0.2em; text-transform: uppercase; }
+  .font-hud-data { font-family: 'Courier Prime', 'Courier New', monospace; font-weight: 700; }
+  .material-symbols-outlined { font-family: 'Material Symbols Outlined'; font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24; }
   * { box-sizing: border-box; }
   html, body {
     font-family: 'Inter', system-ui, sans-serif;
@@ -260,6 +287,126 @@
   details summary { cursor: pointer; user-select: none; }
   details summary::-webkit-details-marker { display: none; }
   .scroll-hide::-webkit-scrollbar { display: none; }
+
+  /* ========== STITCH HEXAGON LOGO ========== */
+  .hex-logo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 120px;
+    height: 138px;
+  }
+  .hex-logo-svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    filter: drop-shadow(0 0 24px rgba(76, 215, 246, 0.5));
+  }
+  .hex-logo .hex-stroke {
+    fill: none;
+    stroke: url(#hex-grad);
+    stroke-width: 4;
+    stroke-linejoin: round;
+  }
+  .hex-logo-letter {
+    position: relative;
+    z-index: 1;
+    font-family: 'Inter', sans-serif;
+    font-weight: 900;
+    font-size: 56px;
+    background: linear-gradient(135deg, #f59e0b 0%, #ec4899 50%, #8b5cf6 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    letter-spacing: -0.04em;
+  }
+  .hex-logo.sm { width: 36px; height: 41px; }
+  .hex-logo.sm .hex-logo-letter { font-size: 18px; }
+
+  /* HUD frame border style */
+  .hud-frame {
+    position: relative;
+    background: rgba(18, 18, 31, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+  }
+  .hud-frame::before, .hud-frame::after {
+    content: '';
+    position: absolute;
+    width: 14px; height: 14px;
+    border: 2px solid var(--primary);
+    pointer-events: none;
+  }
+  .hud-frame::before { top: -1px; left: -1px; border-right: none; border-bottom: none; }
+  .hud-frame::after { bottom: -1px; right: -1px; border-left: none; border-top: none; }
+  .hud-frame.full-corners > .corner-tr,
+  .hud-frame.full-corners > .corner-bl {
+    position: absolute;
+    width: 14px; height: 14px;
+    border: 2px solid var(--primary);
+    pointer-events: none;
+  }
+  .hud-frame.full-corners > .corner-tr { top: -1px; right: -1px; border-left: none; border-bottom: none; }
+  .hud-frame.full-corners > .corner-bl { bottom: -1px; left: -1px; border-right: none; border-top: none; }
+
+  /* Top + bottom status bar HUD */
+  .hud-top-bar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 50;
+    height: 32px;
+    background: rgba(18, 18, 31, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid rgba(76, 215, 246, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+  .hud-top-bar .left { display: flex; gap: 18px; align-items: center; }
+  .hud-top-bar .right { display: flex; gap: 12px; align-items: center; color: var(--on-surface-variant); }
+  .hud-top-bar .stat-key { color: var(--outline); }
+  .hud-top-bar .stat-val { color: var(--on-surface); font-weight: 700; }
+
+  .hud-bottom-bar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 50;
+    height: 28px;
+    background: rgba(13, 13, 25, 0.9);
+    backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--outline);
+  }
+  .hud-bottom-bar .stat { margin-right: 16px; }
+  .hud-bottom-bar .stat .k { color: var(--outline-variant); }
+  .hud-bottom-bar .stat .v { color: var(--primary); font-weight: 700; margin-left: 6px; }
+
+  /* Add space at top/bottom of app for fixed bars */
+  #app.with-hud-bars { padding-top: 32px; padding-bottom: 28px; }
+
+  @media (max-width: 640px) {
+    .hud-top-bar { font-size: 9px; padding: 0 10px; height: 28px; }
+    .hud-bottom-bar { font-size: 9px; padding: 0 10px; height: 24px; }
+    .hud-bottom-bar .stat:nth-child(n+3) { display: none; }
+    #app.with-hud-bars { padding-top: 28px; padding-bottom: 24px; }
+  }
 
   /* Karakter konuşma balonu */
   .dialog-row {
@@ -922,13 +1069,25 @@
 
   /* Title screen */
   .title-screen {
-    min-height: 100vh;
+    min-height: calc(100vh - 60px);
     display: flex;
     align-items: center;
     justify-content: center;
     padding: 24px;
     position: relative;
     overflow: hidden;
+  }
+  .title-screen::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(76, 215, 246, 0.07) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(76, 215, 246, 0.07) 1px, transparent 1px);
+    background-size: 64px 64px;
+    transform: perspective(1000px) rotateX(60deg) translateY(0%);
+    transform-origin: top;
+    pointer-events: none;
   }
   .title-logo {
     font-size: clamp(72px, 18vw, 180px);
@@ -1417,7 +1576,39 @@
   <canvas id="particles"></canvas>
   <div class="scanlines"></div>
   <div id="scene-fade"></div>
-  <div id="app" class="relative" style="z-index: 1;"></div>
+  <svg width="0" height="0" style="position: absolute;">
+    <defs>
+      <linearGradient id="hex-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#f59e0b"/>
+        <stop offset="50%" stop-color="#ec4899"/>
+        <stop offset="100%" stop-color="#8b5cf6"/>
+      </linearGradient>
+      <linearGradient id="hex-grad-cyan" x1="0%" y1="0%" x2="100%" y2="100%">
+        <stop offset="0%" stop-color="#4cd7f6"/>
+        <stop offset="100%" stop-color="#06b6d4"/>
+      </linearGradient>
+    </defs>
+  </svg>
+  <header class="hud-top-bar" id="hud-top">
+    <div class="left">
+      <span class="stat-val">DIJIP_CORE_V1</span>
+      <span class="hidden md:inline"><span class="stat-key">STATUS:</span> <span class="stat-val" style="color: #10b981;">●ACTIVE</span></span>
+    </div>
+    <div class="right">
+      <span class="hidden sm:inline"><span class="stat-key">SECTOR:</span> <span class="stat-val" id="hud-sector">HQ-ALPHA</span></span>
+      <span><span class="stat-key">LVL:</span> <span class="stat-val" id="hud-lvl">--</span></span>
+      <span class="material-symbols-outlined" style="font-size: 16px; color: var(--primary);">bolt</span>
+    </div>
+  </header>
+  <footer class="hud-bottom-bar" id="hud-bottom">
+    <div>DIJIP_SYSTEM_V4.0.1 // STABLE_BUILD</div>
+    <div class="flex">
+      <span class="stat"><span class="k">LATENCY:</span><span class="v">14MS</span></span>
+      <span class="stat"><span class="k">ENCRYPTION:</span><span class="v">AES-256</span></span>
+      <span class="stat"><span class="k">CORE_TEMP:</span><span class="v">38.4°</span></span>
+    </div>
+  </footer>
+  <div id="app" class="with-hud-bars relative" style="z-index: 1;"></div>
 <script>
 // ============== AUDIO SYSTEM (Web Audio synthesized) ==============
 window.audio = (function() {
@@ -2531,6 +2722,24 @@ function checkNewAchievements() {
   return fresh.map(id => ACHIEVEMENTS.find(a => a.id === id));
 }
 
+// ============== PERSONA / MISSION CODES (Stitch style) ==============
+const MISSION_CODES = {
+  kahveci:       { code: 'GOURMET_COFFEE_v1',  missionId: 'MISSION_GÖZ-006' },
+  taki:          { code: 'ARTISAN_JEWEL_v1',   missionId: 'MISSION_GÖZ-001' },
+  fitapp:        { code: 'FITAPP_LAUNCH_v1',   missionId: 'MISSION_GÖZ-007' },
+  butikotel:     { code: 'BOUTIQUE_HOTEL_v1',  missionId: 'MISSION_GÖZ-008' },
+  saascrm:       { code: 'SAAS_GROWTH_v1',     missionId: 'MISSION_GÖZ-009' },
+  kozmetik:      { code: 'GLOW_BRAND_v1',      missionId: 'MISSION_GÖZ-012' },
+  pastane:       { code: 'BAKERY_BAYRAM_v1',   missionId: 'MISSION_GÖZ-002' },
+  ingilizcekurs: { code: 'SPEAKNOW_EDU_v1',    missionId: 'MISSION_GÖZ-010' },
+  yoga:          { code: 'ZEN_STUDIO_v1',      missionId: 'MISSION_GÖZ-003' },
+  sigorta:       { code: 'KOLAY_INSURANCE_v1', missionId: 'MISSION_GÖZ-004' },
+  wellnesspro:   { code: 'WELLNESS_CLINIC_v1', missionId: 'MISSION_GÖZ-005' },
+  tutorialhub:   { code: 'TUTORIAL_HUB_v1',    missionId: 'MISSION_GÖZ-011' }
+};
+function missionCode(briefId) { return MISSION_CODES[briefId]?.missionId || 'MISSION_GÖZ-000'; }
+function personaCode(briefId) { return MISSION_CODES[briefId]?.code || 'AGENT_v1'; }
+
 // ============== CUSTOMER PERSONAS ==============
 const PERSONAS = {
   kahveci: { name: 'Mehmet Yılmaz', role: 'Kafe Sahibi', avatar: '👨‍🍳', mood: 'warm',
@@ -2820,6 +3029,24 @@ function stopSyllablePulse() {
   document.querySelectorAll('.character-figure, .reaction-character').forEach(el => el.classList.remove('syllable'));
 }
 
+// ============== STITCH COMPONENTS ==============
+function hexLogo(letter = 'D', size = '') {
+  return `
+    <div class="hex-logo ${size}">
+      <svg class="hex-logo-svg" viewBox="0 0 120 138" xmlns="http://www.w3.org/2000/svg">
+        <polygon class="hex-stroke" points="60,4 116,35 116,103 60,134 4,103 4,35"/>
+      </svg>
+      <span class="hex-logo-letter">${letter}</span>
+    </div>
+  `;
+}
+function updateHudFooter() {
+  const lvlEl = document.getElementById('hud-lvl');
+  if (lvlEl) lvlEl.textContent = state.player?.xp != null ? `${String(levelFromXP(state.player.xp)).padStart(2,'0')}` : '--';
+  const sec = document.getElementById('hud-sector');
+  if (sec && state.authUser?.name) sec.textContent = state.authUser.name.toUpperCase().slice(0, 14).replace(/\s+/g, '_');
+}
+
 // ============== SCENE TRANSITIONS ==============
 function sceneTransition(callback) {
   const fade = document.getElementById('scene-fade');
@@ -3074,6 +3301,7 @@ function render() {
   if (state.screen !== 'simulating' && state.screen !== 'customer-reaction') {
     document.querySelectorAll('.mission-complete-overlay').forEach(el => { el.remove(); });
   }
+  setTimeout(updateHudFooter, 0);
   const screens = {
     auth: renderAuth,
     welcome: renderWelcome,
@@ -3195,18 +3423,24 @@ function renderAuth() {
   if (showTitle) {
     return `
       <div class="title-screen">
-        <div class="text-center" style="position: relative; z-index: 2;">
-          <div class="text-[10px] font-mono tracking-[0.4em] text-cyan-400 mb-3">▸ DİJİTAL PAZARLAMA SİMÜLASYONU ◂</div>
-          <div class="title-logo">DijiP</div>
-          <div class="title-tagline mt-4">JUNIOR'DAN AJANS KURUCUSUNA</div>
-          <div class="press-start">▸ DOKUN BAŞLA ◂</div>
-          <div class="title-buttons">
-            <button class="title-btn primary" data-action="title-start" data-tab="login">▸ GİRİŞ YAP</button>
-            <button class="title-btn" data-action="title-start" data-tab="register">+ YENİ AJAN</button>
-            <button class="title-btn" data-action="leaderboard-public">🏆 SIRALAMA</button>
+        <div style="position: relative; z-index: 2; display: flex; flex-direction: column; align-items: center;">
+          <div class="hud-frame full-corners" style="padding: 36px 48px; max-width: 380px; width: 100%;">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="font-hud text-[10px]" style="color: var(--primary); margin-bottom: 8px; text-align: center;">MODEL_INIT</div>
+            <div style="display: flex; justify-content: center; margin: 16px 0 28px;">
+              ${hexLogo('D')}
+            </div>
+            <button class="title-btn primary" data-action="title-start" data-tab="login" style="background: linear-gradient(135deg, #ffb95f, #e79400); color: #1a1a27; width: 100%; margin-bottom: 14px; clip-path: polygon(0 0, calc(100% - 16px) 0, 100% 50%, 100% 100%, 0 100%);">▸ DOKUN BAŞLA</button>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <button class="title-btn" data-action="title-start" data-tab="login" style="padding: 10px 12px; font-size: 11px;">GİRİŞ YAP</button>
+              <button class="title-btn" data-action="title-start" data-tab="register" style="padding: 10px 12px; font-size: 11px;">YENİ AJAN</button>
+            </div>
+            <button class="title-btn" data-action="leaderboard-public" style="padding: 10px 12px; font-size: 11px; width: 100%; margin-top: 8px; opacity: 0.7;">🏆 SIRALAMA</button>
+          </div>
+          <div style="margin-top: 24px; font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--outline); letter-spacing: 0.2em;">
+            POWER_ESTABLISHED &nbsp;·&nbsp; NODE_05_ACTIVE
           </div>
         </div>
-        <div class="title-version">v1.0 — DJP_CORE</div>
       </div>
     `;
   }
@@ -3463,7 +3697,7 @@ function renderDashboard() {
         ${available.map((b, idx) => {
           const rarity = b.level >= 4 ? 'legendary' : b.level === 3 ? 'epic' : b.level === 2 ? 'rare' : 'common';
           const rarityLabel = { legendary: 'EFSANEVI', epic: 'EPİK', rare: 'NADİR', common: 'NORMAL' }[rarity];
-          const missionId = 'DJP-' + String(BRIEFS.indexOf(b) + 1).padStart(3, '0');
+          const missionId = missionCode(b.id);
           return `
           <div class="mission-card rarity-${rarity} fade-in" data-action="open-brief" data-id="${b.id}">
             <span class="corner tl"></span><span class="corner tr"></span>
