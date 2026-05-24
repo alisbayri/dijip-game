@@ -4473,35 +4473,91 @@ function renderChannelStep() {
   const ch = state.decisions.channels;
   const total = Object.values(ch).reduce((a, b) => a + b, 0);
   const budget = state.currentBrief.budget;
+  const channelMeta = {
+    google: { tag: 'ARAMA MOTORU', sub: 'Google Ads, Search, YouTube' },
+    meta:   { tag: 'SOSYAL MEDYA', sub: 'Facebook, Instagram, Reels' },
+    email:  { tag: 'E-POSTA',      sub: 'Newsletter, Otomasyonlar' },
+    seo:    { tag: 'ORGANİK SEO',  sub: 'İçerik, Backlink, Topic Clusters' }
+  };
+  const factor = total === 100 ? 1 : total / 100;
+  const projectedROI = Math.round((220 + Math.random() * 80) * factor);
+  const projectedReturn = Math.round(budget * (projectedROI / 100));
   return `
     <div>
-      <h3 class="text-xl font-bold mb-2">Bütçeyi kanallara böl</h3>
-      <p class="text-slate-400 text-sm mb-5">Toplam ₺${budget.toLocaleString('tr-TR')} bütçe · Yüzdeler 100'e ulaşmalı</p>
+      <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ STEP 02 // AD_ALLOCATION_PROTOCOL_V2</div>
+      <div class="grid lg:grid-cols-3 gap-4">
+        <div class="lg:col-span-2 hud-frame full-corners" style="padding: 18px 20px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="flex items-center justify-between mb-4">
+            <div class="font-hud text-xs" style="color: var(--primary);">KANAL BÜTÇE DAĞILIMI</div>
+            <div class="text-right">
+              <div class="font-hud text-[9px]" style="color: var(--outline);">TOPLAM</div>
+              <div class="font-hud-data text-xl ${total === 100 ? 'text-emerald-400' : 'text-amber-400'}">₺${(budget * total / 100).toLocaleString('tr-TR')}</div>
+            </div>
+          </div>
+          <div class="space-y-5">
+            ${Object.values(CHANNELS).map(c => {
+              const meta = channelMeta[c.id] || {};
+              const v = ch[c.id];
+              const tl = Math.round(budget * v / 100);
+              return `
+                <div>
+                  <div class="flex items-center justify-between mb-1.5">
+                    <div class="flex items-center gap-2">
+                      <span class="text-lg">${c.icon}</span>
+                      <div>
+                        <div class="font-bold text-sm">${meta.tag || c.name}</div>
+                        <div class="text-[10px]" style="color: var(--outline);">${meta.sub || c.desc}</div>
+                      </div>
+                    </div>
+                    <div class="font-hud-data text-cyan-300 text-sm">${v}%</div>
+                  </div>
+                  <input type="range" min="0" max="100" step="5" value="${v}" data-channel="${c.id}" class="w-full" />
+                  <div class="text-right font-hud text-[10px] mt-1" style="color: var(--outline);">₺${tl.toLocaleString('tr-TR')}</div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+          <div class="mt-5 flex gap-2 items-center">
+            <button class="btn-ghost text-xs" data-action="normalize">↺ DENGELE</button>
+            <div class="flex-1 text-right font-hud text-[10px]" style="color: ${total === 100 ? '#10b981' : '#f59e0b'};">
+              ${total === 100 ? '✓ STRATEJİ KİLİTLENMEYE HAZIR' : `${100 - total}% AYARLANMALI`}
+            </div>
+          </div>
+        </div>
 
-      <div class="glass p-4 mb-5 flex items-center justify-between">
-        <span class="text-slate-400 text-sm">Toplam dağıtım</span>
-        <span class="text-2xl lg:text-3xl font-black ${total === 100 ? 'text-emerald-400' : 'text-amber-400'}">${total}%</span>
-      </div>
-
-      <div class="grid lg:grid-cols-2 gap-3 mb-3">
-        ${Object.values(CHANNELS).map(c => `
-          <div class="glass p-4">
-            <div class="flex items-start justify-between mb-3">
+        <div class="space-y-3">
+          <div class="hud-frame full-corners" style="padding: 14px;">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="font-hud text-[10px] mb-1" style="color: var(--outline);">PROJEKTE EDİLEN ROI</div>
+            <div class="font-hud-data text-3xl text-cyan-300">${projectedROI}%</div>
+            <div class="text-xs mt-2" style="color: var(--outline);">Tahmini Geri Dönüş</div>
+            <div class="mt-3 pt-3 border-t border-white/5">
+              <div class="font-hud text-[10px]" style="color: var(--outline);">NET KÂR ÖNGÖRÜSÜ</div>
+              <div class="font-hud-data text-xl" style="color: var(--tertiary);">+₺${(projectedReturn/1000).toFixed(0)}K</div>
+            </div>
+          </div>
+          <div class="hud-frame full-corners" style="padding: 14px;">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div class="font-hud text-[10px] mb-3" style="color: var(--outline);">VERİ ANALİTİĞİ</div>
+            <div class="flex items-end justify-around" style="height: 60px;">
+              ${[0.5, 0.72, 0.45, 0.85].map(v => `
+                <div style="width: 14%; height: ${v * 100}%; background: linear-gradient(180deg, #4cd7f6, #06b6d4); border-radius: 2px 2px 0 0; box-shadow: 0 0 8px rgba(76, 215, 246, 0.5);"></div>
+              `).join('')}
+            </div>
+            <div class="grid grid-cols-2 gap-2 mt-3 pt-3 border-t border-white/5">
               <div>
-                <div class="font-semibold flex items-center gap-2">${c.icon} ${c.name}</div>
-                <div class="text-xs text-slate-400">${c.desc}</div>
+                <div class="font-hud text-[9px]" style="color: var(--outline);">CPA</div>
+                <div class="font-hud-data text-xs text-cyan-300">₺${(14 + factor * 8).toFixed(2)}</div>
               </div>
-              <div class="text-right ml-3">
-                <div class="font-bold text-lg">${ch[c.id]}%</div>
-                <div class="text-xs text-slate-400">₺${Math.round(budget * ch[c.id] / 100).toLocaleString('tr-TR')}</div>
+              <div>
+                <div class="font-hud text-[9px]" style="color: var(--outline);">CTR</div>
+                <div class="font-hud-data text-xs text-cyan-300">${(2.5 + factor * 1.2).toFixed(1)}%</div>
               </div>
             </div>
-            <input type="range" min="0" max="100" step="5" value="${ch[c.id]}" data-channel="${c.id}" class="w-full" />
           </div>
-        `).join('')}
+        </div>
       </div>
-
-      <button class="btn-ghost mt-2 text-sm" data-action="normalize">⚖️ Otomatik %100'e dengele</button>
     </div>
   `;
 }
@@ -4510,16 +4566,43 @@ function renderCreativeStep() {
   const sel = state.decisions.creative;
   return `
     <div>
-      <h3 class="text-xl lg:text-2xl font-bold mb-2">Kreatif mesajın tonu ne olsun?</h3>
-      <p class="text-slate-400 text-sm mb-5">Hangi açı bu müşteri için en güçlü?</p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-        ${Object.values(CREATIVES).map(c => `
-          <div class="option-card ${sel === c.id ? 'selected' : ''}" data-action="select-creative" data-id="${c.id}">
-            <div class="text-3xl mb-2">${c.icon}</div>
-            <div class="font-bold">${c.name}</div>
-            <div class="text-xs text-slate-400 mt-1">${c.desc}</div>
-          </div>
-        `).join('')}
+      <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ STEP 03 // KREATİF_DNA_PROTOCOL</div>
+      <h3 class="text-xl lg:text-2xl font-bold mb-1">KREATİF TON SEÇİMİ</h3>
+      <p class="text-slate-400 text-sm mb-5 font-hud" style="font-size: 11px;">KREATİF_DİREKTİFİ // ADIM 3</p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
+        ${Object.values(CREATIVES).map(c => {
+          const isSel = sel === c.id;
+          return `
+            <div class="persona-card ${isSel ? 'selected' : ''}" data-action="select-creative" data-id="${c.id}" style="padding: 16px;">
+              ${isSel ? '<div class="persona-selected-badge"><span class="material-symbols-outlined">check_circle</span></div>' : ''}
+              <div class="text-4xl mb-2">${c.icon}</div>
+              <div class="font-hud text-[9px]" style="color: var(--outline);">CREATIVE_TONE</div>
+              <div class="font-bold text-sm">${c.name}</div>
+              <div class="text-[11px] mt-1" style="color: var(--outline);">${c.desc}</div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+
+      <div class="hud-frame full-corners" style="padding: 16px;">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">▸ MARKA DNA AYARLARI</div>
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-3 text-[11px]">
+          ${[
+            ['FORMAL','PLAYFUL'],['CLASSIC','MODERN'],
+            ['MINIMALIST','MAXIMALIST'],['TECHNICAL','EMOTIONAL']
+          ].map(([l, r]) => `
+            <div>
+              <div class="flex justify-between font-hud" style="color: var(--outline);">
+                <span>${l}</span><span>${r}</span>
+              </div>
+              <div style="height: 4px; background: rgba(255,255,255,0.06); border-radius: 2px; margin-top: 4px; position: relative;">
+                <div style="position: absolute; left: ${30 + Math.random()*40}%; top: -4px; width: 12px; height: 12px; background: var(--primary); border-radius: 50%; transform: translateX(-50%); box-shadow: 0 0 8px rgba(76, 215, 246, 0.6);"></div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
       </div>
     </div>
   `;
@@ -4528,29 +4611,58 @@ function renderCreativeStep() {
 function renderReviewStep() {
   const d = state.decisions;
   const b = state.currentBrief;
+  const aud = AUDIENCES[d.audience];
+  const cr = CREATIVES[d.creative];
+  // Risk analizi (heuristic)
+  const ch = d.channels;
+  const total = Object.values(ch).reduce((a,b) => a+b, 0);
+  const distributionSpread = Math.max(...Object.values(ch)) - Math.min(...Object.values(ch));
+  const riskLevel = total !== 100 ? 'YÜKSEK' : distributionSpread > 70 ? 'ORTA' : 'DÜŞÜK';
+  const riskColor = riskLevel === 'DÜŞÜK' ? '#10b981' : riskLevel === 'ORTA' ? '#fbbf24' : '#f43f5e';
   return `
     <div>
-      <h3 class="text-xl font-bold mb-5">Kampanyayı yayınlamadan önce gözden geçir</h3>
-      <div class="space-y-3">
-        <div class="glass p-4">
-          <div class="text-xs text-slate-400 uppercase mb-1">Hedef Kitle</div>
-          <div class="font-bold">${AUDIENCES[d.audience].icon} ${AUDIENCES[d.audience].name}</div>
+      <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ STEP 04 // CAMPAIGN_FINAL_REVIEW</div>
+      <h3 class="text-xl lg:text-2xl font-bold mb-1">KAMPANYA ONAYI</h3>
+      <p class="text-slate-400 text-sm mb-5">Stratejini son kez gözden geçir ve sistemi aktif hale getir.</p>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+        <div class="hud-frame full-corners" style="padding: 14px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[9px] mb-2" style="color: var(--outline);">HEDEF KİTLE</div>
+          <div class="text-3xl mb-1">${aud?.icon || '👥'}</div>
+          <div class="font-bold text-sm leading-tight">${aud?.name || '—'}</div>
+          <div class="text-[10px] mt-1" style="color: var(--outline);">${aud?.code || ''}</div>
         </div>
-        <div class="glass p-4">
-          <div class="text-xs text-slate-400 uppercase mb-2">Kanal Dağılımı (₺${b.budget.toLocaleString('tr-TR')})</div>
-          ${Object.entries(d.channels).filter(([k,v])=>v>0).map(([k,v]) => `
-            <div class="flex justify-between text-sm py-1">
-              <span>${CHANNELS[k].icon} ${CHANNELS[k].name}</span>
-              <span class="font-semibold">%${v} · ₺${Math.round(b.budget*v/100).toLocaleString('tr-TR')}</span>
+
+        <div class="hud-frame full-corners" style="padding: 14px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[9px] mb-2" style="color: var(--outline);">KANAL MİMARİSİ</div>
+          ${Object.entries(d.channels).filter(([k,v])=>v>0).slice(0,3).map(([k,v]) => `
+            <div class="flex justify-between text-[11px] py-0.5">
+              <span>${CHANNELS[k].icon}</span>
+              <span class="font-hud-data text-cyan-300">${v}%</span>
             </div>
           `).join('')}
         </div>
-        <div class="glass p-4">
-          <div class="text-xs text-slate-400 uppercase mb-1">Kreatif Yaklaşım</div>
-          <div class="font-bold">${CREATIVES[d.creative].icon} ${CREATIVES[d.creative].name}</div>
+
+        <div class="hud-frame full-corners" style="padding: 14px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[9px] mb-2" style="color: var(--outline);">KREATİF YAKLAŞIM</div>
+          <div class="text-3xl mb-1">${cr?.icon || '🎨'}</div>
+          <div class="font-bold text-sm leading-tight">${cr?.name || '—'}</div>
+        </div>
+
+        <div class="hud-frame full-corners" style="padding: 14px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[9px] mb-2" style="color: var(--outline);">RİSK ANALİZİ</div>
+          <div class="font-hud-data text-2xl" style="color: ${riskColor};">${riskLevel}</div>
+          <div class="text-[10px] mt-1" style="color: var(--outline);">${total === 100 ? 'Bütçe dağıtımı dengeli.' : 'Bütçe ' + total + '%'}</div>
         </div>
       </div>
-      <p class="text-slate-400 text-sm mt-5 text-center">⚠️ Yayınladıktan sonra değişiklik yapamazsın. Hazır mısın?</p>
+
+      <div class="text-center font-hud text-[10px] mb-4" style="color: var(--outline);">
+        ${total === 100 ? '✓ TÜM KOMPONENTLER HAZIR — STRATEJİ AKTİVE EDİLEBİLİR' : '⚠️ EKSİK YA DA HATALI BİLEŞENLER VAR'}
+      </div>
     </div>
   `;
 }
@@ -4808,55 +4920,95 @@ function renderAcademy() {
   const p = state.player;
   const lessons = p.lessons || {};
   const totalDone = Object.values(lessons).filter(l => l?.completed).length;
+  const totalQuizXP = Object.values(p.quizScores || {}).reduce((a, b) => a + b, 0) * 10;
+  // CYBER-MARKETING DEPLOYMENT countdown — fake 02:14:55 (saat:dk:sn)
   return `
-    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      ${topBar()}
+    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-6 lg:py-10 fade-in">
       <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <h2 class="text-3xl lg:text-4xl font-black text-white">🎓 Akademi</h2>
-          <p class="text-slate-400 text-sm mt-1">Önce öğren, sonra uygula · ${totalDone}/${LESSONS.length} ders tamamlandı</p>
+        <div class="flex items-center gap-3">
+          ${hexLogo('D', 'sm')}
+          <div>
+            <div class="font-hud text-[11px]" style="color: var(--primary); letter-spacing: 0.3em;">DIJIP ACADEMY</div>
+            <div class="font-hud text-[9px]" style="color: var(--outline);">V4.0.0-ALPHA // KNOWLEDGE_HUB</div>
+          </div>
         </div>
-        <button class="btn-ghost" data-action="back-dashboard">← Brief Kutusu</button>
+        <div class="flex items-center gap-4 flex-wrap">
+          <div><div class="font-hud text-[9px]" style="color: var(--outline);">XP</div><div class="font-hud-data text-cyan-300 text-sm">${totalQuizXP}</div></div>
+          <div><div class="font-hud text-[9px]" style="color: var(--outline);">LVL</div><div class="font-hud-data text-cyan-300 text-sm">${levelFromXP(p.xp)}</div></div>
+          <div><div class="font-hud text-[9px]" style="color: var(--outline);">STATUS</div><div class="font-hud-data text-emerald-400 text-sm">ACTIVE</div></div>
+          <button class="btn-ghost text-xs" data-action="back-dashboard">← KOMUTA</button>
+        </div>
       </div>
 
-      ${totalDone < 2 ? `<div class="mb-6">${characterDialog('defne', 'academy_intro')}</div>` : ''}
-
-      <div class="glass p-5 mb-6">
-        <div class="flex justify-between text-xs text-slate-400 mb-1.5">
-          <span>Genel ilerleme</span>
-          <span>${Math.round((totalDone / LESSONS.length) * 100)}%</span>
+      <div class="flex items-center justify-between mb-2">
+        <h2 class="text-2xl lg:text-3xl font-bold">| AKADEMİ MODÜLLERİ</h2>
+        <div class="text-right">
+          <div class="font-hud text-[9px]" style="color: var(--outline);">TOPLAM XP</div>
+          <div class="font-hud-data text-2xl" style="color: var(--tertiary);">${totalQuizXP.toLocaleString('tr-TR')}</div>
         </div>
-        <div class="progress-track"><div class="progress-fill" style="width: ${(totalDone / LESSONS.length) * 100}%"></div></div>
       </div>
+      <div class="font-hud text-[10px] mb-5" style="color: var(--outline);">AKTİF SİSTEM // MEVCUT GÖREVLER: SPECIALIST</div>
 
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${totalDone < 2 ? `<div class="mb-5">${characterDialog('defne', 'academy_intro')}</div>` : ''}
+
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
         ${LESSONS.map(l => {
           const status = lessons[l.id] || {};
           const done = status.completed;
-          const quizScore = p.quizScores?.[l.id];
-          const difficultyDots = '🔥'.repeat(l.difficulty) + '·'.repeat(3 - l.difficulty);
+          const quizScore = p.quizScores?.[l.id] || 0;
+          const segments = 5;
+          const filledSegments = done ? segments : Math.round((quizScore / 100) * segments);
+          const statusTag = done ? 'COMPLETED' : quizScore > 0 ? 'IN PROGRESS' : 'AVAILABLE';
+          const statusColor = done ? 'var(--success, #10b981)' : quizScore > 0 ? 'var(--primary)' : 'var(--outline)';
           return `
-            <div class="glass-strong p-5 cursor-pointer transition-all hover:scale-[1.01] ${done ? 'border-emerald-500/40' : ''}" data-action="open-lesson" data-id="${l.id}">
-              <div class="flex items-start justify-between mb-3">
-                <div class="text-4xl">${l.icon}</div>
-                <div class="flex flex-col items-end gap-1">
-                  ${done ? '<span class="badge badge-success">✓ Tamam</span>' : '<span class="badge">Yeni</span>'}
-                  <span class="badge badge-purple text-xs" title="Zorluk">${difficultyDots}</span>
-                </div>
+            <div class="academy-mod-card ${done ? 'completed' : ''}" data-action="open-lesson" data-id="${l.id}">
+              <div class="mod-status-row">
+                <span style="color: ${statusColor};">▸ ${statusTag}</span>
+                <span style="color: var(--outline);">DIFFICULTY: ${'★'.repeat(l.difficulty) + '☆'.repeat(3 - l.difficulty)}</span>
               </div>
-              <h3 class="font-bold text-lg mb-1">${l.title}</h3>
-              <p class="text-sm text-slate-400 mb-3">${l.summary}</p>
-              <div class="flex items-center justify-between text-xs">
-                <span class="text-slate-500">📖 ${l.body.length} bölüm · ${l.quiz.length} soru${(LESSON_RESOURCES[l.id]||[]).length ? ` · 📚 ${(LESSON_RESOURCES[l.id]||[]).length} kaynak` : ''}</span>
-                ${quizScore !== undefined ? `<span class="font-bold ${quizScore >= 70 ? 'text-emerald-300' : 'text-amber-300'}">${quizScore}/100</span>` : ''}
+              <div class="text-3xl mb-2">${l.icon}</div>
+              <div class="font-bold text-base mb-1">${l.title}</div>
+              <div class="text-[11px]" style="color: var(--outline);">${l.summary}</div>
+              <div class="mod-progress-segments">
+                ${Array.from({length: segments}).map((_, i) => `<div class="${i < filledSegments ? 'filled' : ''}"></div>`).join('')}
+              </div>
+              <div class="flex items-center justify-between mt-3 text-[10px] font-hud" style="color: var(--outline);">
+                <span>${l.quiz.length} TEST · ${(LESSON_RESOURCES[l.id]||[]).length} KAYNAK</span>
+                ${quizScore > 0 ? `<span style="color: ${quizScore >= 70 ? '#10b981' : '#fbbf24'};">${quizScore}/100</span>` : ''}
               </div>
             </div>
           `;
         }).join('')}
       </div>
 
-      <div class="glass p-4 mt-6 text-sm text-slate-400 text-center">
-        💡 Her dersi bitirip quizden <b>%70+ alarak</b> uygulama brief'lerini açabilirsin.
+      <!-- CYBER-MARKETING DEPLOYMENT featured -->
+      <div class="hud-frame full-corners" style="padding: 24px; background: linear-gradient(135deg, rgba(76, 215, 246, 0.05), rgba(139, 92, 246, 0.05));">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="flex items-start justify-between flex-wrap gap-4">
+          <div class="flex items-start gap-4 flex-1">
+            <div style="width: 80px; height: 80px; background: radial-gradient(circle, rgba(76, 215, 246, 0.3), transparent); display: flex; align-items: center; justify-content: center; font-size: 40px;">🛰️</div>
+            <div>
+              <div class="font-hud text-[10px]" style="color: var(--tertiary);">▸ SPECIAL EVENT</div>
+              <div class="text-xl lg:text-2xl font-bold mb-1">CYBER-MARKETING DEPLOYMENT</div>
+              <div class="text-[12px] max-w-md" style="color: var(--outline);">Yakın gelecek dijital pazarlama dağıtım protokolleri. Algoritmik manipülasyon ve bilişsel rezonansa hakim ol.</div>
+            </div>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <div class="font-hud text-[10px]" style="color: var(--outline);">REWARD</div>
+              <div class="font-hud-data text-xl" style="color: var(--tertiary);">5000 XP</div>
+            </div>
+            <div class="text-right">
+              <div class="font-hud text-[10px]" style="color: var(--outline);">REMAINING</div>
+              <div class="font-hud-data text-xl text-cyan-300" id="cyber-countdown">02:14:55</div>
+            </div>
+          </div>
+        </div>
+        <button class="btn-primary mt-4 w-full md:w-auto" data-action="lab" style="background: linear-gradient(135deg, #ffb95f, #e79400); color: #1a1a27; font-family: 'Courier Prime', monospace; letter-spacing: 0.2em; padding: 12px 32px;">▸ START MISSION</button>
+      </div>
+
+      <div class="glass p-3 mt-4 text-xs" style="color: var(--outline); text-align: center;">
+        💡 Her dersi bitirip quizden <b style="color: var(--primary);">%70+ alarak</b> uygulama brief'lerini aktif et.
       </div>
     </div>
   `;
@@ -4865,10 +5017,90 @@ function renderAcademy() {
 function renderLesson() {
   const l = LESSONS.find(x => x.id === state.currentLesson);
   if (!l) { state.screen = 'academy'; return renderAcademy(); }
+  const activeSec = state.lessonSection || 0;
   return `
-    <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <button class="btn-ghost mb-6" data-action="back-academy">← Akademiye Dön</button>
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-6 lg:py-8 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="back-academy">← AKADEMİ</button>
+        <div class="font-hud text-[10px] flex items-center gap-3 flex-wrap" style="color: var(--outline);">
+          <span>MODULE CL:${l.difficulty} // LESSON VIEW</span>
+          <span style="color: var(--primary);">EST: ${l.body.length * 3} MIN</span>
+        </div>
+      </div>
 
+      <h2 class="text-2xl lg:text-4xl font-black mb-1" style="letter-spacing: -0.02em;">${l.title.toUpperCase()}</h2>
+      <div class="font-hud text-[10px] mb-5" style="color: var(--outline);">▸ ${l.summary}</div>
+
+      <div class="grid lg:grid-cols-12 gap-4">
+        <!-- Sol: outline -->
+        <div class="lg:col-span-3 space-y-2">
+          ${l.body.map((sec, i) => `
+            <div class="hud-frame ${i === activeSec ? 'lesson-outline-active' : ''}" data-action="lesson-section" data-idx="${i}" style="padding: 12px; cursor: pointer; ${i === activeSec ? 'border-color: var(--primary); background: rgba(76, 215, 246, 0.08);' : ''}">
+              <div class="font-hud text-[10px] mb-1" style="color: ${i === activeSec ? 'var(--primary)' : 'var(--outline)'};">MOD_0${i + 1}</div>
+              <div class="font-bold text-sm leading-tight">${sec.h.toUpperCase()}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Orta: ders içeriği + video placeholder -->
+        <div class="lg:col-span-6">
+          <div class="hud-frame full-corners" style="padding: 0; overflow: hidden;">
+            <span class="corner-tr"></span><span class="corner-bl"></span>
+            <div style="aspect-ratio: 16/10; background: linear-gradient(180deg, rgba(0,0,0,0.3), rgba(76, 215, 246, 0.1)); display: flex; align-items: center; justify-content: center; position: relative;">
+              <div style="position: absolute; inset: 0; background-image: linear-gradient(rgba(76, 215, 246, 0.08) 1px, transparent 1px), linear-gradient(90deg, rgba(76, 215, 246, 0.08) 1px, transparent 1px); background-size: 24px 24px; pointer-events: none;"></div>
+              <div style="text-align: center; position: relative; z-index: 1;">
+                <div style="width: 80px; height: 80px; background: rgba(76, 215, 246, 0.2); border: 2px solid var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 16px; box-shadow: 0 0 24px rgba(76, 215, 246, 0.4);"><span class="material-symbols-outlined" style="font-size: 40px; color: var(--primary);">play_arrow</span></div>
+                <div class="font-hud text-[11px]" style="color: var(--primary);">SYSTEM ONLINE // DATA STREAM: ACTIVE</div>
+              </div>
+            </div>
+            <div style="padding: 16px;">
+              <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ ${l.body[activeSec]?.h?.toUpperCase()}</div>
+              <p class="text-sm leading-relaxed" style="color: var(--on-surface);">${l.body[activeSec]?.p || ''}</p>
+            </div>
+          </div>
+
+          <!-- alt progress + Sınava Gir -->
+          <div class="flex items-center justify-between gap-4 mt-4 flex-wrap">
+            <div class="flex items-center gap-3 flex-1">
+              <div style="display: flex; gap: 4px;">
+                ${l.body.map((_, i) => `<div style="width: 24px; height: 6px; background: ${i <= activeSec ? 'linear-gradient(90deg, #06b6d4, #4cd7f6)' : 'rgba(255,255,255,0.1)'}; border-radius: 3px;"></div>`).join('')}
+              </div>
+              <div class="font-hud-data text-xs" style="color: var(--primary);">${Math.round(((activeSec + 1) / l.body.length) * 100)}%</div>
+            </div>
+            ${activeSec < l.body.length - 1 ? `
+              <button class="btn-ghost text-xs" data-action="lesson-next-section">SONRAKİ MODÜL →</button>
+            ` : `
+              <button class="btn-primary" data-action="start-quiz" data-id="${l.id}" style="background: linear-gradient(135deg, #ffb95f, #e79400); color: #1a1a27; font-family: 'Courier Prime', monospace; letter-spacing: 0.2em; padding: 10px 20px;">▸ SINAVA GİR</button>
+            `}
+          </div>
+        </div>
+
+        <!-- Sağ: Mentor Tip + kaynaklar -->
+        <div class="lg:col-span-3 space-y-3">
+          <div class="hud-frame" style="padding: 14px; background: rgba(245, 158, 11, 0.05); border-color: rgba(245, 158, 11, 0.2);">
+            <div class="flex items-center gap-2 mb-2">
+              <div style="width: 36px; height: 36px; border-radius: 50%; overflow: hidden; border: 2px solid var(--tertiary);">
+                <img src="/characters/defne.png" alt="Defne" style="width: 100%; height: 100%; object-fit: contain;" />
+              </div>
+              <div>
+                <div class="font-hud text-[9px]" style="color: var(--tertiary);">MENTOR TIP</div>
+                <div class="font-bold text-xs">Defne</div>
+              </div>
+            </div>
+            <div class="text-[12px] italic leading-relaxed" style="color: var(--on-surface);">"${l.body[activeSec]?.p?.split('.')[0] || 'Bu konuyu pratiğe dökmeden teori değerini bulamaz. Brief\'lerde dene.'}"</div>
+          </div>
+
+          ${(LESSON_RESOURCES[l.id] || []).slice(0, 3).map(r => `
+            <a href="${r.url}" target="_blank" rel="noopener noreferrer" class="hud-frame" style="padding: 10px; display: block;">
+              <div class="font-hud text-[9px]" style="color: var(--primary);">▸ ${r.type.toUpperCase()}</div>
+              <div class="text-xs font-semibold leading-tight">${r.title}</div>
+              <div class="text-[10px]" style="color: var(--outline);">${r.source}</div>
+            </a>
+          `).join('')}
+        </div>
+      </div>
+      <!-- eski içerik gizli -->
+      <div style="display: none;">
       <div class="glass-strong p-6 lg:p-10 mb-6">
         <div class="flex items-center gap-4 mb-2">
           <div class="text-5xl">${l.icon}</div>
@@ -4922,6 +5154,7 @@ function renderLesson() {
       ` : ''}
 
       <button class="btn-primary w-full text-lg py-4" data-action="start-quiz" data-id="${l.id}">📝 Quiz'e Başla (${l.quiz.length} soru) →</button>
+      </div>
     </div>
   `;
 }
@@ -6664,6 +6897,16 @@ async function handleAction(action, id, el) {
       state.screen = 'lesson';
       render();
       break;
+    case 'lesson-section':
+      state.lessonSection = parseInt(el.dataset.idx);
+      render();
+      break;
+    case 'lesson-next-section': {
+      const l = LESSONS.find(x => x.id === state.currentLesson);
+      if (l) state.lessonSection = Math.min(l.body.length - 1, (state.lessonSection || 0) + 1);
+      render();
+      break;
+    }
     case 'start-quiz':
       state.currentLesson = id;
       state.quizState = { step: 0, answers: [], showFeedback: false };
