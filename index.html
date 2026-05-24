@@ -846,6 +846,45 @@
     50% { box-shadow: 0 0 0 1px rgba(245, 158, 11, 0.6), 0 4px 35px rgba(245, 158, 11, 0.35); }
   }
 
+  .mission-btn-primary {
+    width: 100%;
+    padding: 10px 12px;
+    background: linear-gradient(135deg, #ffb95f, #e79400);
+    color: #1a1a27;
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 12px;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 0 0 1px rgba(255, 185, 95, 0.3), 0 4px 12px rgba(255, 185, 95, 0.2);
+  }
+  .mission-btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 0 0 1px rgba(255, 185, 95, 0.5), 0 8px 20px rgba(255, 185, 95, 0.3);
+  }
+  .mission-btn-secondary {
+    padding: 8px 10px;
+    background: rgba(76, 215, 246, 0.08);
+    color: var(--primary);
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border: 1px solid rgba(76, 215, 246, 0.25);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .mission-btn-secondary:hover {
+    background: rgba(76, 215, 246, 0.15);
+    border-color: rgba(76, 215, 246, 0.5);
+  }
+
   .rarity-badge {
     display: inline-flex; align-items: center; gap: 4px;
     padding: 3px 9px;
@@ -4176,7 +4215,26 @@ function renderDashboard() {
         </div>
       </div>
 
-      ${done > 0 ? `<div class="mb-4">${characterDialog('defne', 'welcome_returning', { name: state.player.name })}</div>` : ''}
+      ${done > 0 ? `
+        <div class="hud-frame full-corners mb-4" style="padding: 16px 20px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="flex items-start gap-3">
+            <div style="width: 44px; height: 44px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid var(--primary); background: rgba(76, 215, 246, 0.1);">
+              <img src="/characters/defne.png" alt="Defne" style="width: 100%; height: 100%; object-fit: contain;" />
+            </div>
+            <div class="flex-1">
+              <div class="flex items-baseline gap-2 mb-1">
+                <span class="font-bold text-sm" style="color: var(--tertiary);">DEFNE</span>
+                <span class="font-hud text-[9px]" style="color: var(--outline);">AJANS_DİREKTÖRÜ // OPS_ONLINE</span>
+              </div>
+              <div class="text-sm leading-relaxed" style="color: var(--on-surface);">
+                <span style="color: var(--primary); font-family: 'Courier Prime', monospace; font-size: 14px;">"</span>${dialog('defne', 'welcome_returning', { name: state.player.name })}<span style="color: var(--primary); font-family: 'Courier Prime', monospace; font-size: 14px;">"</span>
+              </div>
+            </div>
+            <button class="text-base opacity-50 hover:opacity-100" data-action="speak-dialog" data-char-id="defne" title="Sesli oku" style="background: none; border: none; cursor: pointer; color: var(--primary);">🔊</button>
+          </div>
+        </div>
+      ` : ''}
 
       ${available.length === 0 && lockedByLesson.length === 0 ? `
         <div class="glass-strong p-10 text-center">
@@ -4195,11 +4253,11 @@ function renderDashboard() {
         </div>
       ` : ''}
 
-      <div class="flex items-center justify-between mb-3 flex-wrap gap-2">
-        <div class="flex items-center gap-2">
-          <span class="hud-tag"><span class="live-dot"></span> Aktif Görevler</span>
-          <span class="hud-tag purple font-mono">${String(available.length).padStart(2, '0')} ADET</span>
-        </div>
+      <!-- Stitch tarzı section header -->
+      <div class="flex items-center gap-2 mb-3" style="border-bottom: 1px solid rgba(76, 215, 246, 0.2); padding-bottom: 6px;">
+        <span class="font-hud text-[10px]" style="color: var(--primary);">▸ AKTİF GÖREVLER // MISSION_GÖZ</span>
+        <div style="flex: 1; height: 1px;"></div>
+        <span class="font-hud text-[10px]" style="color: var(--outline);">${String(available.length).padStart(2, '0')} ADET // TOPLAM_BÜTÇE: ₺${(available.reduce((s, b) => s + b.budget, 0)/1000).toFixed(0)}K</span>
       </div>
 
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -4208,25 +4266,41 @@ function renderDashboard() {
           const rarityLabel = { legendary: 'EFSANEVI', epic: 'EPİK', rare: 'NADİR', common: 'NORMAL' }[rarity];
           const missionId = missionCode(b.id);
           return `
-          <div class="mission-card rarity-${rarity} fade-in" data-action="open-brief" data-id="${b.id}">
+          <div class="mission-card rarity-${rarity} fade-in">
             <span class="corner tl"></span><span class="corner tr"></span>
             <span class="corner bl"></span><span class="corner br"></span>
 
-            <div class="flex items-start justify-between mb-3">
-              <div>
-                <div class="mission-id mb-1">${missionId}</div>
-                <span class="rarity-badge ${rarity}">${rarityLabel}</span>
-              </div>
-              <div class="text-5xl">${b.icon}</div>
+            <div class="flex items-center justify-between mb-3">
+              <div class="mission-id">${missionId}</div>
+              <span class="rarity-badge ${rarity}">${rarityLabel}</span>
             </div>
 
-            <h3 class="text-xl font-bold text-white mb-1">${b.client}</h3>
-            <p class="text-xs font-mono text-slate-500 uppercase tracking-wider mb-3">${b.industry}</p>
-            <p class="text-sm text-slate-300 mb-4 line-clamp-2 leading-relaxed">${b.description}</p>
+            <div class="flex items-start justify-between mb-3">
+              <div class="flex-1 min-w-0 pr-2">
+                <h3 class="text-lg font-bold text-white mb-0.5 leading-tight">${b.client}</h3>
+                <p class="font-hud text-[9px]" style="color: var(--outline);">${b.industry.toUpperCase()}</p>
+              </div>
+              <div class="text-4xl">${b.icon}</div>
+            </div>
 
-            <div class="flex items-center justify-between gap-2 flex-wrap pt-3 border-t border-white/5">
-              <span class="hud-tag gold">₺${(b.budget/1000).toFixed(0)}K BÜTÇE</span>
-              <span class="hud-tag">⏱ ${b.duration}</span>
+            <p class="text-xs text-slate-400 mb-3 line-clamp-2 leading-snug">${b.description}</p>
+
+            <div class="flex items-center gap-3 mb-3 pb-3 border-b border-white/5">
+              <div>
+                <div class="font-hud text-[8px]" style="color: var(--outline);">BÜTÇE</div>
+                <div class="font-hud-data text-base" style="color: var(--tertiary);">₺${(b.budget/1000).toFixed(0)}K</div>
+              </div>
+              <div style="height: 24px; width: 1px; background: rgba(255,255,255,0.08);"></div>
+              <div>
+                <div class="font-hud text-[8px]" style="color: var(--outline);">SÜRE</div>
+                <div class="font-hud-data text-sm" style="color: var(--primary);">${b.duration.toUpperCase()}</div>
+              </div>
+            </div>
+
+            <button class="mission-btn-primary" data-action="open-brief" data-id="${b.id}">▸ GÖREVİ BAŞLAT</button>
+            <div class="flex gap-2 mt-2">
+              <button class="mission-btn-secondary flex-1" data-action="open-brief" data-id="${b.id}">DETAYLARI GÖR</button>
+              <button class="mission-btn-secondary flex-1" data-action="open-brief" data-id="${b.id}">MÜŞTERİYİ GÖR</button>
             </div>
           </div>
         `; }).join('')}
