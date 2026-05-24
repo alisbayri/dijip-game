@@ -484,6 +484,45 @@
     object-fit: contain;
   }
 
+  /* ========== CHANNEL STEPPER BUTTON ========== */
+  .ch-step-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 4px;
+    background: rgba(76, 215, 246, 0.08);
+    border: 1px solid rgba(76, 215, 246, 0.25);
+    color: var(--primary);
+    font-family: 'Courier Prime', monospace;
+    font-weight: 700;
+    font-size: 16px;
+    line-height: 1;
+    cursor: pointer;
+    transition: all 0.15s;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .ch-step-btn:hover {
+    background: rgba(76, 215, 246, 0.2);
+    border-color: rgba(76, 215, 246, 0.6);
+    box-shadow: 0 0 6px rgba(76, 215, 246, 0.4);
+  }
+  .ch-step-btn:active {
+    transform: translateY(1px);
+  }
+  input[type="number"][data-channel-num]::-webkit-inner-spin-button,
+  input[type="number"][data-channel-num]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+  input[type="number"][data-channel-num] {
+    -moz-appearance: textfield;
+  }
+  input[type="number"][data-channel-num]:focus {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 8px rgba(76, 215, 246, 0.5);
+  }
+
   /* ========== STITCH PERSONA CARD ========== */
   .persona-card {
     background: rgba(18, 18, 31, 0.6);
@@ -4654,17 +4693,25 @@ function renderChannelStep() {
               const tl = Math.round(budget * v / 100);
               return `
                 <div>
-                  <div class="flex items-center justify-between mb-1.5">
-                    <div class="flex items-center gap-2">
+                  <div class="flex items-center justify-between mb-1.5 gap-3 flex-wrap">
+                    <div class="flex items-center gap-2 min-w-0 flex-1">
                       <span class="text-lg">${c.icon}</span>
-                      <div>
+                      <div class="min-w-0">
                         <div class="font-bold text-sm">${meta.tag || c.name}</div>
                         <div class="text-[10px]" style="color: var(--outline);">${meta.sub || c.desc}</div>
                       </div>
                     </div>
-                    <div class="font-hud-data text-cyan-300 text-sm">${v}%</div>
+                    <div class="flex items-center gap-1.5" style="flex-shrink: 0;">
+                      <button class="ch-step-btn" data-action="ch-step" data-channel="${c.id}" data-step="-5" aria-label="Azalt">−</button>
+                      <div style="position: relative; display: inline-flex; align-items: center;">
+                        <input type="number" min="0" max="100" step="1" value="${v}" data-channel-num="${c.id}"
+                               style="width: 60px; padding: 6px 22px 6px 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(76, 215, 246, 0.3); border-radius: 4px; color: var(--primary); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 14px; text-align: right; outline: none;" />
+                        <span style="position: absolute; right: 8px; font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--outline); pointer-events: none;">%</span>
+                      </div>
+                      <button class="ch-step-btn" data-action="ch-step" data-channel="${c.id}" data-step="5" aria-label="Arttır">+</button>
+                    </div>
                   </div>
-                  <input type="range" min="0" max="100" step="5" value="${v}" data-channel="${c.id}" class="w-full" />
+                  <input type="range" min="0" max="100" step="1" value="${v}" data-channel="${c.id}" class="w-full" />
                   <div class="text-right font-hud text-[10px] mt-1" style="color: var(--outline);">₺${tl.toLocaleString('tr-TR')}</div>
                 </div>
               `;
@@ -6642,6 +6689,23 @@ function attachListeners() {
       render();
     });
   });
+  // Manuel sayı girişi (input[type=number]) — elle düzenleme
+  document.querySelectorAll('input[type="number"][data-channel-num]').forEach(el => {
+    const commit = () => {
+      const ch = el.dataset.channel;
+      let v = parseInt(el.value);
+      if (isNaN(v)) v = 0;
+      v = Math.max(0, Math.min(100, v));
+      state.decisions.channels[ch] = v;
+      render();
+    };
+    el.addEventListener('change', commit);
+    el.addEventListener('blur', commit);
+    el.addEventListener('keydown', e => {
+      if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+    });
+    // Yukarı/aşağı ok tuşları: ±1 (input number native davranışı zaten)
+  });
   document.querySelectorAll('input[type="range"][data-survey-slider]').forEach(el => {
     el.addEventListener('input', e => {
       const k = el.dataset.surveySlider;
@@ -6815,6 +6879,17 @@ async function handleAction(action, id, el) {
         state.decisions.channels = { google: 25, meta: 25, email: 25, seo: 25 };
       }
       render();
+      break;
+    }
+    case 'ch-step': {
+      const chKey = el?.dataset?.channel;
+      const stepVal = parseInt(el?.dataset?.step || '0');
+      if (chKey && stepVal && state.decisions.channels[chKey] !== undefined) {
+        let nv = (state.decisions.channels[chKey] || 0) + stepVal;
+        nv = Math.max(0, Math.min(100, nv));
+        state.decisions.channels[chKey] = nv;
+        render();
+      }
       break;
     }
     case 'wiz-prev':
