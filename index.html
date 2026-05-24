@@ -4717,13 +4717,13 @@ function renderChannelStep() {
                       </div>
                     </div>
                     <div class="flex items-center gap-1.5" style="flex-shrink: 0;">
-                      <button class="ch-step-btn" data-action="ch-step" data-channel="${c.id}" data-step="-5" aria-label="Azalt">−</button>
+                      <button type="button" class="ch-step-btn" data-action="ch-step" data-channel="${c.id}" data-step="-5" aria-label="Azalt">−</button>
                       <div style="position: relative; display: inline-flex; align-items: center;">
                         <input type="number" min="0" max="100" step="1" value="${v}" data-channel-num="${c.id}"
                                style="width: 60px; padding: 6px 22px 6px 8px; background: rgba(0,0,0,0.4); border: 1px solid rgba(76, 215, 246, 0.3); border-radius: 4px; color: var(--primary); font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 14px; text-align: right; outline: none;" />
                         <span style="position: absolute; right: 8px; font-family: 'Courier Prime', monospace; font-size: 11px; color: var(--outline); pointer-events: none;">%</span>
                       </div>
-                      <button class="ch-step-btn" data-action="ch-step" data-channel="${c.id}" data-step="5" aria-label="Arttır">+</button>
+                      <button type="button" class="ch-step-btn" data-action="ch-step" data-channel="${c.id}" data-step="5" aria-label="Arttır">+</button>
                     </div>
                   </div>
                   <input type="range" min="0" max="100" step="1" value="${v}" data-channel="${c.id}" class="w-full" />
@@ -6507,10 +6507,10 @@ function renderReport() {
   if (history.length === 0) {
     return `
       <div class="max-w-2xl mx-auto px-5 py-12 text-center">
-        <div class="text-6xl mb-4">📊</div>
+        <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">▸ ANALYTICS_HUB // VERİ_YETERSİZ</div>
         <h2 class="text-2xl font-bold mb-2">Henüz rapor için yeterli veri yok</h2>
-        <p class="text-slate-400 mb-6">En az 3 kampanya tamamla.</p>
-        <button class="btn-primary" data-action="back-dashboard">Brief Kutusuna Dön</button>
+        <p class="text-slate-400 mb-6">En az 1 kampanya tamamla, analitik hazır olacak.</p>
+        <button type="button" class="mission-btn-primary" data-action="back-dashboard" style="padding: 12px 24px;">▸ MERKEZE DÖN</button>
       </div>
     `;
   }
@@ -6519,94 +6519,219 @@ function renderReport() {
   const totalRev = history.reduce((s, h) => s + h.metrics.revenue, 0);
   const totalSpend = history.reduce((s, h) => s + h.spend, 0);
   const overallROI = totalSpend > 0 ? +(((totalRev - totalSpend) / totalSpend) * 100).toFixed(1) : 0;
+  const roas = totalSpend > 0 ? +(totalRev / totalSpend).toFixed(1) : 0;
+  const totalImpr = history.reduce((s, h) => s + (h.metrics.impressions || 0), 0);
+  const totalClicks = history.reduce((s, h) => s + (h.metrics.clicks || 0), 0);
+  const totalConv = history.reduce((s, h) => s + (h.metrics.conversions || 0), 0);
+  const convRate = totalClicks > 0 ? +((totalConv / totalClicks) * 100).toFixed(1) : 0;
   const avgAudScore = Math.round(history.reduce((s, h) => s + h.scores.audience, 0) / history.length);
   const avgChScore = Math.round(history.reduce((s, h) => s + h.scores.channels, 0) / history.length);
   const avgCrScore = Math.round(history.reduce((s, h) => s + h.scores.creative, 0) / history.length);
 
-  const strengths = [];
-  const weaknesses = [];
-  if (avgAudScore >= 75) strengths.push('Hedef kitle seçiminde tutarlı isabet');
-  else if (avgAudScore < 50) weaknesses.push('Hedef kitle seçimi — brief\'i daha dikkatli oku, "kim alır?" sorusunu sor');
-  if (avgChScore >= 75) strengths.push('Bütçe dağılımında dengeli yaklaşım');
-  else if (avgChScore < 50) weaknesses.push('Kanal seçimi — niyet (Google) vs keşif (Meta) ayrımını netleştir');
-  if (avgCrScore >= 75) strengths.push('Kreatif ton ile hedef kitle eşleşmesi güçlü');
-  else if (avgCrScore < 50) weaknesses.push('Kreatif yaklaşım — B2B özellik, B2C duygu/sosyal kanıt');
+  // Platform performance (her kanalın ortalama performansı)
+  const channelAgg = { google: [], meta: [], email: [], seo: [] };
+  history.forEach(h => {
+    const dec = h.decisions?.channels || {};
+    Object.keys(channelAgg).forEach(k => { if (dec[k] > 0) channelAgg[k].push(dec[k]); });
+  });
+  const platformPerf = Object.entries(channelAgg).map(([k, arr]) => ({
+    id: k,
+    name: { google: 'GOOGLE ADS', meta: 'META ADS', email: 'EMAIL', seo: 'ORGANIC SEO' }[k],
+    val: arr.length ? Math.min(100, Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 1.6 + 30 + (Math.random()*10))) : 0
+  }));
+
+  // Daily trend (last 7 dot from history.length cap)
+  const trendDays = 7;
+  const trendData = Array.from({length: trendDays}, (_, i) => {
+    const baseVal = 40 + (i / (trendDays - 1)) * 50;
+    const jitter = (history.length > 1 ? Math.sin(i * 1.3) : 0) * 8;
+    return Math.max(20, Math.min(100, Math.round(baseVal + jitter)));
+  });
+
+  // Defne feedback message
+  const defneMsg = overallROI >= 50
+    ? 'Veriler stratejilerini doğruluyor Operatör. Özellikle Meta Ads kanalındaki etkileşim maliyeti beklediğimizden daha düşük gerçekleşti — sürdürülebilir bir model kurdun.'
+    : overallROI >= 0
+    ? 'Kampanyaların pozitif ROI getiriyor ama Meta/Google dağılımını rafine edebilirsin. Kreatif eşleşmesini bir adım yukarı çıkar.'
+    : 'Operatör, bazı kampanyalarda harcama geliri aştı. Brief\'i tekrar oku ve dar bir kitleye odaklan — geniş kitle küçük bütçede tuzaktır.';
+
+  // Budget efficiency
+  const budgetEff = Math.min(100, Math.round((totalRev / Math.max(totalSpend, 1)) * 18 + 60));
+  const segmentCount = 25;
+  const segmentsFilled = Math.round((budgetEff / 100) * segmentCount);
+  const refId = String(history.length).padStart(2, '0') + '-' + (p.name?.substring(0, 2).toUpperCase() || 'OP');
 
   return `
     <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-6 fade-in">
-      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
-        <button class="btn-ghost text-sm" data-action="back-dashboard">← KOMUTA</button>
-        <div class="font-hud text-[10px]" style="color: var(--outline);">▸ PERFORMANS_RAPORU // ANALYTICS_HUB</div>
+      <!-- Header -->
+      <div class="flex items-end justify-between mb-5 pb-3 border-b border-white/5 flex-wrap gap-2">
+        <div>
+          <h1 class="text-2xl lg:text-4xl font-black uppercase tracking-tight">Kampanya Performans Raporu</h1>
+          <div class="font-hud-data text-xs mt-1" style="color: var(--primary); opacity: 0.8;">REF_ID: ${refId} // TEMPORAL_WINDOW: SIM_DAY_${String(history.length).padStart(2,'0')}</div>
+        </div>
+        <div class="font-hud text-[10px]" style="color: var(--tertiary);">VERİ ANALİZİ: TAMAMLANDI ✓</div>
       </div>
 
-      <div class="mb-5">
-        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ OPERATÖR // ${p.name?.toUpperCase().replace(/\s+/g, '_')} · LV ${levelFromXP(p.xp)} · ${history.length}_MISSIONS</div>
-        <h2 class="text-2xl lg:text-3xl font-black mt-1">| KAMPANYA PERFORMANS RAPORU</h2>
-      </div>
-
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div class="metric-card text-center">
-          <div class="text-xs text-slate-400 mb-1">ORTALAMA SKOR</div>
-          <div class="text-2xl font-black gradient-text" data-counter="${avgScore}" data-suffix="/100">0/100</div>
-        </div>
-        <div class="metric-card text-center">
-          <div class="text-xs text-slate-400 mb-1">TOPLAM GELİR</div>
-          <div class="text-2xl font-black text-emerald-400" data-counter="${totalRev}" data-prefix="₺">₺0</div>
-        </div>
-        <div class="metric-card text-center">
-          <div class="text-xs text-slate-400 mb-1">GENEL ROI</div>
-          <div class="text-2xl font-black ${overallROI >= 0 ? 'text-emerald-400' : 'text-rose-400'}" data-counter="${overallROI}" data-suffix="%" data-prefix="${overallROI >= 0 ? '+' : ''}" data-decimals="1">0%</div>
-        </div>
-        <div class="metric-card text-center">
-          <div class="text-xs text-slate-400 mb-1">İTİBAR</div>
-          <div class="text-2xl font-black text-amber-400" data-counter="${p.reputation}">0</div>
+      <!-- Defne Mentor Block -->
+      <div class="hud-frame full-corners mb-5" style="padding: 16px 20px; background: rgba(18, 18, 31, 0.6);">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="flex items-center gap-4">
+          <div style="position: relative; flex-shrink: 0;">
+            <div style="width: 72px; height: 72px; border-radius: 50%; border: 2px solid rgba(76, 215, 246, 0.4); padding: 3px; box-shadow: 0 0 15px rgba(76, 215, 246, 0.2); background: rgba(255, 185, 95, 0.05);">
+              <img src="/characters/defne.png" alt="Defne" style="width: 100%; height: 100%; border-radius: 50%; object-fit: contain;" />
+            </div>
+            <div style="position: absolute; bottom: -2px; right: -2px; background: var(--primary); color: #003640; font-size: 8px; font-weight: 700; padding: 2px 4px; border-radius: 3px;">LVL_${String(levelFromXP(p.xp)).padStart(2,'0')}</div>
+          </div>
+          <div class="max-w-3xl">
+            <div class="font-hud text-[10px] mb-1" style="color: var(--primary); letter-spacing: 0.2em;">MENTOR_DEFNE // FEEDBACK</div>
+            <p class="text-sm lg:text-base italic leading-relaxed" style="color: var(--on-surface);">"${defneMsg}"</p>
+          </div>
         </div>
       </div>
 
-      <div class="grid lg:grid-cols-2 gap-4 mb-6">
-        <div class="glass-strong p-5">
-          <h3 class="font-bold mb-3 text-emerald-400">💪 Güçlü Yönlerin</h3>
-          ${strengths.length ? strengths.map(s => `<div class="text-sm mb-2">✅ ${s}</div>`).join('') : '<div class="text-sm text-slate-400">Daha fazla kampanya tamamla.</div>'}
+      <!-- Metric Cards 4-grid -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+        <div class="hud-frame" style="padding: 16px; background: rgba(18, 18, 31, 0.5);">
+          <span class="corner-tl" style="opacity: 0.5;"></span>
+          <p class="font-hud text-[9px] mb-2" style="color: var(--outline);">ERİŞİM (REACH)</p>
+          <div class="flex items-end justify-between">
+            <span style="font-family: 'Courier Prime', monospace; font-size: 28px; font-weight: 700; color: var(--primary);">${(totalImpr / 1000).toFixed(1)}K</span>
+            <span class="font-hud-data text-[10px] mb-1" style="color: ${totalImpr > 1000 ? '#10b981' : '#f43f5e'};">${totalImpr > 1000 ? '+12% TARGET' : 'UNDER'}</span>
+          </div>
         </div>
-        <div class="glass-strong p-5">
-          <h3 class="font-bold mb-3 text-amber-400">🎯 Gelişim Alanları</h3>
-          ${weaknesses.length ? weaknesses.map(w => `<div class="text-sm mb-2">💡 ${w}</div>`).join('') : '<div class="text-sm text-slate-400">Açıkça zayıf alan yok — istikrarlı performans!</div>'}
+        <div class="hud-frame" style="padding: 16px; background: rgba(18, 18, 31, 0.5);">
+          <span class="corner-tl" style="opacity: 0.5;"></span>
+          <p class="font-hud text-[9px] mb-2" style="color: var(--outline);">ETKİLEŞİM (CLICKS)</p>
+          <div class="flex items-end justify-between">
+            <span style="font-family: 'Courier Prime', monospace; font-size: 28px; font-weight: 700; color: var(--on-surface);">${(totalClicks / 1000).toFixed(1)}K</span>
+            <span class="material-symbols-outlined mb-1" style="color: var(--primary); font-size: 22px;">bolt</span>
+          </div>
+        </div>
+        <div class="hud-frame" style="padding: 16px; background: rgba(18, 18, 31, 0.5);">
+          <span class="corner-tl" style="opacity: 0.5;"></span>
+          <p class="font-hud text-[9px] mb-2" style="color: var(--outline);">DÖNÜŞÜM (CONV)</p>
+          <div class="flex items-end justify-between">
+            <span style="font-family: 'Courier Prime', monospace; font-size: 28px; font-weight: 700; color: var(--on-surface);">${convRate}%</span>
+            <span class="font-hud-data text-[10px] mb-1" style="color: var(--primary);">${convRate >= 2 ? 'OPTIMAL' : 'TUNE'}</span>
+          </div>
+        </div>
+        <div class="hud-frame" style="padding: 16px; background: rgba(18, 18, 31, 0.5);">
+          <span class="corner-tl" style="opacity: 0.5;"></span>
+          <p class="font-hud text-[9px] mb-2" style="color: var(--outline);">ROAS</p>
+          <div class="flex items-end justify-between">
+            <span style="font-family: 'Courier Prime', monospace; font-size: 28px; font-weight: 700; color: var(--tertiary);">${roas}x</span>
+            <span class="material-symbols-outlined mb-1" style="color: var(--tertiary); font-size: 22px;">payments</span>
+          </div>
         </div>
       </div>
 
-      <div class="grid lg:grid-cols-2 gap-4">
-        <div class="glass-strong p-5">
-          <h3 class="font-bold mb-4">📈 Karar Yetkinliği Ortalaması</h3>
-          ${[
-            ['Hedef Kitle', avgAudScore],
-            ['Kanal Dağılımı', avgChScore],
-            ['Kreatif', avgCrScore]
-          ].map(([n, v]) => `
-            <div class="mb-3">
-              <div class="flex justify-between text-sm mb-1"><span>${n}</span><span class="font-bold">${v}/100</span></div>
-              <div class="progress-track"><div class="progress-fill" style="width: ${v}%"></div></div>
+      <!-- Charts -->
+      <div class="grid lg:grid-cols-2 gap-3 mb-5">
+        <!-- Platform performance -->
+        <div class="hud-frame" style="padding: 18px 20px; background: rgba(18, 18, 31, 0.4);">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+            <h3 class="font-hud text-[11px]" style="color: var(--on-surface); letter-spacing: 0.2em;">PLATFORM PERFORMANCE</h3>
+            <span class="font-hud-data text-[10px]" style="color: var(--primary);">MULTI_CHANNEL_AGGREGATE</span>
+          </div>
+          <div class="space-y-4">
+            ${platformPerf.map(pp => `
+              <div>
+                <div class="flex justify-between font-hud-data text-[10px] mb-1.5" style="color: var(--on-surface);">
+                  <span>${pp.name}</span>
+                  <span>${pp.val}%</span>
+                </div>
+                <div style="height: 8px; background: rgba(255,255,255,0.05); border-radius: 4px; overflow: hidden;">
+                  <div style="height: 100%; width: ${pp.val}%; background: linear-gradient(90deg, var(--primary), #06b6d4); box-shadow: 0 0 6px rgba(76, 215, 246, 0.5); transition: width 1s ease-out;"></div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- Daily Conversion Trend -->
+        <div class="hud-frame" style="padding: 18px 20px; background: rgba(18, 18, 31, 0.4);">
+          <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+            <h3 class="font-hud text-[11px]" style="color: var(--on-surface); letter-spacing: 0.2em;">DAILY CONVERSION TREND</h3>
+            <span class="font-hud-data text-[10px]" style="color: var(--tertiary);">7-DAY_CYCLE</span>
+          </div>
+          <div class="flex items-end gap-1.5 px-2" style="height: 140px;">
+            ${trendData.map((v, i) => {
+              const isLast = i === trendData.length - 1;
+              const opacity = isLast ? 1 : 0.2 + (i / trendData.length) * 0.4;
+              return `<div style="flex: 1; height: ${v}%; background: var(--primary); opacity: ${opacity}; border-radius: 3px 3px 0 0; transition: height 0.6s ease-out; transition-delay: ${i * 0.08}s; box-shadow: ${isLast ? '0 0 12px rgba(76, 215, 246, 0.6)' : 'none'};"></div>`;
+            }).join('')}
+          </div>
+          <div class="flex justify-between mt-2 font-hud-data text-[9px]" style="color: var(--outline);">
+            <span>DAY_01</span><span>DAY_03</span><span>DAY_05</span><span>DAY_07</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Operator karar metrics (Stitch dışı ama korunsun) -->
+      <div class="hud-frame mb-5" style="padding: 18px 20px; background: rgba(18, 18, 31, 0.3);">
+        <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/10">
+          <h3 class="font-hud text-[11px]" style="color: var(--on-surface); letter-spacing: 0.2em;">OPERATÖR KARAR YETKİNLİĞİ</h3>
+          <span class="font-hud-data text-[10px]" style="color: var(--primary);">${history.length}_MISSIONS // AVG_SCORE: ${avgScore}/100</span>
+        </div>
+        <div class="grid sm:grid-cols-3 gap-4">
+          ${[['Hedef Kitle', avgAudScore, 'audience'], ['Kanal Dağılımı', avgChScore, 'channels'], ['Kreatif', avgCrScore, 'creative']].map(([n, v, k]) => `
+            <div>
+              <div class="flex justify-between font-hud-data text-[10px] mb-1.5" style="color: var(--outline);">
+                <span>${n.toUpperCase()}</span>
+                <span style="color: ${v >= 75 ? '#10b981' : v >= 50 ? 'var(--primary)' : '#f43f5e'};">${v}/100</span>
+              </div>
+              <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 3px; overflow: hidden;">
+                <div style="height: 100%; width: ${v}%; background: ${v >= 75 ? '#10b981' : v >= 50 ? 'var(--primary)' : '#f43f5e'}; transition: width 0.8s ease-out;"></div>
+              </div>
             </div>
           `).join('')}
         </div>
+      </div>
 
-        <div class="glass-strong p-5">
-          <h3 class="font-bold mb-3">📋 Kampanya Geçmişi</h3>
-        ${history.map(h => `
-          <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
-            <div class="flex items-center gap-3">
-              <div class="text-2xl">${h.icon}</div>
-              <div>
-                <div class="font-semibold text-sm">${h.client}</div>
-                <div class="text-xs text-slate-400">${'★'.repeat(h.stars)}${'☆'.repeat(3-h.stars)}</div>
+      <!-- Budget Efficiency Bar -->
+      <div class="hud-frame mb-6" style="padding: 18px 20px; background: rgba(52, 51, 65, 0.3);">
+        <div class="flex justify-between items-center mb-3 flex-wrap gap-2">
+          <h3 class="font-hud text-[11px]" style="color: var(--primary); letter-spacing: 0.2em;">BÜTÇE KULLANIMI: ${budgetEff}% (${budgetEff >= 80 ? 'VERİMLİ' : budgetEff >= 50 ? 'ORTA' : 'DÜŞÜK'})</h3>
+          <span class="font-hud-data text-[11px]" style="color: var(--outline);">${(totalSpend/1000).toFixed(1)}K / ${(totalRev/1000).toFixed(1)}K ₺</span>
+        </div>
+        <div class="flex gap-1" style="height: 16px;">
+          ${Array.from({length: segmentCount}, (_, i) => {
+            const filled = i < segmentsFilled;
+            return `<div style="flex: 1; height: 100%; background: ${filled ? 'linear-gradient(180deg, var(--primary), #06b6d4)' : 'rgba(255,255,255,0.05)'}; border-radius: 1px; ${filled ? 'box-shadow: 0 0 4px rgba(76, 215, 246, 0.4);' : ''} ${i === 0 ? 'border-top-left-radius: 4px; border-bottom-left-radius: 4px;' : ''} ${i === segmentCount - 1 ? 'border-top-right-radius: 4px; border-bottom-right-radius: 4px;' : ''} transition: background 0.4s ease-out ${i * 0.03}s;"></div>`;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- Campaign history list (collapsible / accordion) -->
+      <div class="hud-frame mb-6" style="padding: 18px 20px; background: rgba(18, 18, 31, 0.3);">
+        <div class="flex items-center justify-between mb-3 pb-2 border-b border-white/10">
+          <h3 class="font-hud text-[11px]" style="color: var(--on-surface); letter-spacing: 0.2em;">KAMPANYA GEÇMİŞİ</h3>
+          <span class="font-hud-data text-[10px]" style="color: var(--outline);">${history.length} MISSION_RECORD</span>
+        </div>
+        <div class="space-y-2">
+          ${history.slice().reverse().map(h => `
+            <div class="flex items-center justify-between py-2 border-b border-white/5 last:border-0">
+              <div class="flex items-center gap-3">
+                <div class="text-xl">${h.icon}</div>
+                <div>
+                  <div class="font-semibold text-sm">${h.client}</div>
+                  <div class="font-hud text-[9px]" style="color: var(--outline);">${'★'.repeat(h.stars)}${'☆'.repeat(3-h.stars)}</div>
+                </div>
+              </div>
+              <div class="text-right">
+                <div class="font-hud-data text-sm" style="color: var(--primary);">${h.score}/100</div>
+                <div class="font-hud text-[9px]" style="color: var(--outline);">ROI ${h.metrics.roi}%</div>
               </div>
             </div>
-            <div class="text-right">
-              <div class="font-bold text-sm">${h.score}/100</div>
-              <div class="text-xs text-slate-400">ROI ${h.metrics.roi}%</div>
-            </div>
-          </div>
-        `).join('')}
+          `).join('')}
         </div>
+      </div>
+
+      <!-- CTA — bottom right floating amber -->
+      <div class="flex justify-end mb-6">
+        <button type="button" class="mission-btn-primary" data-action="back-dashboard" style="padding: 14px 28px; font-size: 13px;">
+          ▸ MERKEZE DÖN
+        </button>
       </div>
     </div>
   `;
@@ -6707,19 +6832,27 @@ function attachListeners() {
   // Manuel sayı girişi (input[type=number]) — elle düzenleme
   document.querySelectorAll('input[type="number"][data-channel-num]').forEach(el => {
     const commit = () => {
-      const ch = el.dataset.channel;
+      const ch = el.dataset.channelNum;  // ← data-channel-num attribute
+      if (!ch) return;
       let v = parseInt(el.value);
       if (isNaN(v)) v = 0;
       v = Math.max(0, Math.min(100, v));
       state.decisions.channels[ch] = v;
+      el.value = v;
+      // Slider'ı senkronize et (tam render gerek yok)
+      const slider = document.querySelector(`input[type="range"][data-channel="${ch}"]`);
+      if (slider) slider.value = v;
+      // Toplam + TL göstergesini de güncelle → tam render
       render();
+      // Render sonrası bu input'un yerine yenisi geldi — odağı geri ver ki kullanıcı devam edebilsin
+      const fresh = document.querySelector(`input[type="number"][data-channel-num="${ch}"]`);
+      if (fresh) { fresh.focus(); fresh.select(); }
     };
     el.addEventListener('change', commit);
     el.addEventListener('blur', commit);
     el.addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
     });
-    // Yukarı/aşağı ok tuşları: ±1 (input number native davranışı zaten)
   });
   document.querySelectorAll('input[type="range"][data-survey-slider]').forEach(el => {
     el.addEventListener('input', e => {
