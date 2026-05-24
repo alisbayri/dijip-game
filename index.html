@@ -1997,31 +1997,30 @@ const BRIEFS = [
 ];
 
 // ============== KARAKTERLER ==============
-// DiceBear ile gerçek SVG illüstrasyon avatarları
-const DICEBEAR_BASE = 'https://api.dicebear.com/9.x';
+// Canva AI ile üretilen özel oyun karakter portreleri (lokal /characters/ klasörü)
 const CHARACTERS = {
   defne: { id: 'defne', name: 'Defne', role: 'Ajans Direktörü', avatar: '👩‍💼',
-    portrait: `${DICEBEAR_BASE}/personas/svg?seed=DefneMentorBoss&backgroundColor=fbbf24&size=300`,
+    portrait: '/characters/defne.png',
     cls: '' },
   ada:   { id: 'ada',   name: 'Ada',   role: 'AI Veri Asistanı', avatar: '🤖',
-    portrait: `${DICEBEAR_BASE}/bottts-neutral/svg?seed=AdaAICore&backgroundColor=06b6d4&size=300`,
+    portrait: '/characters/ada.png',
     cls: 'ada' }
 };
 
-// Müşteri karakterleri için portre URL'leri (PERSONAS'ı genişletmek için harici tablo)
+// 12 müşteri karakter portresi — Canva AI ile üretildi
 const CHAR_PORTRAITS = {
-  kahveci:       `${DICEBEAR_BASE}/personas/svg?seed=MehmetCafeOwner3&backgroundColor=ffd5a3&size=300`,
-  taki:          `${DICEBEAR_BASE}/personas/svg?seed=SelinCraftArt7&backgroundColor=fbcfe8&size=300`,
-  fitapp:        `${DICEBEAR_BASE}/personas/svg?seed=BurakFitFounder5&backgroundColor=a5f3fc&size=300`,
-  butikotel:     `${DICEBEAR_BASE}/personas/svg?seed=FatmaHotelMatriarch2&backgroundColor=fde68a&size=300`,
-  saascrm:       `${DICEBEAR_BASE}/personas/svg?seed=OnurCMOExec4&backgroundColor=ddd6fe&size=300`,
-  kozmetik:      `${DICEBEAR_BASE}/personas/svg?seed=IremGlowFounder9&backgroundColor=fce7f3&size=300`,
-  pastane:       `${DICEBEAR_BASE}/personas/svg?seed=HaticeAnnenneTraditional&backgroundColor=fed7aa&size=300`,
-  ingilizcekurs: `${DICEBEAR_BASE}/personas/svg?seed=DenizGrowthLead6&backgroundColor=bbf7d0&size=300`,
-  yoga:          `${DICEBEAR_BASE}/personas/svg?seed=CansuYogaStudio8&backgroundColor=bbf7d0&size=300`,
-  sigorta:       `${DICEBEAR_BASE}/personas/svg?seed=CemInsuranceManager3&backgroundColor=dbeafe&size=300`,
-  wellnesspro:   `${DICEBEAR_BASE}/personas/svg?seed=DrPinarWellnessClinic&backgroundColor=fce7f3&size=300`,
-  tutorialhub:   `${DICEBEAR_BASE}/personas/svg?seed=EgeStartupCEOTech2&backgroundColor=cffafe&size=300`
+  kahveci:       '/characters/kahveci.png',       // Mehmet — kafe sahibi
+  taki:          '/characters/taki.png',          // Selin — atölye kurucusu
+  fitapp:        '/characters/fitapp.png',        // Burak — FitApp founder
+  butikotel:     '/characters/butikotel.png',     // Fatma — otel sahibi
+  saascrm:       '/characters/saascrm.png',       // Onur — CMO
+  kozmetik:      '/characters/kozmetik.png',      // İrem — kozmetik markası
+  pastane:       '/characters/pastane.png',       // Hatice Anne — pastane
+  ingilizcekurs: '/characters/ingilizcekurs.png', // Deniz — growth lead
+  yoga:          '/characters/yoga.png',          // Cansu — yoga stüdyosu
+  sigorta:       '/characters/sigorta.png',       // Cem — sigorta müdürü
+  wellnesspro:   '/characters/wellnesspro.png',   // Dr. Pınar — wellness
+  tutorialhub:   '/characters/tutorialhub.png'    // Ege — startup CEO
 };
 
 function portraitOf(personaId) {
