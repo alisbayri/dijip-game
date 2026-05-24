@@ -4383,90 +4383,108 @@ function renderBriefDetail() {
   // Mood emoji (varies by step / based on persona quote)
   const moodEmojis = { warm: '☕', cool: '💼', pink: '✨', green: '🌿' };
 
+  // Defne analytics özeti (brief'e özel)
+  const defneAnalysis = b.feedbackHints?.audience ||
+    'Stratejist, bu yeni müşteri talebi yüksek öncelikli. Hedef kitlemizi doğru tanımlamak başarının yarısıdır. Tüm veriler toplandı, onayını bekliyorum.';
+  const persCode = personaCode(b.id);
+
   return `
-    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-8 fade-in">
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-6 fade-in">
+      <!-- Üst nav: DASHBOARD ▸ MISSION_DETAILS ▸ ANALYTICS -->
       <div class="flex items-center justify-between mb-4 gap-2 flex-wrap">
-        <button class="btn-ghost text-sm" data-action="back">← Geri</button>
+        <button class="btn-ghost text-sm" data-action="back">← KOMUTA</button>
+        <div class="font-hud text-[10px] flex items-center gap-2" style="color: var(--outline);">
+          <span>DASHBOARD</span>
+          <span style="color: var(--primary);">▸ MISSION_DETAILS</span>
+          <span>▸ ANALYTICS</span>
+        </div>
         <div class="flex items-center gap-2 flex-wrap">
-          <span class="mission-id">${missionId}</span>
           <span class="rarity-badge ${rarity}">${rarityLabel}</span>
           <span class="hud-tag gold">₺${(b.budget/1000).toFixed(0)}K</span>
         </div>
       </div>
 
-      <div class="customer-scene">
-        <div class="scene-bg mood-${mood}"></div>
+      <!-- Mission code header -->
+      <div class="mb-3">
+        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ ${missionId} // ${persCode}</div>
+        <h2 class="text-xl lg:text-2xl font-black mt-1">${b.client.toUpperCase()}</h2>
+      </div>
 
-        <div class="speech-area">
-          <div>
-            <div class="speech-name-row">
-              <div class="speech-name-avatar" style="overflow: hidden;">${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p?.name || b.client}" style="width:100%;height:100%;object-fit:contain;display:block;" onerror="this.style.display='none';this.parentElement.innerHTML='${p?.avatar || b.icon}';">` : (p?.avatar || b.icon)}</div>
-              <div class="flex-1">
-                <div class="speech-name flex items-center">
-                  <span>${p?.name || b.client}</span>
-                  <span class="voice-indicator" style="display: ${sc.typing ? 'inline-flex' : 'none'};">
-                    <span></span><span></span><span></span><span></span>
-                  </span>
+      <!-- 2-Panel split: Defne analytics SOL // Customer hekzagon SAĞ -->
+      <div class="grid lg:grid-cols-2 gap-4 mb-4">
+        <!-- SOL: Defne ANALYTICS_COMPLETE -->
+        <div class="hud-frame full-corners" style="padding: 18px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">▸ OPERATÖR // DEFNE / ANALYTICS_COMPLETE</div>
+          <div class="flex items-start gap-3">
+            <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid var(--primary); background: rgba(76, 215, 246, 0.1);">
+              <img src="/characters/defne.png" alt="Defne" style="width: 100%; height: 100%; object-fit: contain;" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-baseline gap-2 mb-1.5 flex-wrap">
+                <span class="font-bold text-sm" style="color: var(--tertiary);">DEFNE</span>
+                <span class="font-hud text-[9px]" style="color: var(--outline);">STRATEJİK_ANALİZ_v${b.level}</span>
+              </div>
+              <div class="text-sm leading-relaxed" style="color: var(--on-surface);">
+                Stratejist, bu yeni müşteri talebi <strong style="color: var(--primary);">yüksek öncelikli</strong>. ${defneAnalysis} Tüm veriler toplandı, onayını bekliyorum.
+              </div>
+              <button class="text-base opacity-60 hover:opacity-100 mt-2" data-action="speak-dialog" data-char-id="defne" title="Sesli oku" style="background: none; border: none; cursor: pointer; color: var(--primary);">🔊</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SAĞ: Customer INCOMING_REQUEST + hexagon -->
+        <div class="hud-frame full-corners relative" style="padding: 18px; overflow: hidden;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[10px] mb-3" style="color: var(--tertiary);">▸ INCOMING_REQUEST // ${persCode}</div>
+
+          ${p ? `
+            <div class="flex items-start gap-3">
+              <div class="flex-1 min-w-0">
+                <!-- Speech bubble -->
+                <div style="position: relative; background: rgba(76, 215, 246, 0.08); border: 1px solid rgba(76, 215, 246, 0.3); border-radius: 8px; padding: 12px 14px; margin-bottom: 12px;">
+                  <div class="text-sm italic leading-relaxed" style="color: var(--on-surface);">"${p.quote}"</div>
                 </div>
-                <div class="speech-role">${p?.role || b.industry}</div>
+                <div class="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <div class="font-bold text-sm">${p.name}</div>
+                    <div class="font-hud text-[9px]" style="color: var(--outline);">${p.role.toUpperCase()}</div>
+                  </div>
+                  <button class="text-base opacity-60 hover:opacity-100" data-action="speak-dialog" data-char-id="${b.id}" title="Sesli oku" style="background: none; border: none; cursor: pointer; color: var(--primary);">🔊</button>
+                </div>
               </div>
-              <button class="text-lg opacity-60 hover:opacity-100" data-action="speech-replay-current" title="Tekrar dinle" style="background: none; border: none; cursor: pointer;">🔊</button>
-            </div>
 
-            <div class="speech-progress">
-              ${dialog.map((_, i) => `<div class="speech-dot ${i <= sc.step ? 'active' : ''}"></div>`).join('')}
-            </div>
-
-            <div class="speech-text" id="speech-text">${sc.typed}${sc.typing ? '<span class="typewriter-cursor"></span>' : ''}</div>
-          </div>
-
-          <div class="speech-controls">
-            ${sc.typing ? `
-              <button class="btn-ghost text-sm" data-action="speech-skip">⏩ Atla</button>
-            ` : !lastStep ? `
-              <button class="btn-primary flex-1" data-action="speech-next" style="font-family: 'Courier New', monospace; letter-spacing: 0.1em;">
-                DEVAM ▸
-              </button>
-              <span class="tap-hint">[ TAP ]</span>
-            ` : `
-              <button class="btn-ghost text-sm" data-action="speech-replay">↻ Tekrar Dinle</button>
-              <button class="btn-primary flex-1" data-action="start-wizard" style="font-family: 'Courier New', monospace; letter-spacing: 0.1em;">
-                STRATEJİ KUR ▸
-              </button>
-            `}
-          </div>
-        </div>
-
-        <div class="character-stage">
-          <div class="character-aura" style="--aura-color: ${mood === 'warm' ? 'rgba(245,158,11,0.3)' : mood === 'pink' ? 'rgba(236,72,153,0.3)' : mood === 'green' ? 'rgba(16,185,129,0.3)' : 'rgba(6,182,212,0.3)'};"></div>
-          <div class="character-shadow"></div>
-          <div style="position: relative; display: inline-block;">
-            <div class="speaking-dots"><span></span><span></span><span></span></div>
-            ${portraitOf(b.id) ? `
-              <div class="character-portrait character-figure ${sc.typing ? 'talking' : ''}">
-                <img src="${portraitOf(b.id)}" alt="${p?.name || b.client}" onerror="this.style.display='none';this.parentElement.innerHTML += '<div style=\\'font-size: 120px; display:flex; align-items:center; justify-content:center; height:100%;\\'>${p?.avatar || b.icon}</div>';">
+              <!-- Hexagon character frame -->
+              <div class="customer-hex-frame" style="width: 120px; height: 120px;">
+                ${portraitOf(b.id) ? `<img src="${portraitOf(b.id)}" alt="${p.name}" />` : `<div style="display: flex; align-items: center; justify-content: center; height: 100%; font-size: 60px;">${p.avatar}</div>`}
               </div>
-            ` : `<div class="character-figure ${sc.typing ? 'talking' : ''}">${p?.avatar || b.icon}</div>`}
-            <div class="speaking-mouth"></div>
-          </div>
-          ${sc.typing ? `<div class="mood-emoji">💬</div>` : `<div class="mood-emoji">${moodEmojis[mood]}</div>`}
+            </div>
+          ` : ''}
         </div>
       </div>
 
-      <div class="grid grid-cols-3 gap-3 mt-4">
-        <div class="glass p-3 text-center">
-          <div class="text-[10px] text-slate-500 font-mono">HEDEF</div>
-          <div class="text-xs font-bold text-cyan-300 mt-1">🎯 ${b.goal}</div>
+      <!-- 4 info card: HEDEF, SÜRE, BÜTÇE, ÖDÜL -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-5">
+        <div class="hud-frame" style="padding: 14px;">
+          <div class="font-hud text-[9px] mb-1" style="color: var(--outline);">▸ HEDEF</div>
+          <div class="text-sm font-bold" style="color: var(--primary);">${b.goal}</div>
         </div>
-        <div class="glass p-3 text-center">
-          <div class="text-[10px] text-slate-500 font-mono">SÜRE</div>
-          <div class="text-xs font-bold mt-1">⏱ ${b.duration}</div>
+        <div class="hud-frame" style="padding: 14px;">
+          <div class="font-hud text-[9px] mb-1" style="color: var(--outline);">▸ SÜRE</div>
+          <div class="text-sm font-bold">${b.duration}</div>
         </div>
-        <div class="glass p-3 text-center">
-          <div class="text-[10px] text-slate-500 font-mono">ÖDÜL</div>
-          <div class="text-xs font-bold text-amber-300 mt-1">💎 ${b.rewards.xp} XP</div>
+        <div class="hud-frame" style="padding: 14px;">
+          <div class="font-hud text-[9px] mb-1" style="color: var(--outline);">▸ BÜTÇE</div>
+          <div class="font-hud-data text-base" style="color: var(--tertiary);">₺${b.budget.toLocaleString('tr-TR')}</div>
+        </div>
+        <div class="hud-frame" style="padding: 14px;">
+          <div class="font-hud text-[9px] mb-1" style="color: var(--outline);">▸ ÖDÜL</div>
+          <div class="font-hud-data text-base" style="color: var(--secondary);">+${b.rewards.xp} XP · ₺${b.rewards.baseMoney.toLocaleString('tr-TR')}</div>
         </div>
       </div>
+
+      <!-- KAMPANYAYI KUR amber CTA -->
+      <button class="mission-btn-primary" data-action="start-wizard" style="font-size: 14px; padding: 14px 20px;">▸ KAMPANYAYI KUR</button>
     </div>
   `;
 }
