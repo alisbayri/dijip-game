@@ -4020,45 +4020,52 @@ function renderAuth() {
 function renderLeaderboard() {
   const lb = state.leaderboard;
   return `
-    <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <button class="btn-ghost mb-6" data-action="${state.authUser ? 'back-dashboard' : 'back-auth'}">← Geri</button>
-      <div class="text-center mb-8">
-        <div class="text-6xl mb-3">🏆</div>
-        <h2 class="text-4xl lg:text-5xl font-black gradient-text">Lider Tablosu</h2>
-        <p class="text-slate-400 mt-2">Tüm oyuncular arasında en başarılılar</p>
+    <div class="max-w-5xl mx-auto px-4 lg:px-8 py-4 lg:py-6 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="${state.authUser ? 'back-dashboard' : 'back-auth'}">← KOMUTA</button>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">▸ LİDERLİK_TABLOSU // GLOBAL_RANK_V1</div>
+      </div>
+
+      <div class="mb-5">
+        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ TÜM OPERATÖRLER</div>
+        <h2 class="text-2xl lg:text-3xl font-black mt-1">| LİDERLİK TABLOSU</h2>
+        <p class="font-hud text-[10px] mt-1" style="color: var(--outline);">EN YÜKSEK GELİRE SAHİP AJANLAR</p>
       </div>
 
       ${lb === null ? `
-        <div class="glass-strong p-10 text-center">
+        <div class="hud-frame full-corners p-10 text-center">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
           <div class="spinner mx-auto"></div>
-          <p class="text-slate-400 mt-4">Yükleniyor...</p>
+          <p class="font-hud text-xs mt-4" style="color: var(--outline);">FETCHING_DATA...</p>
         </div>
       ` : lb.length === 0 ? `
-        <div class="glass-strong p-10 text-center">
+        <div class="hud-frame full-corners p-10 text-center">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
           <div class="text-4xl mb-3">🌱</div>
           <p class="text-slate-300">Henüz tablo boş. İlk kampanyayı tamamlayan sen ol!</p>
         </div>
       ` : `
-        <div class="glass-strong overflow-hidden">
-          <div class="grid grid-cols-12 gap-2 px-5 py-3 border-b border-white/10 text-xs text-slate-400 uppercase tracking-wider font-semibold">
-            <div class="col-span-1">#</div>
-            <div class="col-span-4">Oyuncu</div>
-            <div class="col-span-2 text-center">Kampanya</div>
-            <div class="col-span-2 text-center">Ort. Skor</div>
-            <div class="col-span-3 text-right">Toplam Gelir</div>
+        <div class="hud-frame full-corners overflow-hidden">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="grid grid-cols-12 gap-2 px-5 py-3 border-b font-hud text-[10px]" style="border-color: rgba(76, 215, 246, 0.2); color: var(--outline);">
+            <div class="col-span-1">RANK</div>
+            <div class="col-span-4">OPERATÖR</div>
+            <div class="col-span-2 text-center">GÖREV</div>
+            <div class="col-span-2 text-center">ORT. SKOR</div>
+            <div class="col-span-3 text-right">TOPLAM_KASA</div>
           </div>
           ${lb.map((p, i) => `
-            <div class="grid grid-cols-12 gap-2 px-5 py-4 border-b border-white/5 last:border-0 items-center ${state.authUser?.name === p.name ? 'bg-purple-500/10' : ''}">
+            <div class="grid grid-cols-12 gap-2 px-5 py-3 border-b last:border-0 items-center" style="border-color: rgba(255, 255, 255, 0.04); ${state.authUser?.name === p.name ? 'background: rgba(76, 215, 246, 0.08);' : ''}">
               <div class="col-span-1 font-black ${i === 0 ? 'text-amber-300 text-xl' : i === 1 ? 'text-slate-300 text-lg' : i === 2 ? 'text-orange-400 text-lg' : 'text-slate-500'}">
-                ${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : i + 1}
+                ${i === 0 ? '🥇' : i === 1 ? '🥈' : i === 2 ? '🥉' : '#' + (i + 1)}
               </div>
               <div class="col-span-4">
-                <div class="font-bold">${p.name}${state.authUser?.name === p.name ? ' <span class="text-xs text-purple-300">(sen)</span>' : ''}</div>
-                <div class="text-xs text-slate-400">Seviye ${p.level} · ${p.threeStar}× 3 yıldız</div>
+                <div class="font-bold text-sm">${p.name}${state.authUser?.name === p.name ? ' <span class="font-hud text-[10px]" style="color: var(--primary);">[SEN]</span>' : ''}</div>
+                <div class="font-hud text-[9px]" style="color: var(--outline);">LV ${p.level} · ${p.threeStar}× ★★★</div>
               </div>
-              <div class="col-span-2 text-center font-bold">${p.completed}</div>
-              <div class="col-span-2 text-center font-bold text-cyan-300">${p.avgScore}</div>
-              <div class="col-span-3 text-right font-black text-emerald-400">₺${p.totalRev.toLocaleString('tr-TR')}</div>
+              <div class="col-span-2 text-center font-hud-data text-sm">${p.completed}</div>
+              <div class="col-span-2 text-center font-hud-data text-cyan-300 text-sm">${p.avgScore}</div>
+              <div class="col-span-3 text-right font-hud-data text-emerald-400 text-sm">₺${p.totalRev.toLocaleString('tr-TR')}</div>
             </div>
           `).join('')}
         </div>
@@ -4104,30 +4111,36 @@ function renderWelcome() {
     <div class="min-h-screen flex items-center justify-center p-6 lg:p-10">
       <div class="max-w-3xl w-full fade-in">
         <div class="text-center mb-8">
-          <div class="text-xs uppercase tracking-[0.3em] text-slate-500 mb-2">Bayri Dijital Ajans · 1. Gün</div>
-          <h1 class="text-3xl lg:text-4xl font-black gradient-text mb-2">Ajansına Hoş Geldin</h1>
+          <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ AJAN_INIT_PROTOCOL // GÜN_01</div>
+          <h1 class="text-3xl lg:text-4xl font-black gradient-text mb-2">Bayri Dijital Ajans'a Hoş Geldin</h1>
           <div class="flex justify-center gap-1.5 mt-4">
-            ${ONBOARD.map((_, i) => `<div class="h-1 w-12 rounded-full ${i <= onboardStep ? 'bg-gradient-to-r from-cyan-400 to-purple-500' : 'bg-white/10'}"></div>`).join('')}
+            ${ONBOARD.map((_, i) => `<div class="h-1 w-12 rounded-full" style="background: ${i <= onboardStep ? 'linear-gradient(90deg, #06b6d4, #4cd7f6)' : 'rgba(255,255,255,0.1)'}; ${i <= onboardStep ? 'box-shadow: 0 0 8px rgba(76,215,246,0.5);' : ''}"></div>`).join('')}
           </div>
+          <div class="font-hud text-[10px] mt-2" style="color: var(--outline);">STEP ${onboardStep + 1} / ${ONBOARD.length}</div>
         </div>
 
-        <div class="dialog-row mb-6">
-          <div class="char-avatar">${step.avatar}</div>
-          <div class="char-meta">
-            <div class="char-tag">
-              <span class="char-name">Defne</span>
-              <span class="char-role">Ajans Direktörü</span>
+        <div class="hud-frame full-corners mb-6" style="padding: 22px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">▸ OPERATÖR // DEFNE_BRIEFING_v${onboardStep + 1}</div>
+          <div class="flex items-start gap-4">
+            <div style="width: 64px; height: 64px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid var(--primary); background: rgba(76, 215, 246, 0.1);">
+              <img src="/characters/defne.png" alt="Defne" style="width: 100%; height: 100%; object-fit: contain;" />
             </div>
-            <div class="char-line space-y-3">
-              ${step.lines.map(l => `<p>${l}</p>`).join('')}
+            <div class="flex-1">
+              <div class="flex items-baseline gap-2 mb-2">
+                <span class="font-bold text-sm" style="color: var(--tertiary);">DEFNE</span>
+                <span class="font-hud text-[9px]" style="color: var(--outline);">AJANS_DİREKTÖRÜ</span>
+              </div>
+              <div class="space-y-3 text-sm leading-relaxed">
+                ${step.lines.map(l => `<p>${l}</p>`).join('')}
+              </div>
             </div>
           </div>
         </div>
 
         <div class="flex justify-between items-center">
-          ${onboardStep > 0 ? `<button class="btn-ghost" data-action="onboard-prev">← Geri</button>` : '<div></div>'}
-          <div class="text-xs text-slate-500">Adım ${onboardStep + 1} / ${ONBOARD.length}</div>
-          <button class="btn-primary" data-action="onboard-next">${last ? 'Ajansa Gir →' : 'Devam →'}</button>
+          ${onboardStep > 0 ? `<button class="btn-ghost" data-action="onboard-prev">← GERİ</button>` : '<div></div>'}
+          <button class="btn-primary" data-action="onboard-next" style="font-family: 'Courier Prime', monospace; letter-spacing: 0.2em; ${last ? 'background: linear-gradient(135deg, #ffb95f, #e79400); color: #1a1a27;' : ''}">${last ? '▸ AJANSA GİR' : 'DEVAM →'}</button>
         </div>
       </div>
     </div>
@@ -4709,10 +4722,8 @@ function renderMiniGame() {
   const canConfirm = picked.length === mg.pick;
 
   return `
-    <div class="max-w-5xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <div class="flex items-center gap-3 mb-2">
-        <span class="badge badge-purple">🎯 MİNİ GÖREV — ${channelInfo.icon} ${channelInfo.name}</span>
-      </div>
+    <div class="max-w-5xl mx-auto px-5 lg:px-8 py-6 lg:py-10 fade-in">
+      <div class="font-hud text-[10px] mb-2" style="color: var(--primary);">▸ MİNİ GÖREV // ${channelInfo.icon} ${channelInfo.name.toUpperCase().replace(/\s+/g, '_')} // ${mg.channel.toUpperCase()}_TACTIC</div>
       <h2 class="text-2xl lg:text-3xl font-bold mb-1">${mg.title}</h2>
       <p class="text-slate-400 text-sm mb-6">${mg.subtitle}</p>
 
@@ -5241,16 +5252,17 @@ function renderQuiz() {
     <div class="max-w-3xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <div class="flex items-center justify-between mb-4">
         <div>
-          <div class="text-xs text-slate-400">${l.icon} ${l.title}</div>
-          <h2 class="text-2xl font-bold">Quiz · Soru ${qi + 1} / ${qs.length}</h2>
+          <div class="font-hud text-[10px]" style="color: var(--outline);">${l.icon} ${l.title.toUpperCase()}</div>
+          <h2 class="text-xl lg:text-2xl font-bold">QUIZ // SORU_${String(qi + 1).padStart(2, '0')} / ${String(qs.length).padStart(2, '0')}</h2>
         </div>
-        <button class="btn-ghost text-sm" data-action="back-lesson">← Dersi Tekrar Oku</button>
+        <button class="btn-ghost text-sm" data-action="back-lesson">← DERSE DÖN</button>
       </div>
 
-      <div class="progress-track mb-6"><div class="progress-fill" style="width: ${((qi) / qs.length) * 100}%"></div></div>
+      <div class="energy-bar mb-6"><div class="energy-fill" style="width: ${((qi) / qs.length) * 100}%"></div></div>
 
-      <div class="glass-strong p-6 lg:p-8 mb-6">
-        <div class="text-xs text-slate-400 uppercase tracking-wider mb-3">Soru ${qi + 1}</div>
+      <div class="hud-frame full-corners p-6 lg:p-8 mb-6">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">▸ SORU ${String(qi + 1).padStart(2, '0')} // BİLİŞSEL_TESPİT</div>
         <h3 class="text-xl lg:text-2xl font-bold mb-6">${q.q}</h3>
         <div class="space-y-2">
           ${q.opts.map((opt, i) => {
@@ -5331,12 +5343,13 @@ function renderCheckpoint() {
   return `
     <div class="max-w-3xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <div class="text-center mb-4">
-        <span class="badge badge-purple">📝 ARA SINAV · ${qi + 1}/${qs.length}</span>
+        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ ARA SINAV // KONTROL_NOKTASI ${String(qi + 1).padStart(2, '0')} / ${String(qs.length).padStart(2, '0')}</div>
       </div>
-      <div class="progress-track mb-6"><div class="progress-fill" style="width: ${(qi / qs.length) * 100}%"></div></div>
+      <div class="energy-bar mb-6"><div class="energy-fill" style="width: ${(qi / qs.length) * 100}%"></div></div>
 
-      <div class="glass-strong p-6 lg:p-8 mb-6">
-        <div class="text-xs text-slate-400 mb-2">📖 ${q.lessonTitle}</div>
+      <div class="hud-frame full-corners p-6 lg:p-8 mb-6">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="font-hud text-[10px] mb-2" style="color: var(--outline);">▸ KAYNAK: ${q.lessonTitle.toUpperCase()}</div>
         <h3 class="text-xl lg:text-2xl font-bold mb-6">${q.q}</h3>
         <div class="space-y-2">
           ${q.opts.map((opt, i) => {
@@ -5496,10 +5509,10 @@ function renderLessonFeedback() {
   if (!l) { state.screen = 'academy'; return renderAcademy(); }
   const fb = state.lessonFb || {};
   return `
-    <div class="max-w-2xl mx-auto px-5 lg:px-8 py-8 lg:py-12 fade-in">
+    <div class="max-w-2xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <div class="text-center mb-6">
         <div class="text-5xl mb-2">${l.icon}</div>
-        <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Dersi Tamamladın</div>
+        <div class="font-hud text-[10px] mb-1" style="color: var(--primary);">▸ MODÜL_TAMAMLANDI // FEEDBACK_PROTOCOL</div>
         <h2 class="text-3xl lg:text-4xl font-black gradient-text">${l.title}</h2>
       </div>
 
@@ -5654,18 +5667,20 @@ function renderAdmin() {
   const a = state.admin || {};
   const tab = a.tab || 'overview';
   return `
-    <div class="max-w-7xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
-        <div>
-          <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Yönetim Paneli</div>
-          <h2 class="text-3xl lg:text-4xl font-black gradient-text">🛡️ Admin</h2>
-        </div>
-        <button class="btn-ghost" data-action="back-dashboard">← Oyuna Dön</button>
+    <div class="max-w-7xl mx-auto px-4 lg:px-8 py-4 lg:py-6 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="back-dashboard">← KOMUTA</button>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">▸ ADMIN_PANEL // HQ-ALPHA // BÖLGE: AKTİF</div>
       </div>
 
-      <div class="flex gap-1 mb-6 p-1 rounded-xl bg-white/5 max-w-2xl flex-wrap">
-        ${[['overview','📊 Genel'],['users','👥 Kullanıcılar'],['lessons','🎓 Eğitim Etkisi'],['surveys','📋 Final Anket']].map(([k,l]) => `
-          <button class="flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all ${tab===k ? 'bg-gradient-to-r from-cyan-500 to-purple-500 text-white' : 'text-slate-400 hover:text-white'}" data-action="admin-tab" data-tab="${k}">${l}</button>
+      <div class="mb-5">
+        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ YÖNETİM_PANELİ // OPS_CONSOLE</div>
+        <h2 class="text-2xl lg:text-3xl font-black mt-1">| ADMIN KOMUTA MERKEZİ</h2>
+      </div>
+
+      <div class="flex gap-1 mb-6 p-1 rounded bg-white/5 max-w-3xl flex-wrap font-hud text-[10px]">
+        ${[['overview','📊 GENEL'],['users','👥 AJAN'],['lessons','🎓 EĞİTİM_ETKİSİ'],['surveys','📋 FİNAL_ANKET']].map(([k,l]) => `
+          <button class="flex-1 py-2 px-3 font-bold transition-all ${tab===k ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40' : 'text-slate-500 hover:text-white border border-transparent'}" style="border-radius: 4px; letter-spacing: 0.15em;" data-action="admin-tab" data-tab="${k}">${l}</button>
         `).join('')}
       </div>
 
@@ -6114,7 +6129,7 @@ function renderSurvey() {
   return `
     <div class="max-w-3xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
       <div class="text-center mb-6">
-        <span class="badge badge-purple">📋 FİNAL ANKET · ${s.step + 1}/${SURVEY_STEPS.length}</span>
+        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ FİNAL ANKET // STEP ${String(s.step + 1).padStart(2, '0')} / ${String(SURVEY_STEPS.length).padStart(2, '0')}</div>
       </div>
       <div class="progress-track mb-6"><div class="progress-fill" style="width: ${(s.step / SURVEY_STEPS.length) * 100}%"></div></div>
 
@@ -6174,9 +6189,10 @@ function renderVictory() {
   const threeStarCount = p.history.filter(h => h.stars === 3).length;
   return `
     <div class="max-w-5xl mx-auto px-5 lg:px-8 py-12 lg:py-16 fade-in text-center">
+      <div class="font-hud text-[10px] mb-4" style="color: var(--primary); letter-spacing: 0.4em;">▸ MISSION_GENESIS_COMPLETE // RANK_PROMOTION</div>
       <div class="text-8xl lg:text-9xl mb-4">🏆</div>
-      <h1 class="text-5xl md:text-6xl lg:text-7xl font-black gradient-text mb-3">Dijital Pazarlama Ustası!</h1>
-      <p class="text-xl text-slate-300 mb-2">Tebrikler ${p.name}</p>
+      <h1 class="text-5xl md:text-6xl lg:text-7xl font-black gradient-text mb-3">DİJİTAL PAZARLAMA USTASI</h1>
+      <p class="text-xl text-slate-300 mb-2">TEBRİKLER, OPERATÖR <span style="color: var(--primary);">${p.name?.toUpperCase()}</span></p>
       <p class="text-slate-400 mb-10 max-w-lg mx-auto">${BRIEFS.length} brief'i tamamladın. Junior pazarlamacıdan ajans kurucusuna giden yolu kapattın. Artık gerçek dünyada karar verirken hangi sinyale dikkat edeceğini biliyorsun.</p>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-8">
@@ -6233,15 +6249,19 @@ function renderAgency() {
   const monthly = totalSalary();
 
   return `
-    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-6 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="back-dashboard">← KOMUTA</button>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">▸ AJANS_YÖNETİMİ // STAFF_PROTOCOL</div>
+      </div>
 
-      <div class="glass-strong p-6 mb-6">
+      <div class="hud-frame full-corners mb-5" style="padding: 22px;">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
         <div class="flex items-start justify-between flex-wrap gap-4">
           <div>
-            <div class="text-xs text-slate-400 uppercase tracking-wider mb-1">Ajans Yönetimi</div>
-            <h2 class="text-3xl font-black gradient-text">🏢 ${p.agencyName || p.name + ' Digital'}</h2>
-            <p class="text-slate-400 mt-1">Uzman ekibini kur, kampanya performansını yükselt</p>
+            <div class="font-hud text-[10px] mb-1" style="color: var(--primary);">▸ AJANS YÖNETİMİ // OPERATIONS_HUB</div>
+            <h2 class="text-2xl lg:text-3xl font-black gradient-text">${p.agencyName || p.name + ' DIGITAL'}</h2>
+            <p class="font-hud text-[10px] mt-1" style="color: var(--outline);">UZMAN_KADRO_PROTOKOLÜ // PERFORMANS_BOOST</p>
           </div>
           <div class="flex gap-3">
             <div class="metric-card text-center px-5 py-3">
@@ -6346,13 +6366,15 @@ function renderReport() {
   else if (avgCrScore < 50) weaknesses.push('Kreatif yaklaşım — B2B özellik, B2C duygu/sosyal kanıt');
 
   return `
-    <div class="max-w-6xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-6 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="back-dashboard">← KOMUTA</button>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">▸ PERFORMANS_RAPORU // ANALYTICS_HUB</div>
+      </div>
 
-      <div class="text-center mb-8">
-        <div class="text-6xl lg:text-7xl mb-3">📊</div>
-        <h2 class="text-4xl lg:text-5xl font-black gradient-text">Performans Raporu</h2>
-        <p class="text-slate-400 mt-2">${p.name} · Seviye ${levelFromXP(p.xp)} · ${history.length} kampanya</p>
+      <div class="mb-5">
+        <div class="font-hud text-[10px]" style="color: var(--primary);">▸ OPERATÖR // ${p.name?.toUpperCase().replace(/\s+/g, '_')} · LV ${levelFromXP(p.xp)} · ${history.length}_MISSIONS</div>
+        <h2 class="text-2xl lg:text-3xl font-black mt-1">| KAMPANYA PERFORMANS RAPORU</h2>
       </div>
 
       <div class="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
