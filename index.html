@@ -288,6 +288,243 @@
   details summary::-webkit-details-marker { display: none; }
   .scroll-hide::-webkit-scrollbar { display: none; }
 
+  /* ========== STITCH LAB NETWORK GRAPH ========== */
+  .lab-network {
+    position: relative;
+    width: 100%;
+    height: 320px;
+    background: rgba(0, 0, 0, 0.4);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .lab-network::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(76, 215, 246, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(76, 215, 246, 0.06) 1px, transparent 1px);
+    background-size: 32px 32px;
+    pointer-events: none;
+  }
+
+  /* Akademi module cards */
+  .academy-mod-card {
+    position: relative;
+    background: rgba(18, 18, 31, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 4px;
+    padding: 16px;
+    transition: all 0.2s;
+    cursor: pointer;
+  }
+  .academy-mod-card:hover {
+    border-color: rgba(76, 215, 246, 0.5);
+    box-shadow: 0 0 24px rgba(76, 215, 246, 0.2);
+    transform: translateY(-3px);
+  }
+  .academy-mod-card.completed { border-color: rgba(16, 185, 129, 0.4); }
+  .academy-mod-card .mod-status-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--outline);
+  }
+  .academy-mod-card .mod-progress-segments {
+    display: flex;
+    gap: 4px;
+    margin-top: 12px;
+  }
+  .academy-mod-card .mod-progress-segments > div {
+    flex: 1;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 2px;
+  }
+  .academy-mod-card .mod-progress-segments > div.filled {
+    background: linear-gradient(90deg, #06b6d4, #4cd7f6);
+    box-shadow: 0 0 6px rgba(76, 215, 246, 0.5);
+  }
+
+  /* Terminal log feed */
+  .terminal-feed {
+    position: fixed;
+    bottom: 40px; right: 12px;
+    width: 280px; max-width: 90vw;
+    max-height: 140px;
+    background: rgba(13, 13, 25, 0.92);
+    border: 1px solid rgba(76, 215, 246, 0.2);
+    border-radius: 4px;
+    padding: 8px 12px;
+    z-index: 30;
+    font-family: 'Courier Prime', monospace;
+    font-size: 10px;
+    color: var(--outline);
+    overflow-y: auto;
+    transition: opacity 0.3s;
+    pointer-events: none;
+  }
+  .terminal-feed.visible { opacity: 1; pointer-events: auto; }
+  .terminal-feed.hidden { opacity: 0; }
+  .terminal-feed .line { margin-bottom: 2px; line-height: 1.4; }
+  .terminal-feed .line .ts { color: var(--outline-variant); margin-right: 6px; }
+  .terminal-feed .line .ok { color: #10b981; }
+  .terminal-feed .line .warn { color: #fbbf24; }
+  .terminal-feed .line .info { color: var(--primary); }
+  @media (max-width: 768px) { .terminal-feed { display: none; } }
+
+  /* ========== STITCH SIDEBAR NAV ========== */
+  .strategic-sidebar {
+    position: fixed;
+    left: 0;
+    top: 32px; bottom: 28px;
+    width: 200px;
+    background: rgba(13, 13, 25, 0.95);
+    backdrop-filter: blur(20px);
+    border-right: 1px solid rgba(76, 215, 246, 0.15);
+    z-index: 40;
+    padding: 20px 0;
+    transform: translateX(-100%);
+    transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    overflow-y: auto;
+  }
+  .strategic-sidebar.open { transform: translateX(0); }
+  @media (min-width: 1024px) {
+    .strategic-sidebar { transform: translateX(0); }
+    #app.with-sidebar { padding-left: 200px; }
+  }
+  .strategic-sidebar .sb-header {
+    padding: 0 18px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    margin-bottom: 12px;
+  }
+  .strategic-sidebar .sb-title {
+    font-family: 'Courier Prime', monospace;
+    font-size: 11px;
+    color: var(--primary);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .strategic-sidebar .sb-sub {
+    font-family: 'Courier Prime', monospace;
+    font-size: 9px;
+    color: var(--outline);
+    letter-spacing: 0.15em;
+    margin-top: 2px;
+  }
+  .strategic-sidebar .sb-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    color: var(--on-surface-variant);
+    cursor: pointer;
+    transition: all 0.15s;
+    border-left: 2px solid transparent;
+    font-size: 13px;
+  }
+  .strategic-sidebar .sb-item:hover {
+    background: rgba(76, 215, 246, 0.06);
+    color: var(--primary);
+  }
+  .strategic-sidebar .sb-item.active {
+    background: rgba(76, 215, 246, 0.1);
+    color: var(--primary);
+    border-left-color: var(--primary);
+  }
+  .strategic-sidebar .sb-item .material-symbols-outlined { font-size: 18px; }
+
+  .sb-toggle {
+    position: fixed;
+    top: 36px; left: 8px;
+    z-index: 45;
+    width: 36px; height: 36px;
+    background: rgba(13, 13, 25, 0.85);
+    border: 1px solid rgba(76, 215, 246, 0.3);
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--primary);
+  }
+  @media (min-width: 1024px) { .sb-toggle { display: none; } }
+
+  /* customer hex frame */
+  .customer-hex-frame {
+    width: 90px; height: 90px;
+    flex-shrink: 0;
+    position: relative;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: rgba(76, 215, 246, 0.1);
+    overflow: hidden;
+  }
+  .customer-hex-frame::before {
+    content: '';
+    position: absolute;
+    inset: 2px;
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    background: rgba(0,0,0,0.4);
+    z-index: 0;
+  }
+  .customer-hex-frame img {
+    position: relative;
+    z-index: 1;
+    width: 100%; height: 100%;
+    object-fit: contain;
+  }
+
+  /* ========== STITCH PERSONA CARD ========== */
+  .persona-card {
+    background: rgba(18, 18, 31, 0.6);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 4px;
+    padding: 12px 10px;
+    text-align: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .persona-card:hover {
+    border-color: rgba(76, 215, 246, 0.3);
+    transform: translateY(-3px);
+  }
+  .persona-card.selected {
+    border-color: var(--primary);
+    background: rgba(76, 215, 246, 0.08);
+    box-shadow: 0 0 24px rgba(76, 215, 246, 0.25);
+  }
+  .persona-frame {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    overflow: hidden;
+    margin-bottom: 4px;
+  }
+  .persona-frame img {
+    width: 100%; height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .persona-card.selected .persona-frame {
+    border: 2px solid var(--primary);
+    box-shadow: inset 0 0 12px rgba(76, 215, 246, 0.3);
+  }
+  .persona-selected-badge {
+    position: absolute;
+    top: 6px; right: 6px;
+    color: var(--primary);
+    filter: drop-shadow(0 0 6px rgba(76, 215, 246, 0.8));
+  }
+  .persona-selected-badge .material-symbols-outlined { font-size: 24px; }
+
   /* ========== STITCH HEXAGON LOGO ========== */
   .hex-logo {
     position: relative;
@@ -678,11 +915,13 @@
   }
   .btn-game:hover::before { left: 100%; }
 
-  /* Mission complete overlay */
+  /* Mission complete overlay — Stitch sci-fi koridor */
   .mission-complete-overlay {
     position: fixed;
     inset: 0;
-    background: rgba(5, 5, 15, 0.93);
+    background:
+      linear-gradient(180deg, rgba(5,5,15,0.4) 0%, rgba(5,5,15,0.85) 50%, rgba(5,5,15,1) 100%),
+      radial-gradient(ellipse at 50% 100%, rgba(76, 215, 246, 0.15) 0%, transparent 50%);
     backdrop-filter: blur(8px);
     z-index: 200;
     display: flex;
@@ -690,6 +929,35 @@
     align-items: center;
     justify-content: center;
     animation: overlayFadeIn 0.4s ease;
+    overflow: hidden;
+  }
+  .mission-complete-overlay::before {
+    /* perspective grid (koridor zemini) */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(76, 215, 246, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(76, 215, 246, 0.12) 1px, transparent 1px);
+    background-size: 80px 80px;
+    transform: perspective(800px) rotateX(70deg) translateZ(0) translateY(20%);
+    transform-origin: center bottom;
+    opacity: 0.6;
+    pointer-events: none;
+    animation: corridorPan 8s linear infinite;
+  }
+  @keyframes corridorPan {
+    from { background-position: 0 0; }
+    to { background-position: 0 80px; }
+  }
+  .mission-complete-overlay::after {
+    /* yan duvar feneri ışıkları */
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(90deg, rgba(76, 215, 246, 0.08) 0%, transparent 30%, transparent 70%, rgba(76, 215, 246, 0.08) 100%);
+    pointer-events: none;
   }
   @keyframes overlayFadeIn {
     from { opacity: 0; }
@@ -1289,6 +1557,20 @@
   }
   .audio-toggle:hover { border-color: #fbbf24; }
   .audio-toggle.off { opacity: 0.5; border-color: rgba(244, 63, 94, 0.4); }
+
+  /* Reaction split (desktop): karakter solda, speech bubble sağda */
+  @media (min-width: 768px) {
+    .reaction-scene.reaction-split .reaction-split-stage {
+      min-height: 380px;
+      max-width: 50%;
+      margin-right: auto;
+    }
+    .reaction-scene.reaction-split > div:last-child > .speech-bubble-comic {
+      max-width: 50%;
+      margin-left: auto;
+      transform: translateY(-200px);
+    }
+  }
 
   /* ============ CUSTOMER REACTION SCENE ============ */
   .reaction-scene {
@@ -1904,36 +2186,61 @@ window.tts = (function() {
 // ============== GAME DATA ==============
 
 const AUDIENCES = {
-  geniş: {
-    id: 'geniş', icon: '🌐',
-    name: 'Geniş Kitle',
-    desc: 'Yaş 18-65, tüm Türkiye, ilgi alanı tanımsız',
-    tag: 'Erişim odaklı'
+  erken_kalkanlar: {
+    id: 'erken_kalkanlar', icon: '☀️',
+    name: 'Erken Kalkanlar',
+    code: 'PERSONA_01',
+    portrait: '/characters/erken_kalkanlar.png',
+    desc: 'Sabah rutini olan, disiplinli, premium kahve/breakfast tüketen',
+    tag: 'Rutin odaklı'
   },
-  lokal_ilgi: {
-    id: 'lokal_ilgi', icon: '📍',
-    name: 'Yerel + İlgi Alanı',
-    desc: '5 km yarıçap, ilgi bazlı (kahve, kafe, brunch)',
-    tag: 'Mahalle/yerel'
+  dijital_gocebeler: {
+    id: 'dijital_gocebeler', icon: '💻',
+    name: 'Dijital Göçebeler',
+    code: 'PERSONA_02',
+    portrait: '/characters/dijital_gocebeler.png',
+    desc: 'Remote-mobile, teknoloji-tutkunu, sosyal medya ağır kullanıcısı',
+    tag: 'Mobil öncelikli'
   },
-  profesyonel: {
-    id: 'profesyonel', icon: '💼',
-    name: 'B2B Profesyonel',
-    desc: 'LinkedIn iş ünvanı, şirket büyüklüğü, sektör',
-    tag: 'Karar verici'
+  gurme_damaklar: {
+    id: 'gurme_damaklar', icon: '🍷',
+    name: 'Gurme Damaklar',
+    code: 'PERSONA_03',
+    portrait: '/characters/gurme_damaklar.png',
+    desc: 'Premium tüketici, deneyim-odaklı, lüks markaları takip eden',
+    tag: 'Premium niş'
   },
-  genç_mobil: {
-    id: 'genç_mobil', icon: '📱',
-    name: 'Genç + Mobil Öncelikli',
-    desc: '18-30, mobil cihaz, sosyal medya ağır kullanıcısı',
-    tag: 'Gen-Z / Y'
+  gen_z_gezginler: {
+    id: 'gen_z_gezginler', icon: '🎒',
+    name: 'Gen-Z Gezginler',
+    code: 'PERSONA_04',
+    portrait: '/characters/gen_z_gezginler.png',
+    desc: '18-25 yaş, mobil-öncelikli, TikTok/Instagram doğal kullanıcı',
+    tag: 'Genç/sosyal'
   },
-  yüksek_niyet: {
-    id: 'yüksek_niyet', icon: '🎯',
-    name: 'Yüksek Satın Alma Niyeti',
-    desc: 'Arama geçmişi, sepet terkçi, mevcut müşteri benzeri',
-    tag: 'Yeniden hedefleme'
-  }
+  mahalle_sakinleri: {
+    id: 'mahalle_sakinleri', icon: '🏘️',
+    name: 'Mahalle Sakinleri',
+    code: 'PERSONA_05',
+    portrait: '/characters/mahalle_sakinleri.png',
+    desc: '5 km yarıçap, yerel ilgi alanı, mahalleyle güvenli bağ',
+    tag: 'Yerel/topluluk'
+  },
+  // Eski IDs — geriye uyumluluk için alias
+  geniş: { id: 'geniş', icon: '🌐', name: 'Geniş Kitle', desc: 'Yaş 18-65, tüm Türkiye', tag: 'Erişim odaklı' },
+  lokal_ilgi: { id: 'lokal_ilgi', icon: '📍', name: 'Yerel + İlgi', desc: '5 km yarıçap, ilgi bazlı', tag: 'Mahalle/yerel' },
+  profesyonel: { id: 'profesyonel', icon: '💼', name: 'B2B Profesyonel', desc: 'İş ünvanı bazlı', tag: 'Karar verici' },
+  genç_mobil: { id: 'genç_mobil', icon: '📱', name: 'Genç Mobil', desc: '18-30, mobil', tag: 'Gen-Z/Y' },
+  yüksek_niyet: { id: 'yüksek_niyet', icon: '🎯', name: 'Yüksek Niyet', desc: 'Arama+retargeting', tag: 'Retargeting' }
+};
+
+// Eski persona id → yeni id mapping (mevcut brief'ler için)
+const AUDIENCE_ALIAS = {
+  'lokal_ilgi':   'mahalle_sakinleri',
+  'profesyonel':  'gurme_damaklar',
+  'genç_mobil':   'gen_z_gezginler',
+  'yüksek_niyet': 'gurme_damaklar',
+  'geniş':        'dijital_gocebeler'
 };
 
 const CREATIVES = {
@@ -3040,6 +3347,155 @@ function hexLogo(letter = 'D', size = '') {
     </div>
   `;
 }
+// ========== TERMINAL LOG FEED ==========
+const terminalLog = (function() {
+  const lines = [];
+  let el = null;
+  function ensureEl() {
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'terminal-feed hidden';
+      el.id = 'terminal-feed';
+      document.body.appendChild(el);
+    }
+    return el;
+  }
+  function ts() {
+    const d = new Date();
+    return `${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}:${String(d.getSeconds()).padStart(2,'0')}`;
+  }
+  function add(type, msg) {
+    lines.unshift({ ts: ts(), type, msg });
+    if (lines.length > 8) lines.length = 8;
+    render();
+  }
+  function render() {
+    const e = ensureEl();
+    e.innerHTML = lines.map(l => `<div class="line"><span class="ts">[${l.ts}]</span><span class="${l.type}">${l.msg}</span></div>`).join('');
+  }
+  function show() { ensureEl().classList.remove('hidden'); ensureEl().classList.add('visible'); }
+  function hide() { ensureEl().classList.add('hidden'); ensureEl().classList.remove('visible'); }
+  return { add, show, hide,
+    ok: (m) => add('ok', m),
+    info: (m) => add('info', m),
+    warn: (m) => add('warn', m)
+  };
+})();
+
+// ========== LAB NETWORK GRAPH ==========
+function startLabNetwork(containerId) {
+  const wrap = document.getElementById(containerId);
+  if (!wrap) return;
+  const c = document.createElement('canvas');
+  c.style.width = '100%'; c.style.height = '100%';
+  wrap.appendChild(c);
+  const ctx = c.getContext('2d');
+  let nodes = [];
+  function resize() {
+    c.width = wrap.clientWidth; c.height = wrap.clientHeight;
+    const n = Math.min(24, Math.floor((c.width * c.height) / 18000));
+    nodes = [];
+    for (let i = 0; i < n; i++) nodes.push({
+      x: Math.random() * c.width, y: Math.random() * c.height,
+      vx: (Math.random() - 0.5) * 0.3, vy: (Math.random() - 0.5) * 0.3,
+      r: 2 + Math.random() * 2,
+      pulse: Math.random()
+    });
+  }
+  resize();
+  let raf;
+  function loop() {
+    if (!wrap.isConnected) return;
+    ctx.clearRect(0, 0, c.width, c.height);
+    nodes.forEach((n, i) => {
+      n.x += n.vx; n.y += n.vy;
+      if (n.x < 0 || n.x > c.width) n.vx *= -1;
+      if (n.y < 0 || n.y > c.height) n.vy *= -1;
+      n.pulse += 0.02;
+      for (let j = i + 1; j < nodes.length; j++) {
+        const o = nodes[j];
+        const dx = n.x - o.x, dy = n.y - o.y, d = Math.sqrt(dx*dx + dy*dy);
+        if (d < 140) {
+          ctx.beginPath();
+          ctx.moveTo(n.x, n.y); ctx.lineTo(o.x, o.y);
+          ctx.strokeStyle = `rgba(76, 215, 246, ${0.18 * (1 - d / 140)})`;
+          ctx.lineWidth = 1;
+          ctx.stroke();
+        }
+      }
+      const glow = 0.6 + Math.sin(n.pulse) * 0.4;
+      ctx.beginPath();
+      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(76, 215, 246, ${glow})`;
+      ctx.shadowBlur = 8; ctx.shadowColor = '#4cd7f6';
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    });
+    raf = requestAnimationFrame(loop);
+  }
+  loop();
+  window.addEventListener('resize', resize);
+}
+
+function renderSidebar() {
+  if (!state.authUser || state.screen === 'auth' || state.screen === 'welcome') {
+    const existing = document.getElementById('strategic-sidebar');
+    if (existing) existing.remove();
+    const tog = document.getElementById('sb-toggle');
+    if (tog) tog.remove();
+    document.getElementById('app')?.classList.remove('with-sidebar');
+    return;
+  }
+  const lessonsDone = Object.values(state.player?.lessons || {}).filter(l => l?.completed).length;
+  const SIDEBAR_ITEMS = [
+    { id: 'dashboard',  icon: 'dashboard',         label: 'Komuta Merkezi', show: true },
+    { id: 'academy',    icon: 'school',            label: `Akademi (${lessonsDone}/${LESSONS.length})`, show: true },
+    { id: 'lab',        icon: 'science',           label: 'Laboratuvar', show: true },
+    { id: 'leaderboard',icon: 'leaderboard',       label: 'Lider Tablosu', show: true },
+    { id: 'agency',     icon: 'apartment',         label: 'Ajansım', show: agencyUnlocked() },
+    { id: 'report',     icon: 'analytics',         label: 'Performans', show: (state.player.completedBriefs?.length || 0) >= 3 },
+    { id: 'certificate',icon: 'workspace_premium', label: 'Sertifikam', show: lessonsDone >= 6 && (state.player.completedBriefs?.length || 0) >= 8 },
+    { id: 'admin',      icon: 'shield',            label: 'Admin', show: !!state.authUser?.isAdmin }
+  ];
+  let bar = document.getElementById('strategic-sidebar');
+  if (!bar) {
+    bar = document.createElement('aside');
+    bar.id = 'strategic-sidebar';
+    bar.className = 'strategic-sidebar';
+    document.body.appendChild(bar);
+  }
+  bar.innerHTML = `
+    <div class="sb-header">
+      <div class="sb-title">▸ STRATEJİK HUD</div>
+      <div class="sb-sub">OPERASYONEL HUD V4.0</div>
+    </div>
+    ${SIDEBAR_ITEMS.filter(x => x.show).map(x => `
+      <div class="sb-item ${state.screen === x.id ? 'active' : ''}" data-action="sb-nav" data-id="${x.id}">
+        <span class="material-symbols-outlined">${x.icon}</span>
+        <span>${x.label}</span>
+      </div>
+    `).join('')}
+    <div style="margin-top: auto; padding: 16px 18px; border-top: 1px solid rgba(255,255,255,0.05); font-family: 'Courier Prime', monospace; font-size: 9px; color: var(--outline); letter-spacing: 0.2em;">
+      <div class="sb-item" data-action="logout" style="padding: 8px 0;">
+        <span class="material-symbols-outlined">logout</span>
+        <span>ÇIKIŞ</span>
+      </div>
+    </div>
+  `;
+  let tog = document.getElementById('sb-toggle');
+  if (!tog) {
+    tog = document.createElement('button');
+    tog.id = 'sb-toggle';
+    tog.className = 'sb-toggle';
+    tog.innerHTML = '<span class="material-symbols-outlined">menu</span>';
+    tog.addEventListener('click', () => {
+      document.getElementById('strategic-sidebar')?.classList.toggle('open');
+    });
+    document.body.appendChild(tog);
+  }
+  document.getElementById('app')?.classList.add('with-sidebar');
+}
+
 function updateHudFooter() {
   const lvlEl = document.getElementById('hud-lvl');
   if (lvlEl) lvlEl.textContent = state.player?.xp != null ? `${String(levelFromXP(state.player.xp)).padStart(2,'0')}` : '--';
@@ -3152,7 +3608,13 @@ function xpToNext(xp) {
 // ============== SIMULATION ==============
 
 function similarityScore(actual, ideal, type) {
-  if (type === 'audience' || type === 'creative') return actual === ideal ? 100 : 35;
+  if (type === 'audience') {
+    // Alias çözümü: eski brief id'leri yeni persona id'leriyle eşleşir
+    const a = AUDIENCE_ALIAS[actual] || actual;
+    const i = AUDIENCE_ALIAS[ideal] || ideal;
+    return a === i ? 100 : 35;
+  }
+  if (type === 'creative') return actual === ideal ? 100 : 35;
   if (type === 'channels') {
     let diff = 0;
     Object.keys(ideal).forEach(k => { diff += Math.abs((actual[k] || 0) - (ideal[k] || 0)); });
@@ -3301,7 +3763,7 @@ function render() {
   if (state.screen !== 'simulating' && state.screen !== 'customer-reaction') {
     document.querySelectorAll('.mission-complete-overlay').forEach(el => { el.remove(); });
   }
-  setTimeout(updateHudFooter, 0);
+  setTimeout(() => { updateHudFooter(); renderSidebar(); }, 0);
   const screens = {
     auth: renderAuth,
     welcome: renderWelcome,
@@ -3779,7 +4241,7 @@ function renderBriefDetail() {
   const p = PERSONAS[b.id];
   const rarity = b.level >= 4 ? 'legendary' : b.level === 3 ? 'epic' : b.level === 2 ? 'rare' : 'common';
   const rarityLabel = { legendary: 'EFSANEVI', epic: 'EPİK', rare: 'NADİR', common: 'NORMAL' }[rarity];
-  const missionId = 'DJP-' + String(BRIEFS.indexOf(b) + 1).padStart(3, '0');
+  const missionId = missionCode(b.id);
 
   // Customer scene state init
   if (!state.customerScene || state.customerScene.briefId !== b.id) {
@@ -3979,23 +4441,29 @@ function renderWizard() {
 
 function renderAudienceStep() {
   const sel = state.decisions.audience;
+  // Sadece yeni 5 portreli personayı göster
+  const NEW_IDS = ['erken_kalkanlar', 'dijital_gocebeler', 'gurme_damaklar', 'gen_z_gezginler', 'mahalle_sakinleri'];
+  const list = NEW_IDS.map(id => AUDIENCES[id]);
   return `
     <div>
+      <div class="font-hud text-[10px] text-cyan-400 mb-2">▸ STEP 01 // HEDEF_KİTLE_SEÇİMİ</div>
       <h3 class="text-xl lg:text-2xl font-bold mb-2">Hedef kitleyi kim olsun?</h3>
-      <p class="text-slate-400 text-sm mb-5">Brief'i tekrar oku: ${state.currentBrief.description}</p>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
-        ${Object.values(AUDIENCES).map(a => `
-          <div class="option-card ${sel === a.id ? 'selected' : ''}" data-action="select-audience" data-id="${a.id}">
-            <div class="flex items-start gap-3">
-              <div class="text-3xl">${a.icon}</div>
-              <div class="flex-1">
-                <div class="font-bold mb-0.5">${a.name}</div>
-                <div class="text-xs text-slate-400 mb-2">${a.desc}</div>
-                <span class="badge text-[10px]">${a.tag}</span>
+      <p class="text-slate-400 text-sm mb-5 italic">"${state.currentBrief.description}"</p>
+      <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+        ${list.map(a => {
+          const isSelected = sel === a.id;
+          return `
+            <div class="persona-card ${isSelected ? 'selected' : ''}" data-action="select-audience" data-id="${a.id}">
+              <div class="persona-frame">
+                <img src="${a.portrait}" alt="${a.name}" onerror="this.style.display='none';this.parentElement.innerHTML += '<div style=\\'font-size:48px;display:flex;align-items:center;justify-content:center;height:100%;\\'>${a.icon}</div>';" />
+                ${isSelected ? '<div class="persona-selected-badge"><span class="material-symbols-outlined">check_circle</span></div>' : ''}
               </div>
+              <div class="font-hud text-[9px] text-slate-500 mt-2">${a.code || ''}</div>
+              <div class="font-bold text-sm leading-tight">${a.name}</div>
+              <div class="text-[11px] text-slate-400 mt-1 leading-snug">${a.desc}</div>
             </div>
-          </div>
-        `).join('')}
+          `;
+        }).join('')}
       </div>
     </div>
   `;
@@ -4182,6 +4650,10 @@ function renderResults() {
           `).join('')}
         </div>
       ` : ''}
+
+      <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">▸ KAMPANYA PERFORMANS RAPORU // REF_ID: ${missionCode(b.id)}</div>
+
+      ${renderPerformanceCharts(r, b)}
 
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         <div class="metric-card text-center">
@@ -4665,14 +5137,16 @@ function renderCustomerReaction() {
   }).join('') : '';
 
   return `
-    <div class="reaction-scene">
+    <div class="reaction-scene reaction-split">
       <div class="reaction-bg stars-${stars}"></div>
 
-      <div class="reaction-stars" style="position: relative; z-index: 1;">
+      <div class="font-hud text-[10px] mb-2" style="position: relative; z-index: 1; color: var(--primary); letter-spacing: 0.3em; padding: 8px 16px;">▸ CLIENT_SATISFACTION_MAXIMIZED</div>
+
+      <div class="reaction-stars" style="position: relative; z-index: 1; margin-bottom: 12px;">
         ${starsHtml}
       </div>
 
-      <div class="reaction-stage">
+      <div class="reaction-stage reaction-split-stage">
         ${burst ? `<div class="star-burst">${burst}</div>` : ''}
         <div style="position: relative; display: inline-block;">
           <div class="speaking-dots"><span></span><span></span><span></span></div>
@@ -5243,15 +5717,36 @@ function renderLabStrategies(result) {
 
 function renderLab() {
   const lab = state.lab || {};
+  setTimeout(() => startLabNetwork('lab-net-wrap'), 100);
   return `
-    <div class="max-w-4xl mx-auto px-5 lg:px-8 py-8 lg:py-10 fade-in">
-      <button class="btn-ghost mb-6" data-action="back-dashboard">← Brief Kutusu</button>
-
-      <div class="text-center mb-6">
-        <div class="text-6xl mb-3">🧪</div>
-        <h2 class="text-4xl lg:text-5xl font-black gradient-text">AI Lab</h2>
-        <p class="text-slate-400 mt-2">Ada ile çalışma alanı</p>
+    <div class="max-w-5xl mx-auto px-4 lg:px-8 py-6 lg:py-10 fade-in">
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="back-dashboard">← KOMUTA MERKEZİ</button>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">
+          DIJIP | <span style="color: var(--primary);">LAB_B4</span> // ALGORITHM_OPTIMIZATION
+        </div>
       </div>
+
+      <!-- Lab header with network -->
+      <div class="hud-frame full-corners mb-6" style="padding: 0; overflow: hidden;">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div id="lab-net-wrap" class="lab-network"></div>
+        <div style="padding: 14px 18px; border-top: 1px solid rgba(76, 215, 246, 0.15);">
+          <div class="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <div class="font-hud text-[11px]" style="color: var(--primary); letter-spacing: 0.3em;">▸ AI LAB // ADA_CORE_v2.1</div>
+              <div class="text-xs mt-1" style="color: var(--outline);">SYSTEM STATUS: <span style="color: #10b981;">CALIBRATING</span> · THREAD_ID: 996-A2</div>
+            </div>
+            <div class="flex gap-4">
+              <div><div class="font-hud text-[9px]" style="color: var(--outline);">NEURAL_LOAD</div><div class="font-hud-data text-cyan-300 text-sm">84.2%</div></div>
+              <div><div class="font-hud text-[9px]" style="color: var(--outline);">CORE_TEMP</div><div class="font-hud-data text-cyan-300 text-sm">32°C</div></div>
+              <div><div class="font-hud text-[9px]" style="color: var(--outline);">LATENCY</div><div class="font-hud-data text-cyan-300 text-sm">12ms</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mb-6">${characterDialog('ada', lab.loading ? 'lab_analyzing' : 'lab_intro')}</div>
 
       <div class="mb-6">${characterDialog('ada', lab.loading ? 'lab_analyzing' : 'lab_intro')}</div>
 
@@ -6042,6 +6537,24 @@ async function handleAction(action, id, el) {
       state.authStarted = false;
       render();
       break;
+    case 'sb-nav': {
+      document.getElementById('strategic-sidebar')?.classList.remove('open');
+      const target = el.dataset.id;
+      if (target === 'dashboard') state.screen = 'dashboard';
+      else if (target === 'academy') state.screen = 'academy';
+      else if (target === 'lab') { state.lab = state.lab || {}; state.screen = 'lab'; }
+      else if (target === 'leaderboard') {
+        state.screen = 'leaderboard'; state.leaderboard = null; render();
+        api('GET', '/api/leaderboard', null, null).then(r => { state.leaderboard = r.leaderboard; render(); }).catch(() => { state.leaderboard = []; render(); });
+        return;
+      }
+      else if (target === 'agency') state.screen = 'agency';
+      else if (target === 'report') state.screen = 'report';
+      else if (target === 'certificate') state.screen = 'certificate';
+      else if (target === 'admin') { state.admin = { tab: 'overview', stats: null, users: null, surveys: null }; state.screen = 'admin'; render(); api('GET', '/api/admin/stats').then(r => { state.admin.stats = r; render(); }).catch(() => {}); return; }
+      render();
+      break;
+    }
     case 'speak-dialog': {
       const charId = el.dataset.charId;
       const wrap = el.closest('.dialog-row');
@@ -6537,21 +7050,132 @@ function launchCampaign() {
   }, 3000);
 }
 
+// ========== STITCH PERFORMANCE CHARTS (SVG) ==========
+function renderPerformanceCharts(r, b) {
+  const channels = state.decisions?.channels || { google: 25, meta: 25, email: 25, seo: 25 };
+  // Platform performance: kanal % × (overall factor) — bar chart
+  const channelList = [
+    { id: 'google', label: 'GOOGLE', color: '#4cd7f6' },
+    { id: 'meta', label: 'META', color: '#8b5cf6' },
+    { id: 'email', label: 'EMAIL', color: '#ec4899' },
+    { id: 'seo', label: 'SEO', color: '#10b981' }
+  ];
+  const factor = r.score / 100;
+  const channelData = channelList.map(c => ({
+    ...c,
+    pct: channels[c.id] || 0,
+    perf: Math.round((channels[c.id] || 0) * (0.6 + factor * 0.9))
+  }));
+  const maxPerf = Math.max(50, ...channelData.map(c => c.perf));
+
+  // Daily conversion trend: synthetic 7-day chart
+  const days = 7;
+  const trend = [];
+  let base = 8;
+  for (let i = 0; i < days; i++) {
+    base += (Math.random() - 0.3) * (5 + factor * 8);
+    base = Math.max(2, base);
+    trend.push(Math.round(base));
+  }
+  const trendMax = Math.max(...trend, 30);
+  const trendW = 400, trendH = 80;
+  const points = trend.map((v, i) => {
+    const x = (i / (days - 1)) * trendW;
+    const y = trendH - (v / trendMax) * trendH;
+    return `${x},${y}`;
+  }).join(' ');
+
+  return `
+    <div class="grid lg:grid-cols-2 gap-3 mb-6">
+      <div class="hud-frame full-corners" style="padding: 16px;">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">PLATFORM PERFORMANCE // BAR_CHART_V2</div>
+        <div class="space-y-2">
+          ${channelData.map(c => `
+            <div class="flex items-center gap-2">
+              <div class="font-hud text-[10px]" style="color: var(--outline); width: 56px;">${c.label}</div>
+              <div style="flex: 1; height: 14px; background: rgba(255,255,255,0.05); position: relative; border-radius: 2px; overflow: hidden;">
+                <div style="height: 100%; width: ${(c.perf / maxPerf) * 100}%; background: linear-gradient(90deg, ${c.color}aa, ${c.color}); box-shadow: 0 0 8px ${c.color}80; transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);"></div>
+              </div>
+              <div class="font-hud-data text-xs" style="color: ${c.color}; width: 40px; text-align: right;">${c.perf}%</div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+
+      <div class="hud-frame full-corners" style="padding: 16px;">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div class="font-hud text-[10px] mb-3" style="color: var(--primary);">DAILY CONVERSION TREND // 7_DAY</div>
+        <svg viewBox="0 0 400 100" preserveAspectRatio="none" style="width: 100%; height: 100px;">
+          <defs>
+            <linearGradient id="trend-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="#4cd7f6" stop-opacity="0.5"/>
+              <stop offset="100%" stop-color="#4cd7f6" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <polygon points="0,80 ${points} ${trendW},80" fill="url(#trend-grad)"/>
+          <polyline points="${points}" fill="none" stroke="#4cd7f6" stroke-width="2" style="filter: drop-shadow(0 0 4px #4cd7f6);"/>
+          ${trend.map((v, i) => {
+            const x = (i / (days - 1)) * trendW;
+            const y = trendH - (v / trendMax) * trendH;
+            return `<circle cx="${x}" cy="${y}" r="3" fill="#fbbf24" style="filter: drop-shadow(0 0 4px #fbbf24);"/>`;
+          }).join('')}
+        </svg>
+        <div class="flex justify-between mt-2 font-hud text-[9px]" style="color: var(--outline);">
+          ${trend.map((_, i) => `<span>D${i+1}</span>`).join('')}
+        </div>
+      </div>
+    </div>
+
+    <div class="hud-frame mb-6" style="padding: 12px 16px;">
+      <div class="flex items-center justify-between mb-1.5">
+        <div class="font-hud text-[10px]" style="color: var(--outline);">BÜTÇE KULLANIMI</div>
+        <div class="font-hud-data text-xs" style="color: var(--primary);">${Math.round(r.score * 0.92)}% VERİMLİ · ₺${(b.budget * r.score / 100 / 100 * 92).toFixed(0)} / ${b.budget.toLocaleString('tr-TR')}</div>
+      </div>
+      <div style="height: 6px; background: rgba(255,255,255,0.05); border-radius: 999px; overflow: hidden;">
+        <div style="height: 100%; width: ${Math.min(100, r.score * 0.92)}%; background: linear-gradient(90deg, #06b6d4, #4cd7f6); box-shadow: 0 0 8px rgba(76, 215, 246, 0.6);"></div>
+      </div>
+    </div>
+  `;
+}
+
 function showMissionComplete(result) {
   const success = result.stars >= 2;
   const overlay = document.createElement('div');
   overlay.className = 'mission-complete-overlay';
+  const stars = '★★★'.split('').map((s,i)=>i<result.stars?'★':'☆').join('');
   overlay.innerHTML = `
-    <div class="mc-tag">▸ ${success ? 'GÖREV BAŞARIYLA TAMAMLANDI' : 'GÖREV TAMAMLANDI'} ◂</div>
-    <div class="mc-title ${success ? '' : 'fail'}">${success ? 'MISSION COMPLETE' : 'MISSION FAILED'}</div>
-    <div class="mc-subtitle">★ ${result.stars} / 3 · ${result.score} PUAN</div>
+    <div style="position: relative; z-index: 2; text-align: center; max-width: 560px; width: 90%;">
+      <div class="font-hud text-[11px] mb-3" style="color: var(--primary); letter-spacing: 0.4em;">▸ OPERATÖR_YANITLIYOR ◂</div>
+      <div class="mc-title ${success ? '' : 'fail'}">${success ? 'MISSION COMPLETE' : 'MISSION FAILED'}</div>
+      <div class="hud-frame full-corners mt-8" style="padding: 28px 24px; background: rgba(18, 18, 31, 0.85);">
+        <span class="corner-tr"></span><span class="corner-bl"></span>
+        <div style="font-size: 42px; color: ${result.stars === 3 ? '#fbbf24' : '#06b6d4'}; filter: drop-shadow(0 0 12px currentColor); margin-bottom: 8px;">${stars}</div>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">TOPLAM SKOR</div>
+        <div style="font-family: 'Courier Prime', monospace; font-size: 36px; font-weight: 700; color: var(--primary); margin-bottom: 16px;">${result.score.toLocaleString('tr-TR')}</div>
+        <div class="grid grid-cols-3 gap-3 mt-4">
+          <div class="hud-frame" style="padding: 10px 6px;">
+            <div class="font-hud text-[9px]" style="color: var(--outline);">XP</div>
+            <div style="font-family: 'Courier Prime', monospace; font-weight: 700; color: var(--primary); font-size: 16px;">+${result.xpEarned}</div>
+          </div>
+          <div class="hud-frame" style="padding: 10px 6px;">
+            <div class="font-hud text-[9px]" style="color: var(--outline);">KASA</div>
+            <div style="font-family: 'Courier Prime', monospace; font-weight: 700; color: var(--tertiary); font-size: 16px;">+${(result.moneyEarned/1000).toFixed(1)}K₺</div>
+          </div>
+          <div class="hud-frame" style="padding: 10px 6px;">
+            <div class="font-hud text-[9px]" style="color: var(--outline);">İTİBAR</div>
+            <div style="font-family: 'Courier Prime', monospace; font-weight: 700; color: ${result.repDelta >= 0 ? '#10b981' : '#f43f5e'}; font-size: 16px;">${result.repDelta >= 0 ? '+' : ''}${result.repDelta}</div>
+          </div>
+        </div>
+      </div>
+    </div>
   `;
   document.body.appendChild(overlay);
   setTimeout(() => {
     overlay.style.transition = 'opacity 0.5s';
     overlay.style.opacity = '0';
     setTimeout(() => overlay.remove(), 500);
-  }, 2200);
+  }, 3000);
 }
 
 function toast(msg) {
