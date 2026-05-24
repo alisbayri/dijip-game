@@ -4534,44 +4534,57 @@ function renderWizard() {
   else if (step === 3) { content = renderReviewStep(); defneTip = 'Yayına almadan önce kendine sor: "Bu üç karar birbiriyle uyumlu mu?" Bir hata düzeltebilirsin, üç hata bütçeyi yer.'; }
 
   return `
-    <div class="max-w-5xl mx-auto px-5 lg:px-8 py-8 lg:py-10">
-      <div class="flex items-center justify-between mb-2 fade-in">
-        <div>
-          <div class="text-xs text-slate-400">${b.icon} ${b.client}</div>
-          <h2 class="text-2xl lg:text-3xl font-bold">Kampanya Stratejisi</h2>
+    <div class="max-w-6xl mx-auto px-4 lg:px-8 py-4 lg:py-6">
+      <!-- Üst nav: Vazgeç + step counter + Mission code -->
+      <div class="flex items-center justify-between mb-3 fade-in flex-wrap gap-2">
+        <button class="btn-ghost text-sm" data-action="back">← İPTAL ET</button>
+        <div class="font-hud text-[10px]" style="color: var(--outline);">
+          <span style="color: var(--primary);">STEP ${String(step + 1).padStart(2, '0')}</span> / ${String(steps.length).padStart(2, '0')} // ${missionCode(b.id)} // STRATEJİ_BUILDER
         </div>
-        <button class="btn-ghost text-sm" data-action="back">← Vazgeç</button>
       </div>
 
-      <div class="flex items-center gap-2 mb-6 fade-in">
-        ${steps.map((s, i) => `
-          <div class="flex-1">
-            <div class="h-1 rounded-full ${i <= step ? 'bg-gradient-to-r from-cyan-400 to-purple-500' : 'bg-white/10'}"></div>
-            <div class="text-xs mt-1.5 ${i === step ? 'text-white font-semibold' : 'text-slate-500'}">${s}</div>
-          </div>
-        `).join('')}
-      </div>
-
-      ${defneTip ? `
-        <div class="dialog-row fade-in mb-5">
-          <div class="char-avatar">👩‍💼</div>
-          <div class="char-meta">
-            <div class="char-tag">
-              <span class="char-name">Defne</span>
-              <span class="char-role">İpucu</span>
+      <!-- Stitch step indicator: numerated 4-step horizontal -->
+      <div class="hud-frame mb-4" style="padding: 12px 18px;">
+        <div class="flex items-center gap-2 fade-in">
+          ${steps.map((s, i) => `
+            <div class="flex-1 flex items-center gap-2">
+              <div style="width: 24px; height: 24px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: 'Courier Prime', monospace; font-weight: 700; font-size: 11px; ${i < step ? 'background: var(--primary); color: #003640; box-shadow: 0 0 8px rgba(76, 215, 246, 0.5);' : i === step ? 'background: var(--tertiary); color: #1a1a27; box-shadow: 0 0 10px rgba(255, 185, 95, 0.5);' : 'background: rgba(255, 255, 255, 0.05); color: var(--outline); border: 1px solid rgba(255, 255, 255, 0.1);'}">${i < step ? '✓' : String(i + 1).padStart(2, '0')}</div>
+              <div class="flex-1 min-w-0">
+                <div class="font-hud text-[9px] truncate" style="color: ${i === step ? 'var(--tertiary)' : i < step ? 'var(--primary)' : 'var(--outline)'};">${s.toUpperCase()}</div>
+              </div>
+              ${i < steps.length - 1 ? `<div style="flex: 1; height: 1px; background: ${i < step ? 'var(--primary)' : 'rgba(255,255,255,0.08)'};"></div>` : ''}
             </div>
-            <div class="char-line">${defneTip}</div>
+          `).join('')}
+        </div>
+      </div>
+
+      <!-- Defne ipucu HUD frame -->
+      ${defneTip ? `
+        <div class="hud-frame full-corners mb-4 fade-in" style="padding: 14px 18px;">
+          <span class="corner-tr"></span><span class="corner-bl"></span>
+          <div class="flex items-start gap-3">
+            <div style="width: 40px; height: 40px; border-radius: 50%; overflow: hidden; flex-shrink: 0; border: 2px solid var(--tertiary); background: rgba(255, 185, 95, 0.1);">
+              <img src="/characters/defne.png" alt="Defne" style="width: 100%; height: 100%; object-fit: contain;" />
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="flex items-baseline gap-2 mb-1">
+                <span class="font-bold text-xs" style="color: var(--tertiary);">DEFNE</span>
+                <span class="font-hud text-[9px]" style="color: var(--outline);">MENTOR_İPUCU // STEP_${String(step + 1).padStart(2, '0')}</span>
+              </div>
+              <div class="text-xs leading-relaxed" style="color: var(--on-surface);">${defneTip}</div>
+            </div>
           </div>
         </div>
       ` : ''}
 
       <div class="fade-in">${content}</div>
 
-      <div class="flex gap-3 mt-8">
-        ${step > 0 ? `<button class="btn-ghost" data-action="wiz-prev">← Geri</button>` : ''}
+      <!-- Footer nav buttons -->
+      <div class="flex gap-3 mt-6 items-center">
+        ${step > 0 ? `<button class="btn-ghost font-hud text-xs" data-action="wiz-prev" style="letter-spacing: 0.2em; padding: 12px 20px;">← GERİ</button>` : ''}
         <div class="flex-1"></div>
-        <button class="btn-primary" data-action="wiz-next" id="wiz-next-btn">
-          ${step < 3 ? 'Devam →' : '🚀 Kampanyayı Yayınla'}
+        <button class="mission-btn-primary" data-action="wiz-next" id="wiz-next-btn" style="padding: 14px 32px; font-size: 13px; width: auto;">
+          ${step < 3 ? '▸ İLERLE' : '⚡ SİSTEMİ AKTİVE ET'}
         </button>
       </div>
     </div>
