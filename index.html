@@ -1644,7 +1644,8 @@
   /* Reaction split (desktop): karakter solda, speech bubble sağda */
   @media (min-width: 768px) {
     .reaction-scene.reaction-split .reaction-split-stage {
-      min-height: 380px;
+      min-height: 320px;
+      max-height: 45vh;
       max-width: 50%;
       margin-right: auto;
     }
@@ -1655,15 +1656,29 @@
     }
   }
 
+  /* Action bar: butonu daima viewport dibinde tut → off-screen kalmasın */
+  .reaction-action-bar {
+    position: sticky;
+    bottom: 16px;
+    z-index: 5;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: linear-gradient(180deg, transparent 0%, rgba(5, 5, 15, 0.95) 40%, rgba(5, 5, 15, 1) 100%);
+    padding: 24px 4px 12px;
+    margin: 0 -4px;
+  }
+
   /* ============ CUSTOMER REACTION SCENE ============ */
   .reaction-scene {
     min-height: calc(100vh - 40px);
     display: flex;
     flex-direction: column;
-    justify-content: space-between;
-    padding: 20px;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 16px 20px 0;
     position: relative;
-    overflow: hidden;
+    overflow: visible;
   }
   .reaction-bg {
     position: absolute;
@@ -5611,7 +5626,7 @@ function renderCustomerReaction() {
           </div>
         </div>
 
-        <div class="flex gap-2 items-center">
+        <div class="reaction-action-bar">
           ${cr.typing ? `
             <button class="btn-ghost text-sm flex-1" data-action="reaction-skip">⏩ ATLA</button>
           ` : !lastStep ? `
